@@ -8,21 +8,27 @@ import { ICONS } from "../utils/icons.js";
 
 // The full onboarding sequence. Each step maps to a .wizard-step section
 // in onboarding.html by matching `id` against its data-step-id.
+// Agent selection ("integration") comes BEFORE Restaurant Details ("knowledge")
+// so the details step can render the right rules (ordering vs reservation).
 export const WIZARD_STEPS = [
   { id: "business", icon: "building", label: "Business Details" },
-  { id: "knowledge", icon: "book", label: "Knowledge Base" },
-  { id: "integration", icon: "storefront", label: "Service Setup" },
+  { id: "integration", icon: "storefront", label: "Choose Agent" },
+  { id: "knowledge", icon: "book", label: "Restaurant Details" },
+  { id: "rules-hours", icon: "clock", label: "Rules & Hours" },
   { id: "voice-greeting", icon: "mic", label: "Parcera AI Setup" },
-  { id: "payments", icon: "creditCard", label: "Payment Method" },
   { id: "launch", icon: "rocket", label: "Launch" },
 ];
 
 export function renderStepper(container, currentIndex, options = {}) {
-  const { completed = new Set(), onNavigate = null, maxReachable = currentIndex } = options;
+  const { completed = new Set(), onNavigate = null, maxReachable = currentIndex, skipped = new Set() } = options;
   container.innerHTML = "";
 
-  WIZARD_STEPS.forEach((step, index) => {
-    if (index > 0) {
+  // Only render steps that aren't skipped (e.g. the menu step for reservations),
+  // keeping each step's original index for its completion/reachability state.
+  const visible = WIZARD_STEPS.map((step, index) => ({ step, index })).filter(({ step }) => !skipped.has(step.id));
+
+  visible.forEach(({ step, index }, visibleIndex) => {
+    if (visibleIndex > 0) {
       const connector = document.createElement("span");
       connector.className = "wizard-stepper__connector";
       container.appendChild(connector);

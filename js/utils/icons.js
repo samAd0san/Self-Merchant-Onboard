@@ -9,6 +9,7 @@ const strokeIcon = (paths) =>
 
 export const ICONS = {
   mail: strokeIcon('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>'),
+  qr: strokeIcon('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3"/><path d="M21 14v7h-7"/><path d="M17.5 17.5h.01"/>'),
   calendar: strokeIcon(
     '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/>'
   ),
@@ -86,4 +87,6 @@ export const ICONS = {
   spinner: strokeIcon('<path d="M21 12a9 9 0 1 1-6.219-8.56"/>'),
   // Book/knowledge-base mark for the Knowledge Base wizard node
   book: strokeIcon('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>'),
+  // Pencil for "enter manually" affordances
+  pencil: strokeIcon('<path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3Z"/>'),
 };
