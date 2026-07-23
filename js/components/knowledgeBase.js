@@ -62,6 +62,7 @@ export function addFaq(containerEl, { removable = true, prefill = null } = {}) {
     titleEl: block.querySelector(".faq-block__title"),
     body: block.querySelector(".faq-block__body"),
     ignore: "[data-role='remove-faq']",
+    collapsed: true,
     getSummary: () => {
       const q = questionInput.value.trim();
       return q ? esc(q) : "<em>New question</em>";
