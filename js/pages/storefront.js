@@ -9,6 +9,7 @@ import { qs, qsa, setHidden } from "../utils/dom.js";
 import { ICONS } from "../utils/icons.js";
 import { initImageDropzone } from "../components/imageDropzone.js";
 import { initCustomSelects } from "../components/customSelect.js";
+import { addFaq } from "../components/knowledgeBase.js";
 import { initPageTransitions } from "../utils/pageTransition.js";
 import { validators as V, formatters as F, attachValidation } from "../utils/validation.js";
 
@@ -30,6 +31,8 @@ function injectStaticIcons() {
     "icon-storefront-preview-link": "link",
     "icon-save": "check",
     "icon-saved-check": "check",
+    "icon-storefront-faq": "chat",
+    "icon-sf-add-faq": "plus",
   };
   Object.entries(iconMap).forEach(([id, key]) => {
     const el = qs(`#${id}`);
@@ -53,6 +56,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Logo / Hero image dropzones (client-side preview only, no backend)
   initImageDropzone({ dropzoneId: "dropzone-logo", urlLinkId: "link-logo-url", urlInputId: "input-logo-url" });
   initImageDropzone({ dropzoneId: "dropzone-hero", urlLinkId: "link-hero-url", urlInputId: "input-hero-url" });
+
+  // FAQs — moved here from onboarding; managed anytime from the storefront config
+  const sfFaqContainer = qs("#sf-faq-container");
+  const sfAddFaqButton = qs("#btn-sf-add-faq");
+  if (sfFaqContainer && sfAddFaqButton) {
+    addFaq(sfFaqContainer, { removable: false });
+    sfAddFaqButton.addEventListener("click", () => addFaq(sfFaqContainer, { removable: true }));
+  }
 
   // Primary / Accent color pickers swatch and hex field stay in sync
   function linkColorField(swatchId, hexId) {
