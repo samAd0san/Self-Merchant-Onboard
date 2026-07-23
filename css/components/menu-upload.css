@@ -596,3 +596,203 @@
     margin-left: auto;
   }
 }
+
+/* ==========================================================================
+   Menu editor — item cards
+   Items render as an editable card grid (photo band + name + price +
+   description), mirroring the menu-review cards in operator-ui / merchant-ui.
+   ========================================================================== */
+
+/* "N items" count in the category header */
+.menu-cat__count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Responsive item grid: 1 / 2 / 3 columns as width allows */
+.menu-cat__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+/* One item card */
+.menu-item-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.menu-item-card:hover {
+  border-color: var(--brand-magenta);
+  box-shadow: 0 6px 18px rgba(25, 28, 46, 0.10);
+}
+
+/* Image band — a chosen photo, or a gradient monogram fallback (first 2 letters) */
+.menu-item-card__image {
+  position: relative;
+  width: 100%;
+  height: 92px;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-input-bg), #e6eaf4);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.menu-item-card__monogram {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #c2cae0;
+}
+
+.menu-item-card__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-item-card__photo-clear {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(25, 28, 46, 0.72);
+  color: var(--color-white);
+}
+
+.menu-item-card__photo-clear svg { width: 10px; height: 10px; }
+
+/* Remove (×) pinned to the card's top-right corner */
+.menu-item-card__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-text-muted);
+  box-shadow: 0 1px 3px rgba(25, 28, 46, 0.18);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.menu-item-card__remove:hover { color: var(--color-error); background: var(--color-white); }
+.menu-item-card__remove svg { width: 13px; height: 13px; }
+
+.menu-item-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.menu-item-card__toprow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Name reads like the card title but is editable inline */
+.menu-item-card__name {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: var(--space-1) 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  border-bottom: 1.5px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.menu-item-card__name::placeholder { color: var(--color-text-muted); font-weight: 600; }
+.menu-item-card__name:focus { outline: none; border-bottom-color: var(--blue-vivid); }
+
+.menu-item-card__price {
+  display: flex;
+  align-items: center;
+  width: 74px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  padding: 0 var(--space-2);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.menu-item-card__price:focus-within { border-color: var(--blue-vivid); box-shadow: var(--shadow-focus); }
+.menu-item-card__price-prefix { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+
+.menu-item-card__price-input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.menu-item-card__price-input:focus { outline: none; }
+
+/* Description reads like the muted subtitle; editable inline */
+.menu-item-card__desc {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--color-input-bg);
+  padding: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.menu-item-card__desc::placeholder { color: var(--color-text-muted); }
+.menu-item-card__desc:focus { outline: none; border-color: var(--blue-vivid); background: var(--color-white); }
+
+/* Dashed "Add item" tile, sized to match a card */
+.menu-cat__add-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 150px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-input-bg);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.menu-cat__add-tile:hover { border-color: var(--brand-magenta); color: var(--brand-magenta); background: var(--color-white); }
+.menu-cat__add-tile svg { width: 18px; height: 18px; }
