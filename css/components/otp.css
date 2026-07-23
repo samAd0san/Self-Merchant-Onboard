@@ -1,0 +1,118 @@
+/* ==========================================================================
+   Component: Verification Step
+   Lock icon badge, "sent to" copy, and the segmented OTP code input.
+   ========================================================================== */
+
+.verify-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: var(--space-2);
+}
+
+.verify-intro__icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fbe4f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.verify-intro__icon-badge svg {
+  width: 22px;
+  height: 22px;
+  color: var(--brand-magenta);
+}
+
+.verify-intro__copy {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.verify-intro__destination {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+/* OTP input: two groups of three boxes separated by a dash */
+.otp-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.otp-input__box {
+  width: 44px;
+  height: 48px;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.otp-input__box:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  background: var(--color-white);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Error state — applied to the whole group when the submitted code is
+   wrong or incomplete; boxes flash red and shake briefly for feedback */
+.otp-input.is-error .otp-input__box {
+  border-color: var(--color-error-border);
+  background: var(--color-error-bg);
+  animation: otp-shake 320ms ease;
+}
+
+@keyframes otp-shake {
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.otp-input__divider {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+}
+
+/* Note: pair this element with aria-live="polite" in HTML so screen
+   readers announce the countdown and "ready to resend" state changes */
+.resend-note {
+  margin-top: var(--space-2);
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.resend-note.is-error {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+@media (max-width: 380px) {
+  .otp-input {
+    gap: var(--space-1);
+  }
+
+  .otp-input__box {
+    width: 36px;
+    height: 40px;
+    font-size: var(--font-size-base);
+  }
+
+  .otp-input__divider {
+    font-size: var(--font-size-base);
+  }
+}

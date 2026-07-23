@@ -1,0 +1,598 @@
+/* ==========================================================================
+   Menu Upload
+   Repeatable menu cards for the Knowledge Base step: an upload dropzone plus
+   a "link to location" dropdown. Reuses the shared .dropzone look from
+   wizard-branding.css, with a few menu-specific tweaks.
+   ========================================================================== */
+
+/* Intro line sits tight under the "Menus" label */
+.menu-uploads__intro {
+  margin-top: calc(-1 * var(--space-2));
+  margin-bottom: var(--space-3);
+}
+
+/* One menu card, styled like the address / FAQ blocks */
+.menu-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+  background: var(--color-white);
+}
+
+.menu-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.menu-card__title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* Top row: mode switcher (left) + "link to location" picker (right), sharing
+   one line so the card stays short. Wraps on narrow screens. */
+.menu-card__toprow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* Mode switcher (Type it in / Upload / Link): only the active mode's field
+   is rendered below it, so switching never leaves empty space. Compact
+   padding/type keeps it from crowding the location picker beside it. */
+.menu-card__mode {
+  display: flex;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+.menu-card__mode .align-toggle__option {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+/* Compact "link to location" picker sharing the top row */
+.menu-card__location-field {
+  width: 160px;
+  max-width: 100%;
+  flex-shrink: 0;
+}
+
+.menu-card__location-field .custom-select__trigger {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  gap: var(--space-1);
+}
+
+/* Remove-card control turns red on hover, matching sibling blocks */
+.menu-card__remove {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 0;
+  transition: color var(--transition-fast);
+}
+
+.menu-card__remove:hover {
+  color: var(--color-error);
+}
+
+.menu-card__remove svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Compact dropzone inside the card (shorter than the branding dropzones) */
+.menu-card__dropzone {
+  min-height: 130px;
+  padding: var(--space-6) var(--space-4);
+}
+
+/* Magenta border while a file is dragged over the zone */
+.menu-card__dropzone.is-dragover {
+  border-color: var(--brand-magenta);
+}
+
+/* Preview shown once a file is chosen: thumbnail/icon + file name */
+.menu-card__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 100%;
+}
+
+.menu-card__thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+/* PDF (or other non-image) file badge */
+.menu-card__file-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--blue-ice-active);
+  color: var(--blue-vivid);
+  flex-shrink: 0;
+}
+
+.menu-card__file-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.menu-card__filename {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+/* "Add menu" trigger, matching the dashed add-location / add-FAQ buttons */
+.add-menu-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  margin-top: var(--space-3);
+  margin-left: auto;
+  padding: var(--space-2) var(--space-4);
+  background: var(--blue-ice-active);
+  border: 1px dashed var(--blue-vivid);
+  border-radius: var(--radius-md);
+  color: var(--blue-vivid);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+
+.add-menu-link:hover {
+  background: var(--blue-ice-hover);
+}
+
+.add-menu-link svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ==========================================================================
+   Structured menu editor (shared by "Type it in" and scraped-link review)
+   Categories hold item rows; each item is one dense line: photo + name +
+   price + remove. Kept compact so a whole menu stays short on screen.
+   ========================================================================== */
+
+.menu-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* One category block */
+.menu-cat {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--color-input-bg);
+}
+
+.menu-cat__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.menu-cat__name {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: var(--space-1) 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  border-bottom: 1.5px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.menu-cat__name::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.menu-cat__name:focus {
+  outline: none;
+  border-bottom-color: var(--blue-vivid);
+}
+
+.menu-cat__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.menu-cat__remove:hover {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.menu-cat__remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+.menu-cat__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* One item: photo · name · price · remove, all on a single line */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Small square photo picker; shows an image icon until a photo is added */
+.menu-item__photo {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.menu-item__photo:hover {
+  border-color: var(--blue-vivid);
+  color: var(--blue-vivid);
+}
+
+.menu-item__photo.has-photo {
+  border-style: solid;
+  border-color: var(--color-border);
+}
+
+.menu-item__photo-icon {
+  display: inline-flex;
+}
+
+.menu-item__photo-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.menu-item__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Tiny corner "×" to clear a chosen photo */
+.menu-item__photo-clear {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(25, 28, 46, 0.72);
+  color: var(--color-white);
+}
+
+.menu-item__photo-clear svg {
+  width: 9px;
+  height: 9px;
+}
+
+.menu-item__name {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.menu-item__name:focus {
+  outline: none;
+  border-color: var(--blue-vivid);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Price field with a fixed "$" prefix */
+.menu-item__price {
+  display: flex;
+  align-items: center;
+  width: 92px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  padding: 0 var(--space-2);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.menu-item__price:focus-within {
+  border-color: var(--blue-vivid);
+  box-shadow: var(--shadow-focus);
+}
+
+.menu-item__price-prefix {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.menu-item__price-input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: var(--space-2) var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.menu-item__price-input:focus {
+  outline: none;
+}
+
+.menu-item__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.menu-item__remove:hover {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.menu-item__remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* "Add item" (inside a category) and "Add category" links */
+.menu-cat__add-item,
+.menu-editor__add-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: fit-content;
+  border: none;
+  background: none;
+  padding: var(--space-1) 0;
+  color: var(--blue-vivid);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  transition: opacity var(--transition-fast);
+}
+
+.menu-cat__add-item {
+  margin-top: var(--space-2);
+}
+
+.menu-cat__add-item:hover,
+.menu-editor__add-cat:hover {
+  opacity: 0.75;
+}
+
+.menu-cat__add-item svg,
+.menu-editor__add-cat svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ==========================================================================
+   Menu link scrape flow
+   URL field + Fetch button, a status line while "searching + reading", and
+   the scraped result rendered in the editor above for review + confirm.
+   ========================================================================== */
+
+.menu-link {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.menu-link__field {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-link__field .input-field__icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.menu-link__field .input-field__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Fetch / Scan-again button — brand blue, compact */
+.menu-link__fetch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--blue-vivid);
+  color: var(--color-white);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.menu-link__fetch:hover:not(:disabled) {
+  background: var(--blue-vivid-hover);
+}
+
+.menu-link__fetch:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.menu-link__fetch svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Status line shown while the scrape is simulated */
+.menu-link__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.menu-link__spinner {
+  display: inline-flex;
+}
+
+.menu-link__spinner svg {
+  width: 16px;
+  height: 16px;
+  animation: menu-link-spin 0.7s linear infinite;
+}
+
+@keyframes menu-link-spin {
+  to { transform: rotate(360deg); }
+}
+
+.menu-link__result {
+  margin-top: var(--space-4);
+}
+
+/* "We found this menu…" note above the editable scraped result */
+.menu-link__result-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.menu-link__result-note svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Confirm button — outlined until confirmed, then solid blue with a check */
+.menu-link__confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  margin-top: var(--space-3);
+  margin-left: auto;
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid var(--blue-vivid);
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--blue-vivid);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.menu-link__confirm:hover {
+  background: var(--blue-ice-active);
+}
+
+.menu-link__confirm.is-confirmed {
+  background: var(--blue-vivid);
+  border-color: var(--blue-vivid);
+  color: var(--color-white);
+}
+
+.menu-link__confirm svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Narrow screens: let the fetch row wrap and price stay usable */
+@media (max-width: 480px) {
+  .menu-link {
+    flex-wrap: wrap;
+  }
+  .menu-link__fetch {
+    width: 100%;
+    justify-content: center;
+  }
+  /* Photo + name keep one row; once they leave too little room, price and
+     remove wrap to a second row instead of squeezing the name unreadably. */
+  .menu-item {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .menu-item__name {
+    min-width: 140px;
+  }
+
+  .menu-item__price {
+    width: 78px;
+    margin-left: auto;
+  }
+}

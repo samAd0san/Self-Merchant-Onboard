@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customize your storefront · Parcera</title>
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components/card.css" />
+  <link rel="stylesheet" href="css/components/inputs.css" />
+  <link rel="stylesheet" href="css/components/buttons.css" />
+  <link rel="stylesheet" href="css/components/toggle.css" />
+  <link rel="stylesheet" href="css/components/custom-select.css" />
+  <link rel="stylesheet" href="css/components/wizard-form.css" />
+  <link rel="stylesheet" href="css/components/wizard-branding.css" />
+  <link rel="stylesheet" href="css/pages/onboarding.css" />
+  <link rel="stylesheet" href="css/pages/storefront.css" />
+  <noscript><style>body{opacity:1 !important;}</style></noscript>
+</head>
+<body>
+
+  <main class="storefront-page">
+
+    <!-- Page header: logo, title, and a back-to-dashboard link -->
+    <header class="storefront-header">
+      <div class="storefront-header__brand">
+        <img class="storefront-header__logo" src="assets/logo-mark.png" alt="Parcera" />
+        <div>
+          <h1 class="storefront-header__title">Customize your storefront</h1>
+          <p class="storefront-header__subtitle">Design how your public ordering page looks. Changes save to your account.</p>
+        </div>
+      </div>
+      <nav class="storefront-header__nav" aria-label="Leave storefront">
+        <a href="onboarding.html?view=launched" class="storefront-header__back">
+          <span id="icon-back-launch"></span> Back to launch
+        </a>
+        <a href="merchant-portal.html" class="storefront-header__back storefront-header__back--primary">
+          <span id="icon-back"></span> Dashboard
+        </a>
+      </nav>
+    </header>
+
+    <!-- The white working card that hosts all branding sections -->
+    <section class="storefront-panel">
+
+      <!-- Storefront identity -->
+      <div class="wizard-section">
+        <div class="wizard-section__header">
+          <span class="wizard-section__icon" id="icon-storefront-identity"></span>
+          <div class="wizard-section__heading">Storefront Identity</div>
+        </div>
+
+        <div class="field-group" style="margin-top: 0;">
+          <label class="field-group__label" for="input-display-name">Display Name</label>
+          <div class="input-field">
+            <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-display-name" placeholder="e.g., The Rustic Table" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-group__label" for="input-tagline">Tagline</label>
+          <div class="input-field">
+            <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-tagline" placeholder="e.g., Best slice in town" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-group__label" for="input-description">Description</label>
+          <div class="input-field">
+            <textarea class="input-field__control" style="padding-left: var(--space-4); resize: vertical; min-height: 72px;" id="input-description" placeholder="A short blurb about your shop"></textarea>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-group__label">Hero text alignment</label>
+          <div class="align-toggle">
+            <button type="button" class="align-toggle__option is-active" id="btn-align-left" data-align="left">
+              <span id="icon-align-left"></span> Left
+            </button>
+            <button type="button" class="align-toggle__option" id="btn-align-right" data-align="right">
+              <span id="icon-align-right"></span> Right
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="dropzone-grid">
+            <div>
+              <label class="field-group__label">Logo</label>
+              <div class="dropzone" id="dropzone-logo">
+                <span class="dropzone__icon" id="icon-dropzone-logo"></span>
+                <div class="dropzone__title">Drop image or click to upload</div>
+                <div class="dropzone__hint">PNG, JPEG, WEBP, SVG, GIF, up to 5MB</div>
+              </div>
+              <button type="button" class="dropzone-url-link" id="link-logo-url">
+                <span id="icon-link-logo" style="display:inline-flex; vertical-align:-2px; width:12px; height:12px;"></span> Or paste a URL instead
+              </button>
+              <input class="input-field__control is-hidden" style="margin-top: var(--space-2);" type="url" id="input-logo-url" placeholder="https://example.com/logo.png" />
+            </div>
+            <div>
+              <label class="field-group__label">Hero Image</label>
+              <div class="dropzone" id="dropzone-hero">
+                <span class="dropzone__icon" id="icon-dropzone-hero"></span>
+                <div class="dropzone__title">Drop image or click to upload</div>
+                <div class="dropzone__hint">PNG, JPEG, WEBP, SVG, GIF, up to 5MB</div>
+              </div>
+              <button type="button" class="dropzone-url-link" id="link-hero-url">
+                <span id="icon-link-hero" style="display:inline-flex; vertical-align:-2px; width:12px; height:12px;"></span> Or paste a URL instead
+              </button>
+              <input class="input-field__control is-hidden" style="margin-top: var(--space-2);" type="url" id="input-hero-url" placeholder="https://example.com/hero.jpg" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colors -->
+      <div class="wizard-section" style="margin-top: var(--space-5);">
+        <div class="wizard-section__header">
+          <span class="wizard-section__icon" id="icon-colors"></span>
+          <div class="wizard-section__heading">Colors</div>
+        </div>
+        <div class="color-fields">
+          <div>
+            <label class="field-group__label">Primary Color</label>
+            <div class="color-field">
+              <input type="color" class="color-field__swatch" id="input-primary-color-swatch" value="#0305c6" />
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-primary-color-hex" value="#0305C6" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="field-group__label">Accent Color</label>
+            <div class="color-field">
+              <input type="color" class="color-field__swatch" id="input-accent-color-swatch" value="#ff21a6" />
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-accent-color-hex" value="#FF21A6" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Public storefront toggle + slug -->
+      <div class="wizard-section" style="margin-top: var(--space-5);">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap: var(--space-4);">
+          <div style="display:flex; align-items:flex-start; gap: var(--space-3);">
+            <span id="icon-public-storefront" style="width:18px; height:18px; color: var(--brand-magenta); margin-top:2px;"></span>
+            <div>
+              <div class="wizard-section__heading">Public storefront</div>
+              <p class="field-group__hint" style="margin-top:2px;">Turn on to publish a public ordering page for this location. Off keeps ordering in-store-only with no public web presence.</p>
+            </div>
+          </div>
+          <label class="toggle-switch" style="flex-shrink:0;">
+            <input type="checkbox" class="toggle-switch__input" id="toggle-public-storefront" />
+          </label>
+        </div>
+
+        <div class="field-group">
+          <label class="field-group__label" for="input-storefront-slug">Storefront link (slug)</label>
+          <div class="input-field">
+            <span class="input-field__icon" id="icon-storefront-slug"></span>
+            <input class="input-field__control" type="text" id="input-storefront-slug" placeholder="your-business" />
+          </div>
+          <p class="field-group__hint">Letters, numbers, and dashes only</p>
+          <div class="storefront-preview">
+            <span id="icon-storefront-preview-link"></span>
+            <span>https://order.parcera.ai/<strong id="storefront-preview-slug">your-business</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save / cancel actions -->
+      <div class="storefront-actions">
+        <a href="merchant-portal.html" class="storefront-actions__cancel">Cancel</a>
+        <button type="button" class="btn btn--launch" id="btn-save-storefront" style="margin-top:0; width:auto; padding-left: var(--space-8); padding-right: var(--space-8);">
+          <span id="icon-save"></span> Save storefront
+        </button>
+      </div>
+
+      <!-- Confirmation toast, shown after saving -->
+      <div class="storefront-saved is-hidden" id="storefront-saved">
+        <span id="icon-saved-check"></span> Storefront saved
+      </div>
+
+    </section>
+  </main>
+
+  <script type="module" src="js/pages/storefront.js"></script>
+</body>
+</html>

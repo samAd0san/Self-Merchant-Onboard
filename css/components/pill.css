@@ -1,0 +1,26 @@
+/* ==========================================================================
+   Component: Pill Badge
+   Small rounded tag used for the "Optional" label.
+   ========================================================================== */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+/* Plain asterisk marker for required fields - black text, no pill chrome */
+.required-mark {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.pill--optional {
+  background: var(--color-tab-inactive-bg);
+  color: var(--color-text-secondary);
+}

@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Page: Merchant Portal
+   Sign-in screen for returning merchants. Shares the auth-card, tabs,
+   inputs and buttons components; overrides only the brand presentation.
+   ========================================================================== */
+
+/* Logo intentionally uses the shared .brand__logo sizing/filter from
+   layout.css — kept identical to the Operator Console for brand consistency */
+
+.brand--merchant-portal .brand__wordmark {
+  font-size: 2rem;
+  font-weight: 400;
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: var(--wizard-purple);
+}
+
+.brand__eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.brand__eyebrow svg {
+  width: 14px;
+  height: 14px;
+  color: var(--brand-purple);
+}
+
+.auth-card__heading {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-1);
+}
+
+.auth-card__subheading {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.auth-card__footnote {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-5);
+}
+
+.auth-card__footnote a,
+.auth-card__footnote button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--brand-magenta);
+  font-weight: 600;
+}
+
+/* Shown after a successful OTP verification, in place of the code form */
+.verify-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-6) 0 var(--space-2);
+}
+
+.verify-success__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--stepper-complete-bg, #d1fae5);
+  color: var(--stepper-complete-icon, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.verify-success__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.verify-success__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.verify-success__meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

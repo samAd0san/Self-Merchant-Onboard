@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Design Tokens (v2 — official Parcera brand palette)
+   Single source of truth for colors, spacing, radii, shadows, typography.
+   Change a value here and it propagates through the whole UI.
+   ========================================================================== */
+
+:root {
+  /* Typography — League Spartan for headings, Poppins for everything else */
+  --font-family-base: "Poppins", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-heading: "League Spartan", "Poppins", -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* ---- Primary: Blue ramp ---- */
+  --blue-navy: #010245;
+  --blue-navy-hover: #010259;
+  --blue-navy-active: #020377;
+
+  --blue-vivid: #0305c6;
+  --blue-vivid-hover: #032cc6;
+  --blue-vivid-active: #0353c6;
+
+  --blue-azure: #0008ff;
+  --blue-azure-hover: #3056e0;
+  --blue-azure-active: #527fff;
+
+  --blue-agile: #0595ff;
+  --blue-agile-hover: #46b0ff;
+  --blue-agile-active: #82caff;
+
+  --blue-ice: #9ecbf7;
+  --blue-ice-hover: #ddeaf5;
+  --blue-ice-active: #e8f0fe;
+
+  /* ---- Expressive accent: Magenta ramp ---- */
+  --magenta-dark: #330721;
+  --magenta-dark-hover: #590b83;
+  --magenta-dark-active: #800f5a;
+
+  --magenta-mulberry: #a6156c;
+  --magenta-mulberry-hover: #c31aa8;
+  --magenta-mulberry-active: #c54b8c;
+
+  --magenta-vivid: #ff21a6;
+  --magenta-vivid-hover: #ff5cbf;
+  --magenta-vivid-active: #ff99d8;
+
+  --magenta-light: #ff85d5;
+  --magenta-light-hover: #ff0de2;
+  --magenta-light-active: #ffd9e1;
+
+  --magenta-taupe: #ffdfec;
+  --magenta-taupe-hover: #fff0fa;
+  --magenta-taupe-active: #fffafc;
+
+  /* ---- Expressive accent: Purple ramp ---- */
+  --purple-berry: #1a0038;
+  --purple-berry-hover: #2e055e;
+  --purple-berry-active: #45048f;
+
+  --purple-vivid: #781bfd;
+  --purple-vivid-hover: #8a3bfd;
+  --purple-vivid-active: #9954fe;
+
+  --purple-indigo: #8a30ff;
+  --purple-indigo-hover: #a666ff;
+  --purple-indigo-active: #c299ff;
+
+  --purple-bright: #b894ff;
+  --purple-bright-hover: #d183ff;
+  --purple-bright-active: #e3d1ff;
+
+  --purple-lavender: #efe0ff;
+  --purple-lavender-hover: #f5ebff;
+  --purple-lavender-active: #fbf7ff;
+
+  /* ---- Semantic brand aliases (what components should reference) ---- */
+  --brand-primary: var(--blue-vivid);
+  --brand-primary-hover: var(--blue-vivid-hover);
+  --brand-primary-active: var(--blue-vivid-active);
+  --brand-magenta: var(--blue-vivid);
+  --brand-purple: var(--blue-vivid);
+
+  /* Soft corner glows layered behind the page gradient — visible enough to
+     read as three distinct color zones, matching the shape palette */
+  --glow-blue: rgba(3, 5, 198, 0.16);
+  --glow-purple: rgba(120, 27, 253, 0.17);
+  --glow-magenta: rgba(255, 33, 166, 0.14);
+
+  /* Gradients — blue -> purple -> magenta, matching the logo mark */
+  --gradient-brand: linear-gradient(135deg, var(--blue-vivid) 0%, var(--purple-vivid) 55%, var(--magenta-vivid) 100%);
+  --gradient-brand-soft: linear-gradient(135deg, var(--blue-agile) 0%, var(--purple-indigo) 55%, var(--magenta-light) 100%);
+  --gradient-text: linear-gradient(90deg, var(--blue-vivid) 0%, var(--purple-vivid) 50%, var(--magenta-vivid) 100%);
+  --gradient-page-bg: linear-gradient(135deg, #f2f4fe 0%, #f4eefc 45%, #fdeff8 100%);
+
+  /* Semantic feedback colors.
+     "Success/confirmed" states across the wizard (verified badges, checked
+     consent, completed steps, launch confirmation) are drawn in brand blue
+     rather than green, so every positive/confirmed affordance reads as one
+     consistent blue — same design, blue variants instead of green. */
+  --color-success: var(--blue-vivid);
+  --color-success-bg: #e6e7fb;
+  --color-error: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fca5a5;
+
+  /* Neutrals */
+  --color-white: #ffffff;
+  --color-surface: #ffffff;
+  --color-border: #e5e5ef;
+  --color-border-soft: #ece9f3;
+  --color-input-bg: #f8f8fc;
+  --color-tab-inactive-bg: #ecebf6;
+
+  --color-text-primary: #191c2e;
+  --color-text-secondary: #62667a;
+  --color-text-muted: #8b8ea3;
+  --color-text-link: var(--brand-primary);
+
+  /* Decorative shape outline color on the background */
+  --color-decoration: rgba(80, 70, 200, 0.15);
+
+  /* Onboarding-wizard accent — matches primary brand blue for consistency */
+  --wizard-purple: var(--blue-vivid);
+  --wizard-purple-soft: var(--blue-vivid-hover);
+  --wizard-purple-disabled: var(--blue-ice);
+  --wizard-purple-tint: #f2f4fe;
+
+  --stepper-complete-bg: var(--color-success-bg);
+  --stepper-complete-icon: var(--color-success);
+  --stepper-upcoming-bg: var(--color-tab-inactive-bg);
+  --stepper-upcoming-icon: #9a9aab;
+  --stepper-connector: #ded9ee;
+
+  /* Spacing scale (rem) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 20px 45px -10px rgba(20, 20, 90, 0.16), 0 4px 12px rgba(20, 20, 90, 0.07);
+  --shadow-badge: 0 4px 10px rgba(20, 20, 90, 0.09);
+  --shadow-focus: 0 0 0 3px rgba(3, 5, 198, 0.20);
+  --shadow-focus-error: 0 0 0 3px rgba(220, 38, 38, 0.16);
+
+  /* Typography scale */
+  --font-size-xs: 0.8125rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-display: 2.75rem;
+
+  /* Layout */
+  --card-max-width: 480px;
+  --card-max-width-lg: 760px;
+  --page-max-width: 1100px;
+
+  /* Motion */
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+}

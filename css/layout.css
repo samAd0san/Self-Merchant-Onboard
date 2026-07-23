@@ -1,0 +1,63 @@
+/* ==========================================================================
+   Layout
+   Page-level structure: wrapper, brand header, footer.
+   ========================================================================== */
+
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Center the auth column on every viewport; the top/bottom padding keeps
+     breathing room on short screens while justify-content balances tall ones */
+  padding: var(--space-12) var(--space-4) var(--space-8);
+}
+
+/* Brand block — logo mark, wordmark, tagline copy */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: var(--space-8);
+  max-width: 560px;
+}
+
+.brand__logo {
+  width: 220px;
+  height: auto;
+  margin-bottom: var(--space-4);
+  background: transparent;
+  filter: drop-shadow(0 12px 20px rgba(120, 27, 253, 0.22));
+}
+
+.brand__wordmark {
+  font-size: var(--font-size-display);
+  font-weight: 800;
+  line-height: 1.1;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.01em;
+}
+
+.brand__tagline {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Footer legal / access notice text */
+.page-footer {
+  margin-top: var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.6;
+}

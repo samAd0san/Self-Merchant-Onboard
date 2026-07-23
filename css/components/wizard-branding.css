@@ -1,0 +1,482 @@
+/* ==========================================================================
+   Component: Storefront Branding Extras
+   Hero text alignment, image dropzones, color pickers, weekly business
+   hours, and the public storefront slug preview.
+   ========================================================================== */
+
+/* Left/Right hero alignment segmented buttons */
+.align-toggle {
+  display: inline-flex;
+  gap: var(--space-2);
+  background: var(--color-tab-inactive-bg);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+}
+
+.align-toggle__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.align-toggle__option svg {
+  width: 15px;
+  height: 15px;
+}
+
+.align-toggle__option.is-active {
+  background: var(--color-white);
+  color: var(--brand-magenta);
+  box-shadow: 0 2px 6px rgba(31, 34, 48, 0.08);
+}
+
+/* Image upload dropzone (Logo / Hero Image) */
+.dropzone-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+@media (max-width: 640px) {
+  .dropzone-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dropzone {
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  min-height: 180px;
+  justify-content: center;
+}
+
+.dropzone:hover {
+  border-color: var(--wizard-purple-soft);
+}
+
+.dropzone__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-tab-inactive-bg);
+  color: var(--wizard-purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+}
+
+.dropzone__icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.dropzone__title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.dropzone__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.dropzone-url-link {
+  display: inline-block;
+  margin-top: var(--space-3);
+  background: none;
+  border: none;
+  color: var(--brand-magenta);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  padding: 0;
+}
+
+/* Color picker: swatch + hex text field */
+.color-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+@media (max-width: 640px) {
+  .color-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.color-field__swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: none;
+  overflow: hidden;
+}
+
+/* Native color inputs render an internal square swatch that ignores the
+   element's own border-radius — round it explicitly per browser engine */
+.color-field__swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.color-field__swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: var(--radius-md);
+}
+
+.color-field__swatch::-moz-color-swatch {
+  border: none;
+  border-radius: var(--radius-md);
+}
+
+.color-field .input-field {
+  flex: 1;
+}
+
+/* ==========================================================================
+   Business Hours widget
+   Collapsed by default behind a one-line summary (accordion), so the
+   Knowledge Base step only spends real estate on hours when the merchant
+   actually opens the editor. Inside: one "every day" row covers the common
+   case, plus small "Additional Hours" exceptions for anything that differs.
+   ========================================================================== */
+
+.hours-widget__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.hours-widget__summary:hover {
+  border-color: var(--purple-indigo-active);
+}
+
+.hours-widget__summary-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--blue-vivid);
+  flex-shrink: 0;
+}
+
+.hours-widget__summary-text {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.hours-widget__summary-text.is-placeholder {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.hours-widget__chevron {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.hours-widget__summary.is-open .hours-widget__chevron {
+  transform: rotate(180deg);
+}
+
+.hours-widget__body {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.hours-widget__primary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.hours-widget__primary-label {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.hours-row__times {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+.hours-row__time {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.hours-row__time:disabled {
+  background: var(--color-tab-inactive-bg);
+  color: var(--color-text-muted);
+}
+
+/* Recolor the native time-picker clock icon so it matches the brand
+   instead of the default flat-gray browser icon */
+.hours-row__time::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.55;
+  filter: invert(13%) sepia(94%) saturate(6000%) hue-rotate(255deg);
+  transition: opacity var(--transition-fast);
+}
+
+.hours-row__time::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.hours-row__time:disabled::-webkit-calendar-picker-indicator {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.hours-row__dash {
+  color: var(--color-text-muted);
+}
+
+.hours-row__closed {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Small "Additional Hours" trigger, top-right of the widget body */
+.hours-widget__add-exception {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: fit-content;
+  margin-top: var(--space-3);
+  margin-left: auto;
+  padding: var(--space-1) var(--space-3);
+  background: none;
+  border: 1px dashed var(--blue-vivid);
+  border-radius: var(--radius-full);
+  color: var(--blue-vivid);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+
+.hours-widget__add-exception:hover {
+  background: var(--blue-ice-active);
+}
+
+.hours-widget__add-exception svg {
+  width: 12px;
+  height: 12px;
+}
+
+.hours-widget__exceptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.hours-widget__exceptions:not(:empty) {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* One exception: pick the day(s), set its hours (optionally split) */
+.hours-exception {
+  padding: var(--space-3);
+  background: var(--color-input-bg);
+  border-radius: var(--radius-md);
+}
+
+.hours-exception__days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.day-chip {
+  padding: 3px var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.day-chip.is-selected {
+  border-color: var(--blue-vivid);
+  background: var(--blue-ice-active);
+  color: var(--blue-vivid);
+}
+
+.hours-exception__periods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hours-exception__period {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hours-exception__remove-period {
+  display: inline-flex;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.hours-exception__remove-period svg {
+  width: 13px;
+  height: 13px;
+}
+
+.hours-exception__remove-period:hover {
+  color: var(--color-error);
+}
+
+.hours-exception__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.hours-exception__add-period {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--blue-vivid);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.hours-exception__add-period svg {
+  width: 11px;
+  height: 11px;
+}
+
+.hours-exception__add-period.is-disabled,
+.hours-exception__add-period.is-hidden {
+  display: none;
+}
+
+.hours-exception__remove {
+  display: inline-flex;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.hours-exception__remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+.hours-exception__remove:hover {
+  color: var(--color-error);
+}
+
+@media (max-width: 480px) {
+  .hours-widget__primary {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .hours-row__times {
+    flex-basis: 100%;
+  }
+
+  .hours-row__closed {
+    margin-left: 0;
+  }
+
+  .hours-row__time {
+    padding: var(--space-2);
+    min-width: 0;
+    flex: 1;
+  }
+
+  .hours-exception__actions {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .hours-exception__remove {
+    margin-left: 0;
+  }
+}
+
+/* Public storefront slug + live preview link */
+.storefront-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--wizard-purple);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.storefront-preview svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}

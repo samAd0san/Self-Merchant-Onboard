@@ -1,0 +1,1343 @@
+/* ==========================================================================
+   Component: Wizard Form Controls
+   Select dropdown, in-panel action buttons, merchant-type radio cards,
+   and the green "success" confirmation panel.
+   ========================================================================== */
+
+/* Select dropdown shares the input field look with a chevron affordance,
+   styled to feel modern rather than a bare browser default: soft fill,
+   generous radius, and a colored focus/hover state matching text inputs */
+.select-field {
+  position: relative;
+}
+
+.select-field__control {
+  width: 100%;
+  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-input-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  appearance: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.select-field__control:hover {
+  border-color: var(--purple-indigo-active);
+  background: var(--color-white);
+}
+
+.select-field__control:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  background: var(--color-white);
+  box-shadow: var(--shadow-focus);
+}
+
+.select-field__control option {
+  color: var(--color-text-primary);
+  background: var(--color-white);
+  font-family: inherit;
+}
+
+.select-field__chevron {
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--brand-purple);
+  pointer-events: none;
+  transition: transform var(--transition-fast);
+}
+
+.select-field__control:focus ~ .select-field__chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* ==========================================================================
+   Service Setup: one tile per Parcera service, each holding 3 pricing tiers.
+   Tiles are multi-select - any number can be active at once, each with its
+   own tier.
+   ========================================================================== */
+.service-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.service-tile {
+  position: relative;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  background: var(--color-white);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.service-tile.is-selected {
+  border-color: var(--blue-vivid);
+  background: var(--wizard-purple-tint);
+}
+
+.service-tile__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.service-tile__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--blue-vivid);
+}
+
+.service-tile__icon svg {
+  width: 17px;
+  height: 17px;
+  color: var(--color-white);
+}
+
+.service-tile__heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.service-tile__title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.service-tile__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Text "Remove" trigger, only shown once the tile is selected */
+.service-tile__remove {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.service-tile__remove:hover {
+  color: var(--color-error);
+}
+
+.service-tile__remove svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Three compact tier options per tile - pick one to select the whole tile;
+   clicking the active one again clears the tile. */
+.tier-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .tier-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tier-option {
+  text-align: left;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-input-bg);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.tier-option:hover {
+  border-color: var(--purple-indigo-active);
+}
+
+.tier-option.is-selected {
+  border-color: var(--blue-vivid);
+  background: var(--color-white);
+  box-shadow: var(--shadow-focus);
+}
+
+.tier-option__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.tier-option__name {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.tier-option.is-selected .tier-option__name {
+  color: var(--blue-vivid);
+}
+
+.tier-option__price {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--blue-vivid);
+  white-space: nowrap;
+}
+
+.tier-option__blurb {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.service-tile__subfields {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* Checkbox card (Select Languages) */
+.checkbox-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .checkbox-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkbox-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background: var(--color-input-bg);
+}
+
+.checkbox-card__input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--wizard-purple);
+  flex-shrink: 0;
+}
+
+.checkbox-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.checkbox-card__title {
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.checkbox-card__meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+/* Transfer rule block (repeatable, Voice & Greeting Setup) */
+.transfer-rule {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  /* Tighter padding than a full wizard-section so the box reads compact
+     rather than bulky while keeping every field */
+  padding: var(--space-4);
+  background: var(--color-input-bg);
+  margin-bottom: var(--space-3);
+}
+
+/* Title row with an inline remove control on the right */
+.transfer-rule__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.transfer-rule__title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.transfer-rule__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.transfer-rule__remove:hover {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.transfer-rule__remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+.transfer-rule__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .transfer-rule__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compact the stacked fields inside the rule (condition, transfer type) */
+.transfer-rule__field {
+  margin-top: var(--space-3);
+}
+
+.transfer-rule textarea.input-field__control {
+  padding-left: var(--space-4);
+  resize: vertical;
+  min-height: 52px;
+}
+
+/* Slightly smaller controls throughout the rule to reduce bulk */
+.transfer-rule .input-field__control,
+.transfer-rule .custom-select__trigger {
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.transfer-rule .field-group__label {
+  margin-bottom: var(--space-1);
+}
+
+.add-transfer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--blue-ice-active);
+  border: 1px dashed var(--blue-vivid);
+  border-radius: var(--radius-md);
+  color: var(--blue-vivid);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  transition: background var(--transition-fast);
+}
+
+.add-transfer-link:hover {
+  background: var(--blue-ice-hover);
+}
+
+.add-transfer-link svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Textarea with a live character counter pinned bottom-right */
+.textarea-wrapper {
+  position: relative;
+}
+
+.textarea-wrapper textarea.input-field__control {
+  padding: var(--space-3) var(--space-4);
+  resize: vertical;
+  min-height: 84px;
+}
+
+.textarea-wrapper__counter {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  background: var(--color-input-bg);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+/* Numbered tips list (Tips for Great Greetings) */
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tips-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: #3b5bab;
+}
+
+.tips-list__number {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3b5bab;
+  color: var(--color-white);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Callout variant with a leading icon and bold heading (Phone System step) */
+.wizard-callout--icon {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.wizard-callout--icon svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.wizard-callout__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+/* ==========================================================================
+   Generic accordion
+   Collapses a block of optional, lower-priority fields behind a one-line
+   toggle so a long step doesn't read as one big wall of inputs.
+   ========================================================================== */
+.accordion {
+  margin-top: var(--space-5);
+}
+
+.accordion__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: border-color var(--transition-fast);
+}
+
+.accordion__toggle:hover {
+  border-color: var(--purple-indigo-active);
+}
+
+.accordion__toggle-text {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.accordion__toggle-hint {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.accordion__chevron {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.accordion__toggle.is-open .accordion__chevron {
+  transform: rotate(180deg);
+}
+
+.accordion__body {
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .accordion__toggle-hint {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Collapsible cards (shared by makeCollapsible)
+   A chevron + title lead cluster, a body that folds away, and a one-line
+   summary shown in its place when collapsed. Layered on top of each block's
+   own header/body classes without changing their base look.
+   ========================================================================== */
+.collapsible__header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.collapsible__lead {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.collapsible__chevron {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.collapsible__chevron svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Collapsed: chevron points right, and the header sheds its bottom spacing /
+   divider so the summary line sits tight beneath it. */
+.is-collapsed .collapsible__chevron {
+  transform: rotate(-90deg);
+}
+
+.is-collapsed .collapsible__header {
+  margin-bottom: var(--space-2);
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.collapsible__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: pointer;
+  padding-left: calc(15px + var(--space-2));
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.collapsible__summary svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Blue check used in "verified" summaries */
+.collapsible__summary .collapsible__summary-ok {
+  display: inline-flex;
+  color: var(--color-success);
+}
+
+/* ==========================================================================
+   Business Details additions
+   SMS-consent opt-in, repeatable location blocks (map picker + menu
+   uploads), and the "add another location" trigger. Mobile overrides are
+   grouped at the very end so later source order keeps them winning.
+   ========================================================================== */
+
+/* Small grey consent checkbox beneath the contact phone field */
+.consent-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  width: fit-content;
+  margin-top: var(--space-3);
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.consent-check__input {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 1.5px solid var(--color-text-muted);
+  border-radius: 4px;
+  background: var(--color-input-bg);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.consent-check__input:checked {
+  background: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+}
+
+/* Checkmark drawn with a rotated box-shadow-free border technique */
+.consent-check__input:checked::after {
+  content: "";
+  display: block;
+  width: 4px;
+  height: 8px;
+  margin: 1px auto 0;
+  border: solid var(--color-white);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.consent-check__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Highlighted when every other business field is valid but consent is still
+   unchecked, so the reason Continue is disabled is clear. */
+.consent-check--error {
+  padding: var(--space-2);
+  margin-right: calc(-1 * var(--space-2));
+  border-radius: var(--radius-sm);
+  background: var(--wizard-purple-tint);
+}
+
+.consent-check--error .consent-check__input {
+  border-color: var(--blue-vivid);
+}
+
+.consent-check--error .consent-check__label {
+  color: var(--blue-vivid);
+}
+
+/* One bordered block per business location */
+.address-block {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+  background: var(--color-white);
+}
+
+.address-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.address-block__title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.address-block__title-sub {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.address-block__remove {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 0;
+  transition: color var(--transition-fast);
+}
+
+.address-block__remove:hover {
+  color: var(--color-error);
+}
+
+.address-block__remove svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Map picker: embedded preview + a locate button below it */
+.map-picker {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.map-picker__frame {
+  width: 100%;
+  height: 200px;
+  border: 0;
+  display: block;
+}
+
+.map-picker__locate {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-input-bg);
+  border: none;
+  border-top: 1px solid var(--color-border);
+  color: var(--blue-vivid);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+
+.map-picker__locate:hover {
+  background: var(--blue-ice-active);
+}
+
+.map-picker__locate svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Small per-location Verify button. Neutral by default, spins while
+   verifying, then turns blue with a check when verified. */
+.location-verify {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  margin-top: var(--space-4);
+  margin-left: auto;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.location-verify:hover {
+  border-color: var(--blue-vivid);
+  color: var(--blue-vivid);
+}
+
+.location-verify__icon {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+}
+
+.location-verify__icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Spinning loader while verifying */
+.location-verify.is-verifying {
+  color: var(--blue-vivid);
+  border-color: var(--blue-vivid);
+  cursor: default;
+}
+
+.location-verify.is-verifying .location-verify__icon {
+  animation: location-verify-spin 0.7s linear infinite;
+}
+
+@keyframes location-verify-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Verified: blue fill, check icon */
+.location-verify.is-verified {
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: var(--color-success);
+  cursor: default;
+}
+
+/* ==========================================================================
+   Knowledge Base step
+   Payment-method chips and repeatable FAQ blocks.
+   ========================================================================== */
+
+/* Payment method chips: a wrapping row of toggle-style checkboxes */
+.kb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.kb-chip {
+  position: relative;
+  cursor: pointer;
+}
+
+.kb-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kb-chip span {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.kb-chip:hover span {
+  border-color: var(--purple-indigo-active);
+}
+
+.kb-chip input:checked + span {
+  border-color: var(--blue-vivid);
+  background: var(--blue-ice-active);
+  color: var(--blue-vivid);
+}
+
+.kb-chip input:focus-visible + span {
+  box-shadow: var(--shadow-focus);
+}
+
+/* Repeatable FAQ block, styled like the transfer-rule cards */
+.faq-block {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background: var(--color-input-bg);
+  margin-bottom: var(--space-3);
+}
+
+.faq-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.faq-block__title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.faq-block__remove {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  padding: 0;
+  display: inline-flex;
+  transition: color var(--transition-fast);
+}
+
+.faq-block__remove:hover {
+  color: var(--color-error);
+}
+
+.faq-block__remove svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Shared "add" trigger styling for locations and FAQs */
+.add-address-link,
+.add-faq-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  margin-top: var(--space-3);
+  margin-left: auto;
+  padding: var(--space-2) var(--space-4);
+  background: var(--blue-ice-active);
+  border: 1px dashed var(--blue-vivid);
+  border-radius: var(--radius-md);
+  color: var(--blue-vivid);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+
+.add-address-link:hover,
+.add-faq-link:hover {
+  background: var(--blue-ice-hover);
+}
+
+.add-address-link svg,
+.add-faq-link svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Native <select> selected option, lightened to match the custom listbox */
+.select-field__control option:checked {
+  background: var(--blue-ice-active);
+  color: var(--blue-vivid);
+}
+
+/* ---- Mobile refinements (kept last for cascade priority) ---------------- */
+@media (max-width: 640px) {
+  .address-block {
+    padding: var(--space-4);
+  }
+
+  .map-picker__frame {
+    height: 160px;
+  }
+
+  /* The consent label's long text otherwise fills fit-content's available
+     space entirely on narrow screens, leaving no room for margin-left:auto
+     to push it right - capping the width keeps it visually right-aligned. */
+  .consent-check {
+    max-width: 82%;
+  }
+}
+
+/* ==========================================================================
+   Payment Method step (individual paying for the Parcera service)
+   A plan strip, a single-select method grid, and one revealed field panel.
+   Designed to feel like a low-friction checkout. Mobile rules at the end.
+   ========================================================================== */
+
+/* One row per selected service + tier, listed above the total strip */
+.plan-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.plan-breakdown__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.plan-breakdown__label {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.plan-breakdown__tier {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.plan-breakdown__price {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.plan-breakdown__empty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Plan summary strip */
+.pay-plan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--wizard-purple-tint);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--space-5);
+}
+
+.pay-plan__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.pay-plan__label {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.pay-plan__meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.pay-plan__amount {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--blue-vivid);
+  white-space: nowrap;
+}
+
+.pay-plan__per {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* Method grid — each option is a selectable card */
+.pay-methods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+@media (max-width: 640px) {
+  .pay-methods {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 380px) {
+  .pay-methods {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pay-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.pay-option:hover {
+  border-color: var(--purple-indigo-active);
+}
+
+.pay-option.is-selected {
+  border-color: var(--blue-vivid);
+  background: var(--blue-ice-active);
+  box-shadow: var(--shadow-focus);
+}
+
+.pay-option__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--wizard-purple-tint);
+  color: var(--blue-vivid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pay-option.is-selected .pay-option__icon {
+  background: var(--blue-vivid);
+  color: var(--color-white);
+}
+
+.pay-option__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pay-option__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pay-option__title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.pay-option__meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Selected tick in the corner */
+.pay-option__check {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 16px;
+  height: 16px;
+  color: var(--blue-vivid);
+}
+
+.pay-option__check svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Revealed field panel for the active method */
+.pay-fields {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  background: var(--color-input-bg);
+}
+
+.pay-fields__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.pay-fields__row--two {
+  grid-template-columns: 1fr 1fr;
+  margin-top: 0;
+}
+
+@media (max-width: 480px) {
+  .pay-fields__row,
+  .pay-fields__row--two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Wallet / express checkout note */
+.pay-wallet-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.pay-wallet-note svg {
+  width: 20px;
+  height: 20px;
+  color: var(--blue-vivid);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pay-wallet-note p {
+  margin: 0;
+}
+
+/* ==========================================================================
+   Launch report
+   One grouped card per node, each with an inline Edit link that jumps back
+   to that step. Reads like a clean summary rather than a form.
+   ========================================================================== */
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.report__group {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-white);
+}
+
+.report__group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.report__group-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.01em;
+}
+
+.report__edit {
+  background: none;
+  border: none;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  color: var(--blue-vivid);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  transition: background var(--transition-fast);
+}
+
+.report__edit:hover {
+  background: var(--blue-ice-active);
+}
+
+.report__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.report__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.report__row--stack {
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.report__key {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.report__val {
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.report__row--stack .report__val {
+  text-align: left;
+}
+
+.report__val--quote {
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* One row per selected service in the Review summary - the tier can be
+   changed and the service removed right here, no need to jump back a step */
+.service-report-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.service-report-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.service-report-row__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-report-row__name {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.service-report-row__price {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.service-report-row__tier-field {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.service-report-row__tier-field .custom-select__trigger {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+.service-report-row__remove {
+  display: inline-flex;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text-muted);
+}
+
+.service-report-row__remove:hover {
+  color: var(--color-error);
+}
+
+.service-report-row__remove svg {
+  width: 15px;
+  height: 15px;
+}
+
+.service-report-rows__empty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 480px) {
+  .service-report-row {
+    flex-wrap: wrap;
+  }
+
+  .service-report-row__tier-field {
+    width: auto;
+    flex: 1;
+  }
+}

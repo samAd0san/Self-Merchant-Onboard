@@ -1,0 +1,91 @@
+/* ==========================================================================
+   Component: Wizard Stepper
+   Horizontal row of icon badges showing onboarding progress, connected by
+   thin dashes. Each badge is completed (green check), active (purple,
+   current step icon) or upcoming (muted gray, current step icon).
+   ========================================================================== */
+
+.wizard-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin: var(--space-5) 0 var(--space-8);
+}
+
+.wizard-stepper__connector {
+  width: 18px;
+  height: 1.5px;
+  background: var(--stepper-connector);
+  flex-shrink: 0;
+}
+
+.wizard-stepper__badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background var(--transition-base), color var(--transition-base), transform var(--transition-fast);
+}
+
+.wizard-stepper__badge:hover:not(.is-locked) {
+  transform: translateY(-1px);
+}
+
+/* Locked (not yet reachable) badges aren't interactive */
+.wizard-stepper__badge.is-locked {
+  cursor: default;
+}
+
+.wizard-stepper__badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 480px) {
+  .wizard-stepper {
+    gap: var(--space-1);
+  }
+
+  .wizard-stepper__connector {
+    width: 10px;
+  }
+
+  .wizard-stepper__badge {
+    width: 28px;
+    height: 28px;
+  }
+
+  .wizard-stepper__badge svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+/* Upcoming / not-yet-completed: muted grey badge with the step's own icon */
+.wizard-stepper__badge--upcoming {
+  background: var(--stepper-upcoming-bg);
+  color: var(--stepper-upcoming-icon);
+}
+
+/* Active (current step, or being filled): grey fill, but the outline and
+   the step's own icon are drawn in brand blue. */
+.wizard-stepper__badge--active {
+  background: var(--stepper-upcoming-bg);
+  border: 2px solid var(--wizard-purple);
+  color: var(--wizard-purple);
+}
+
+/* Completed & left behind: solid brand blue badge, white icon, the step's
+   own icon is kept (no checkmark swap) so each node stays recognizable. */
+.wizard-stepper__badge--complete {
+  background: var(--wizard-purple);
+  color: var(--color-white);
+}

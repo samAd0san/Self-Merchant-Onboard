@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set up your Parcera AI</title>
+
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components/card.css" />
+  <link rel="stylesheet" href="css/components/inputs.css" />
+  <link rel="stylesheet" href="css/components/buttons.css" />
+  <link rel="stylesheet" href="css/components/otp.css" />
+  <link rel="stylesheet" href="css/components/stepper.css" />
+  <link rel="stylesheet" href="css/components/pill.css" />
+  <link rel="stylesheet" href="css/components/toggle.css" />
+  <link rel="stylesheet" href="css/components/wizard-form.css" />
+  <link rel="stylesheet" href="css/components/menu-upload.css" />
+  <link rel="stylesheet" href="css/components/custom-select.css" />
+  <link rel="stylesheet" href="css/components/wizard-branding.css" />
+  <link rel="stylesheet" href="css/components/wizard-launch.css" />
+  <link rel="stylesheet" href="css/pages/onboarding.css" />
+  <noscript><style>body{opacity:1 !important;}</style></noscript>
+</head>
+<body>
+
+  <!-- Brand gradient definition used to paint the celebration icon's stroke
+       (blue -> purple -> magenta, matching the logo). Kept off-screen. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="celebrate-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0305c6" />
+        <stop offset="55%" stop-color="#781bfd" />
+        <stop offset="100%" stop-color="#ff21a6" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <main class="wizard-page">
+
+    <!-- Wizard header: sparkle badge + title, optional "Start over" reset link -->
+    <header class="wizard-header">
+      <div class="wizard-header__title">
+        <img class="wizard-header__logo" src="assets/logo-mark.png" alt="Parcera" />
+        Set up your Parcera AI
+      </div>
+      <button type="button" class="wizard-header__restart is-hidden" id="restart-wizard">Start over</button>
+    </header>
+
+    <!-- Progress stepper, re-rendered by JS whenever the active step changes -->
+    <nav class="wizard-stepper" id="wizard-stepper" aria-label="Onboarding progress"></nav>
+
+    <!-- Main panel: exactly one step section is visible at a time -->
+    <section class="wizard-panel">
+
+      <!-- Back sits at the top-left of the white panel itself, above the
+           step content, on every step -->
+      <button type="button" class="wizard-panel__back" id="btn-wizard-back">
+        <span id="icon-chevron-left"></span>
+        Back
+      </button>
+
+      <!-- Step: Business Details -->
+      <div class="wizard-step is-hidden" data-step-id="business">
+        <h2 class="wizard-panel__title">Tell Us About Your Business</h2>
+        <p class="wizard-panel__subtitle">We'll create your business and a secure business contact account.</p>
+
+        <div class="wizard-section">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-business"></span>
+            <div class="wizard-section__heading">Business Details</div>
+          </div>
+
+          <div class="field-group" style="margin-top: 0;">
+            <label class="field-group__label" for="input-business-name">Business Name *</label>
+            <div class="input-field">
+              <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-business-name" placeholder="e.g., The Rustic Table" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-group__label" for="input-business-type">Business Type *</label>
+            <div class="select-field">
+              <select class="select-field__control" id="input-business-type">
+                <option>Restaurant</option>
+                <option>Retail</option>
+                <option>Professional Services</option>
+                <option>Other</option>
+              </select>
+              <span class="select-field__chevron" id="icon-chevron-down"></span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-group__label" for="input-business-ein">Business EIN *</label>
+            <div class="input-field">
+              <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-business-ein" placeholder="e.g., 12-3456789" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-group__label" for="input-owner-name">Business Contact Name *</label>
+            <div class="input-field">
+              <span class="input-field__icon" id="icon-owner-name"></span>
+              <input class="input-field__control" type="text" id="input-owner-name" placeholder="e.g., Jordan Smith" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-group__label" for="input-owner-email">Business Contact Email *</label>
+            <div class="input-field">
+              <span class="input-field__icon" id="icon-owner-email"></span>
+              <input class="input-field__control" type="email" id="input-owner-email" placeholder="you@example.com" required />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-group__label" for="input-owner-phone">Business Contact Phone *</label>
+            <div class="input-field">
+              <span class="input-field__icon" id="icon-owner-phone"></span>
+              <input class="input-field__control" type="tel" id="input-owner-phone" placeholder="(555) 123-4567" required />
+            </div>
+            <!-- Small grey opt-in for transactional business SMS -->
+            <label class="consent-check" for="checkbox-sms-consent">
+              <input type="checkbox" class="consent-check__input" id="checkbox-sms-consent" />
+              <span class="consent-check__label">I consent to receive text messages for business notifications.</span>
+            </label>
+          </div>
+
+          <!-- Repeatable business locations: each address carries its own
+               map picker and optional menu uploads. Rendered by JS. -->
+          <div class="field-group">
+            <label class="field-group__label">Business Location</label>
+            <div id="addresses-container"></div>
+            <button type="button" class="add-address-link" id="btn-add-address">
+              <span id="icon-add-address"></span> Add another location
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step: Knowledge Base -->
+      <div class="wizard-step is-hidden" data-step-id="knowledge">
+        <h2 class="wizard-panel__title">Knowledge Base</h2>
+        <p class="wizard-panel__subtitle">Give your Parcera AI the details it needs to answer common customer questions.</p>
+
+        <!-- Restaurant details -->
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-kb-details"></span>
+            <div>
+              <div class="wizard-section__heading">Restaurant Details</div>
+              <div class="wizard-section__heading-meta">Help your AI answer common customer questions</div>
+            </div>
+          </div>
+
+          <!-- Menus: repeatable upload cards, each linkable to a location -->
+          <div class="field-group" style="margin-top: 0;">
+            <label class="field-group__label">Menus</label>
+            <p class="field-group__hint menu-uploads__intro">Upload one or more menus and link each to the location it belongs to.</p>
+            <div id="kb-menus-container"></div>
+            <button type="button" class="add-menu-link" id="btn-add-menu">
+              <span id="icon-add-menu"></span> Add menu
+            </button>
+          </div>
+
+          <div class="field-group">
+            <label class="field-group__label">Operating Hours</label>
+            <div id="kb-hours-container"></div>
+          </div>
+
+          <div class="accordion">
+            <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+              <span class="accordion__toggle-text">More business details <span class="accordion__toggle-hint">(dietary, allergens, kids, parking, about)</span></span>
+              <span class="accordion__chevron" id="icon-accordion-details"></span>
+            </button>
+            <div class="accordion__body is-hidden" data-role="accordion-body">
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="kb-dietary">Dietary Options</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="kb-dietary" placeholder="e.g., Vegan, Vegetarian, Gluten-free" />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label class="field-group__label" for="kb-allergens">Allergen Information</label>
+                <div class="input-field">
+                  <textarea class="input-field__control" style="padding-left: var(--space-4); resize: vertical; min-height: 60px;" id="kb-allergens" placeholder="Note any common allergens and how you handle them"></textarea>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label class="field-group__label" for="kb-kids">Kids Policy</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="kb-kids" placeholder="e.g., Kids menu available, high chairs on request" />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label class="field-group__label" for="kb-parking">Parking Information</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="kb-parking" placeholder="e.g., Free lot on-site, street parking after 6pm" />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label class="field-group__label" for="kb-about">About Us Description</label>
+                <div class="input-field">
+                  <textarea class="input-field__control" style="padding-left: var(--space-4); resize: vertical; min-height: 72px;" id="kb-about" placeholder="A short description of your restaurant"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment methods accepted -->
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-kb-payments"></span>
+            <div>
+              <div class="wizard-section__heading">Payment Methods</div>
+              <div class="wizard-section__heading-meta">Which payment methods do you accept?</div>
+            </div>
+          </div>
+          <div class="kb-chips" id="kb-payment-methods">
+            <label class="kb-chip"><input type="checkbox" value="Visa" checked /><span>Visa</span></label>
+            <label class="kb-chip"><input type="checkbox" value="Mastercard" checked /><span>Mastercard</span></label>
+            <label class="kb-chip"><input type="checkbox" value="Amex" /><span>Amex</span></label>
+            <label class="kb-chip"><input type="checkbox" value="Discover" /><span>Discover</span></label>
+            <label class="kb-chip"><input type="checkbox" value="Cash" checked /><span>Cash</span></label>
+            <label class="kb-chip"><input type="checkbox" value="Apple Pay" /><span>Apple Pay</span></label>
+            <label class="kb-chip"><input type="checkbox" value="Google Pay" /><span>Google Pay</span></label>
+            <label class="kb-chip"><input type="checkbox" value="Samsung Pay" /><span>Samsung Pay</span></label>
+          </div>
+        </div>
+
+        <!-- FAQs -->
+        <div class="wizard-section">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-kb-faq"></span>
+            <div>
+              <div class="wizard-section__heading">Frequently Asked Questions</div>
+              <div class="wizard-section__heading-meta">Add common questions your customers ask</div>
+            </div>
+          </div>
+          <div id="kb-faq-container"></div>
+          <button type="button" class="add-faq-link" id="btn-add-faq">
+            <span id="icon-add-faq"></span> Add FAQ
+          </button>
+        </div>
+      </div>
+
+      <!-- Step: Service Setup -->
+      <div class="wizard-step is-hidden" data-step-id="integration">
+        <h2 class="wizard-panel__title">Service Setup</h2>
+        <p class="wizard-panel__subtitle">Pick every Parcera product you want and a tier for each. You can mix and match.</p>
+
+        <!-- Rendered by JS: one tile per service, each with 3 tiers -->
+        <div class="service-tiles" id="service-tiles-container"></div>
+      </div>
+
+      <!-- Step: Parcera AI Setup -->
+      <div class="wizard-step is-hidden" data-step-id="voice-greeting">
+        <h2 class="wizard-panel__title">Parcera AI Setup</h2>
+        <p class="wizard-panel__subtitle">Personalize your Parcera AI with a name, voice, and custom greeting</p>
+
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-assistant-name"></span>
+            <div>
+              <div class="wizard-section__heading">Name your Parcera AI</div>
+              <div class="wizard-section__heading-meta">Give your Parcera AI a friendly name</div>
+            </div>
+          </div>
+          <label class="field-group__label" for="input-assistant-name">Parcera AI Name</label>
+          <div class="input-field">
+            <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-assistant-name" placeholder="e.g., Aria" />
+          </div>
+          <p class="field-group__hint" style="display:flex; align-items:center; gap: var(--space-1);"><span id="icon-hint-sparkle" style="width:12px;height:12px; color: var(--brand-magenta);"></span> Used when your Parcera AI introduces itself</p>
+        </div>
+
+        <!-- Voice selection follows the name -->
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-choose-voice"></span>
+            <div>
+              <div class="wizard-section__heading">Choose a Voice <span class="required-mark">*</span></div>
+              <div class="wizard-section__heading-meta">Pick the voice your Parcera AI will use</div>
+            </div>
+          </div>
+          <div class="select-field">
+            <select class="select-field__control" id="input-voice-select">
+              <option value="">Select a voice</option>
+              <option value="aria">Aria, Warm & Friendly</option>
+              <option value="kai">Kai, Professional</option>
+              <option value="luna">Luna, Energetic</option>
+            </select>
+            <span class="select-field__chevron" id="icon-chevron-voice"></span>
+          </div>
+        </div>
+
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-transfer-numbers"></span>
+            <div>
+              <div class="wizard-section__heading">Transfer Numbers <span class="required-mark">*</span></div>
+              <div class="wizard-section__heading-meta">Phone numbers the AI can transfer calls to (e.g., General, Catering, Manager)</div>
+            </div>
+          </div>
+
+          <div id="transfer-rules-container"></div>
+
+          <button type="button" class="add-transfer-link" id="btn-add-transfer">
+            <span id="icon-add-transfer"></span> Add Another Transfer Number
+          </button>
+          <p class="field-group__hint" style="display:flex; align-items:center; gap: var(--space-2); margin-top: var(--space-3);">
+            <span id="icon-hint-phone" style="width:14px;height:14px;"></span> Add multiple numbers for different departments. The AI will transfer based on the condition you set.
+          </p>
+        </div>
+
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-languages"></span>
+            <div class="wizard-section__heading">Select Languages</div>
+          </div>
+          <div class="wizard-section__heading-meta" style="margin: calc(-1 * var(--space-3)) 0 var(--space-4) 46px;">Choose which languages your assistant will support</div>
+          <div class="checkbox-cards-grid">
+            <label class="checkbox-card">
+              <input type="checkbox" class="checkbox-card__input" checked disabled />
+              <span>
+                <span class="checkbox-card__title-row">
+                  <span class="checkbox-card__title">English</span>
+                  <span class="required-mark">*</span>
+                </span>
+                <span class="checkbox-card__meta">Primary language</span>
+              </span>
+            </label>
+            <label class="checkbox-card">
+              <input type="checkbox" class="checkbox-card__input" id="checkbox-spanish" />
+              <span>
+                <span class="checkbox-card__title-row">
+                  <span class="checkbox-card__title">Spanish</span>
+                  <span class="pill pill--optional">Optional</span>
+                </span>
+                <span class="checkbox-card__meta">Add Spanish support</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div id="greetings-container"></div>
+
+        <div class="wizard-callout">
+          <div class="wizard-callout__title"><span id="icon-tips"></span> Tips for Great Greetings</div>
+          <ul class="tips-list">
+            <li><span class="tips-list__number">1</span> Keep it short and friendly (under 15 seconds)</li>
+            <li><span class="tips-list__number">2</span> Include business name and assistant's name</li>
+            <li><span class="tips-list__number">3</span> Ask how you can help</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step: Payment Method (individual paying for the Parcera service) -->
+      <div class="wizard-step is-hidden" data-step-id="payments">
+        <h2 class="wizard-panel__title">Payment Method</h2>
+        <p class="wizard-panel__subtitle">Choose how you'd like to pay for your Parcera plan. You can update this anytime from billing.</p>
+
+        <!-- Plan summary: one row per selected service + tier, then the total.
+             Rendered by JS from the Service Setup selections. -->
+        <div class="plan-breakdown" id="plan-breakdown"></div>
+        <div class="pay-plan">
+          <div class="pay-plan__info">
+            <span class="pay-plan__label">Total, monthly</span>
+            <span class="pay-plan__meta" id="pay-plan-meta">No services selected</span>
+          </div>
+          <span class="pay-plan__amount">$<span id="pay-plan-amount">0</span><span class="pay-plan__per">/mo</span></span>
+        </div>
+        <button type="button" class="btn--tab-link" id="btn-add-service-payment" style="display:block; margin: var(--space-3) 0 var(--space-4) auto;">+ Add another service</button>
+
+        <!-- Method picker: a single choice, low-friction, one panel of fields -->
+        <div class="pay-methods" id="pay-method-options">
+          <button type="button" class="pay-option is-selected" data-method="card">
+            <span class="pay-option__icon" id="icon-method-card"></span>
+            <span class="pay-option__text">
+              <span class="pay-option__title">Card</span>
+              <span class="pay-option__meta">Credit or debit</span>
+            </span>
+            <span class="pay-option__check" id="icon-method-card-check"></span>
+          </button>
+          <button type="button" class="pay-option" data-method="apple">
+            <span class="pay-option__icon" id="icon-method-apple"></span>
+            <span class="pay-option__text">
+              <span class="pay-option__title">Apple Pay</span>
+              <span class="pay-option__meta">One-tap checkout</span>
+            </span>
+            <span class="pay-option__check is-hidden" id="icon-method-apple-check"></span>
+          </button>
+          <button type="button" class="pay-option" data-method="google">
+            <span class="pay-option__icon" id="icon-method-google"></span>
+            <span class="pay-option__text">
+              <span class="pay-option__title">Google Pay</span>
+              <span class="pay-option__meta">One-tap checkout</span>
+            </span>
+            <span class="pay-option__check is-hidden" id="icon-method-google-check"></span>
+          </button>
+          <button type="button" class="pay-option" data-method="samsung">
+            <span class="pay-option__icon" id="icon-method-samsung"></span>
+            <span class="pay-option__text">
+              <span class="pay-option__title">Samsung Pay</span>
+              <span class="pay-option__meta">One-tap checkout</span>
+            </span>
+            <span class="pay-option__check is-hidden" id="icon-method-samsung-check"></span>
+          </button>
+          <button type="button" class="pay-option" data-method="paypal">
+            <span class="pay-option__icon" id="icon-method-paypal"></span>
+            <span class="pay-option__text">
+              <span class="pay-option__title">PayPal</span>
+              <span class="pay-option__meta">Pay with your balance</span>
+            </span>
+            <span class="pay-option__check is-hidden" id="icon-method-paypal-check"></span>
+          </button>
+          <button type="button" class="pay-option" data-method="ach">
+            <span class="pay-option__icon" id="icon-method-ach"></span>
+            <span class="pay-option__text">
+              <span class="pay-option__title">Bank (ACH)</span>
+              <span class="pay-option__meta">US bank account</span>
+            </span>
+            <span class="pay-option__check is-hidden" id="icon-method-ach-check"></span>
+          </button>
+          <button type="button" class="pay-option" data-method="bnpl">
+            <span class="pay-option__icon" id="icon-method-bnpl"></span>
+            <span class="pay-option__text">
+              <span class="pay-option__title">Pay later</span>
+              <span class="pay-option__meta">Klarna, Afterpay, Affirm</span>
+            </span>
+            <span class="pay-option__check is-hidden" id="icon-method-bnpl-check"></span>
+          </button>
+        </div>
+
+        <!-- Card fields -->
+        <div class="pay-fields" data-pay-fields="card">
+          <div class="field-group" style="margin-top: 0;">
+            <label class="field-group__label" for="pay-card-name">Name on card</label>
+            <div class="input-field">
+              <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-name" placeholder="Jordan Smith" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-group__label" for="pay-card-number">Card number</label>
+            <div class="input-field">
+              <span class="input-field__icon" id="icon-card-field"></span>
+              <input class="input-field__control" type="text" id="pay-card-number" inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" />
+            </div>
+          </div>
+          <div class="pay-fields__row">
+            <div>
+              <label class="field-group__label" for="pay-card-exp">Expiry</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-exp" placeholder="MM / YY" autocomplete="cc-exp" />
+              </div>
+            </div>
+            <div>
+              <label class="field-group__label" for="pay-card-cvc">CVC</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-cvc" inputmode="numeric" placeholder="123" autocomplete="cc-csc" maxlength="4" />
+              </div>
+            </div>
+            <div>
+              <label class="field-group__label" for="pay-card-zip">ZIP</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-zip" inputmode="numeric" placeholder="90210" maxlength="10" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet / express-checkout confirmation (Apple, Google, PayPal) -->
+        <div class="pay-fields is-hidden" data-pay-fields="wallet">
+          <div class="pay-wallet-note">
+            <span id="icon-wallet-note"></span>
+            <p>You'll confirm the payment securely in a <strong id="pay-wallet-name">wallet</strong> popup after you launch. No card details are entered here.</p>
+          </div>
+        </div>
+
+        <!-- ACH bank fields -->
+        <div class="pay-fields is-hidden" data-pay-fields="ach">
+          <div class="pay-fields__row pay-fields__row--two">
+            <div>
+              <label class="field-group__label" for="pay-ach-routing2">Routing number</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-routing2" inputmode="numeric" placeholder="9 digits" maxlength="9" />
+              </div>
+            </div>
+            <div>
+              <label class="field-group__label" for="pay-ach-account2">Account number</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-account2" inputmode="numeric" placeholder="Account number" />
+              </div>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-group__label" for="pay-ach-type2">Account type</label>
+            <div class="select-field">
+              <select class="select-field__control" id="pay-ach-type2">
+                <option value="checking">Checking</option>
+                <option value="savings">Savings</option>
+              </select>
+              <span class="select-field__chevron" id="icon-chevron-ach2"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buy now, pay later provider choice -->
+        <div class="pay-fields is-hidden" data-pay-fields="bnpl">
+          <div class="field-group" style="margin-top: 0;">
+            <label class="field-group__label" for="pay-bnpl-provider">Provider</label>
+            <div class="select-field">
+              <select class="select-field__control" id="pay-bnpl-provider">
+                <option value="klarna">Klarna</option>
+                <option value="afterpay">Afterpay</option>
+                <option value="affirm">Affirm</option>
+              </select>
+              <span class="select-field__chevron" id="icon-chevron-bnpl"></span>
+            </div>
+            <p class="field-group__hint">You'll be redirected to your chosen provider to approve the plan.</p>
+          </div>
+        </div>
+
+        <div class="wizard-callout wizard-callout--icon" style="margin-top: var(--space-5);">
+          <span id="icon-pay-info"></span>
+          <div>
+            <div class="wizard-callout__title">Secure &amp; encrypted</div>
+            Payments run through Parcera's PCI-compliant gateway. Your details are encrypted and tokenized, never stored on our servers.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step: Review & Launch -->
+      <div class="wizard-step is-hidden" data-step-id="launch">
+        <div id="launch-review-phase">
+          <h2 class="wizard-panel__title">Review &amp; Launch</h2>
+          <p class="wizard-panel__subtitle">Here's everything you've set up. Review it, edit any section, then launch.</p>
+
+          <!-- Report: one card per node, each with an Edit link that jumps
+               back to that step. Values are filled in by JS on entry. -->
+          <div class="report" id="launch-report">
+            <div class="report__group">
+              <div class="report__group-head">
+                <span class="report__group-title">Business Details</span>
+                <button type="button" class="report__edit" data-edit-step="business">Edit</button>
+              </div>
+              <div class="report__rows">
+                <div class="report__row"><span class="report__key">Business</span><span class="report__val" id="rep-business-name">Not set</span></div>
+                <div class="report__row"><span class="report__key">Type</span><span class="report__val" id="rep-business-type">Not set</span></div>
+                <div class="report__row"><span class="report__key">EIN</span><span class="report__val" id="rep-business-ein">Not set</span></div>
+                <div class="report__row"><span class="report__key">Contact</span><span class="report__val" id="rep-owner-name">Not set</span></div>
+                <div class="report__row"><span class="report__key">Email</span><span class="report__val" id="rep-owner-email">Not set</span></div>
+                <div class="report__row"><span class="report__key">Phone</span><span class="report__val" id="rep-owner-phone">Not set</span></div>
+              </div>
+            </div>
+
+            <div class="report__group">
+              <div class="report__group-head">
+                <span class="report__group-title">Locations</span>
+                <button type="button" class="report__edit" data-edit-step="business">Edit</button>
+              </div>
+              <div class="report__rows" id="rep-locations-rows">
+                <div class="report__row"><span class="report__key">Locations</span><span class="report__val" id="rep-locations">Not set</span></div>
+                <div class="report__row"><span class="report__key">Menus</span><span class="report__val" id="rep-menus">Not set</span></div>
+              </div>
+            </div>
+
+            <div class="report__group">
+              <div class="report__group-head">
+                <span class="report__group-title">Services</span>
+                <button type="button" class="report__edit" data-edit-step="integration">Edit</button>
+              </div>
+              <!-- One row per selected service: tier can be changed and the
+                   service removed right here, without leaving the summary -->
+              <div class="service-report-rows" id="rep-services-rows"></div>
+            </div>
+
+            <div class="report__group">
+              <div class="report__group-head">
+                <span class="report__group-title">Parcera AI</span>
+                <button type="button" class="report__edit" data-edit-step="voice-greeting">Edit</button>
+              </div>
+              <div class="report__rows">
+                <div class="report__row"><span class="report__key">Name</span><span class="report__val" id="rep-assistant-name">Not set</span></div>
+                <div class="report__row"><span class="report__key">Voice</span><span class="report__val" id="rep-voice">Not set</span></div>
+                <div class="report__row"><span class="report__key">Languages</span><span class="report__val" id="rep-languages">Not set</span></div>
+                <div class="report__row"><span class="report__key">Transfer #s</span><span class="report__val" id="rep-transfers">Not set</span></div>
+                <div class="report__row report__row--stack">
+                  <span class="report__key">Greeting</span>
+                  <span class="report__val report__val--quote" id="rep-greeting">Not set</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="report__group">
+              <div class="report__group-head">
+                <span class="report__group-title">Payment Method</span>
+                <button type="button" class="report__edit" data-edit-step="payments">Edit</button>
+              </div>
+              <div class="report__rows">
+                <div class="report__row"><span class="report__key">Total</span><span class="report__val" id="rep-plan-total">$0/mo</span></div>
+                <div class="report__row"><span class="report__key">Paying with</span><span class="report__val" id="rep-payment">Not set</span></div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn--tab-link" id="btn-add-service-review" style="display:block; margin: 0 0 var(--space-4) auto;">+ Add another service</button>
+
+          <button type="button" class="btn btn--launch" id="btn-launch">
+            <span id="icon-launch-sparkle"></span> Launch My AI Assistant
+          </button>
+        </div>
+
+        <!-- Terminal success screen, shown after Launch is clicked -->
+        <div class="launch-success is-hidden" id="launch-success-phase">
+          <span class="launch-success__icon launch-success__icon--celebrate" id="icon-launch-success"></span>
+          <h2 class="launch-success__title">You're all set!</h2>
+          <p class="launch-success__subtitle" id="launch-success-subtitle">Your business is ready. Your Parcera AI is live.</p>
+
+          <!-- Two ways forward: light, tappable option cards -->
+          <div class="launch-next" role="group" aria-label="What's next">
+            <a href="merchant-portal.html" class="launch-next__option launch-next__option--primary" id="link-dashboard">
+              <span class="launch-next__icon" id="icon-next-dashboard"></span>
+              <span class="launch-next__text">
+                <span class="launch-next__title">Sign in to your dashboard</span>
+                <span class="launch-next__meta">Manage everything you just set up</span>
+              </span>
+              <span class="launch-next__arrow" id="icon-next-arrow-1"></span>
+            </a>
+
+            <a href="storefront.html" class="launch-next__option">
+              <span class="launch-next__icon" id="icon-next-storefront"></span>
+              <span class="launch-next__text">
+                <span class="launch-next__title">Customize storefront</span>
+                <span class="launch-next__meta">Design your public ordering page</span>
+              </span>
+              <span class="launch-next__arrow" id="icon-next-arrow-2"></span>
+            </a>
+          </div>
+
+          <p class="launch-success__footnote">You'll log in with the email you just verified.</p>
+        </div>
+      </div>
+
+      <!-- Shared Continue button, inside the same white card as every step
+           (Back sits separately at the top of the panel, see above). -->
+      <div class="wizard-bottom-nav">
+        <button type="button" class="wizard-bottom-nav__continue" id="btn-wizard-continue" disabled>
+          <span class="wizard-bottom-nav__label">Continue</span>
+          <span id="icon-arrow-4"></span>
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+  <script type="module" src="js/pages/onboarding.js"></script>
+</body>
+</html>

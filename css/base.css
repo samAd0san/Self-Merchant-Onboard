@@ -1,0 +1,116 @@
+/* ==========================================================================
+   Base / Reset
+   Minimal reset plus global element defaults.
+   ========================================================================== */
+
+/* Brand typefaces: League Spartan for headings, Poppins for body text */
+@import url("https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background:
+    radial-gradient(circle at 6% 10%, var(--glow-blue), transparent 40%),
+    radial-gradient(circle at 94% 12%, var(--glow-magenta), transparent 38%),
+    radial-gradient(circle at 92% 90%, var(--glow-purple), transparent 42%),
+    radial-gradient(circle at 4% 88%, var(--glow-blue), transparent 36%),
+    var(--gradient-page-bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings use the League Spartan display face across every page */
+h1, h2, h3, h4,
+.wizard-header__title,
+.wizard-panel__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Visible keyboard focus ring for accessibility across interactive elements */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ==========================================================================
+   Page transitions
+   A soft fade on entry and exit so navigating between screens feels smooth
+   instead of abrupt. Driven by js/utils/pageTransition.js.
+   ========================================================================== */
+body {
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+body.is-page-ready {
+  opacity: 1;
+}
+
+body.is-page-leaving {
+  opacity: 0;
+}
+
+/* Brief pressed feedback on the element that triggered navigation */
+.is-pressed {
+  transform: scale(0.985);
+  transition: transform 0.12s ease;
+}
+
+/* If JS is disabled, never leave the page invisible */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    opacity: 1;
+    transition: none;
+  }
+}
