@@ -24,3 +24,9 @@
   background: var(--color-tab-inactive-bg);
   color: var(--color-text-secondary);
 }
+
+/* "Coming soon" — muted amber, signals a not-yet-available option */
+.pill--soon {
+  background: #fef3c7;
+  color: #92600a;
+}

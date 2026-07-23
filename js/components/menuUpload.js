@@ -29,33 +29,68 @@ const menuCards = []; // { id, element, getData, setLocations }
 // Accepted menu file types (menus are usually PDFs, sometimes images)
 const ACCEPTED_TYPES = "application/pdf,image/png,image/jpeg,image/webp";
 
+// Menu modes, in the order a merchant reaches for them: paste a link first
+// (fastest — we read it for you), else upload a file, else type it by hand.
 const MODES = [
-  { key: "manual", label: "Type it in" },
+  { key: "link", label: "Paste a link" },
   { key: "upload", label: "Upload" },
-  { key: "link", label: "Link" },
+  { key: "manual", label: "Add manually" },
 ];
 
-// Stand-in for a real "search the web + scrape the page" backend. Every link
-// resolves to this sample menu, which the user then edits and confirms — the
-// point of the demo is the review-and-fix step, not the fetch itself.
-const SCRAPED_SAMPLE = {
+// Stand-in for a real "search the web + scrape the page" backend. The demo's
+// point is the review-and-fix step, not the fetch — so a known restaurant URL
+// (e.g. bagelology) returns that restaurant's menu; anything else falls back
+// to a generic sample. Real onboarding runs the POS menu-import extractor.
+const BAGELOLOGY_SAMPLE = {
   categories: [
-    { name: "Starters", items: [
-      { name: "Garlic Bread", price: "6.50", photo: "" },
-      { name: "Soup of the Day", price: "7.00", photo: "" },
-      { name: "Bruschetta", price: "8.50", photo: "" },
+    { name: "Bagels", items: [
+      { name: "Everything Bagel", price: "2.50", description: "House-baked daily, toasted, seeds & spices.", photo: "" },
+      { name: "Sesame Bagel", price: "2.25", description: "Classic, golden, toasted to order.", photo: "" },
+      { name: "Plain Bagel", price: "2.00", description: "Soft inside, chewy crust.", photo: "" },
+      { name: "Cinnamon Raisin", price: "2.50", description: "Sweet, studded with plump raisins.", photo: "" },
+      { name: "Gluten-Free Everything", price: "3.50", description: "Baked in a dedicated gluten-free oven.", photo: "" },
     ] },
-    { name: "Mains", items: [
-      { name: "Margherita Pizza", price: "14.00", photo: "" },
-      { name: "Spaghetti Carbonara", price: "16.50", photo: "" },
-      { name: "Grilled Salmon", price: "22.00", photo: "" },
+    { name: "Breakfast Sandwiches", items: [
+      { name: "Bacon, Egg & Cheese", price: "7.95", description: "Crispy bacon, cage-free egg, American cheese.", photo: "" },
+      { name: "Lox & Schmear", price: "11.50", description: "Nova lox, cream cheese, capers, red onion.", photo: "" },
+      { name: "Avocado Smash", price: "8.50", description: "Smashed avocado, chili flakes, lemon, sea salt.", photo: "" },
     ] },
-    { name: "Desserts", items: [
-      { name: "Tiramisu", price: "8.00", photo: "" },
-      { name: "Vanilla Gelato", price: "6.00", photo: "" },
+    { name: "Cream Cheese & Spreads", items: [
+      { name: "Plain Schmear", price: "1.50", description: "Whipped house cream cheese.", photo: "" },
+      { name: "Scallion", price: "1.95", description: "Fresh scallions folded through.", photo: "" },
+      { name: "Honey Walnut", price: "2.25", description: "Sweet and nutty, made in-house.", photo: "" },
+    ] },
+    { name: "Drinks", items: [
+      { name: "Cold Brew", price: "4.25", description: "Slow-steeped 18 hours, smooth finish.", photo: "" },
+      { name: "Fresh Orange Juice", price: "3.75", description: "Squeezed each morning.", photo: "" },
+      { name: "Drip Coffee", price: "2.50", description: "Locally roasted, bottomless.", photo: "" },
     ] },
   ],
 };
+
+const GENERIC_SAMPLE = {
+  categories: [
+    { name: "Starters", items: [
+      { name: "Garlic Bread", price: "6.50", description: "Warm, buttery, house focaccia.", photo: "" },
+      { name: "Soup of the Day", price: "7.00", description: "Ask your server what's simmering.", photo: "" },
+      { name: "Bruschetta", price: "8.50", description: "Tomato, basil, olive oil on toast.", photo: "" },
+    ] },
+    { name: "Mains", items: [
+      { name: "Margherita Pizza", price: "14.00", description: "San Marzano, fresh mozzarella, basil.", photo: "" },
+      { name: "Spaghetti Carbonara", price: "16.50", description: "Guanciale, egg, pecorino.", photo: "" },
+      { name: "Grilled Salmon", price: "22.00", description: "Seasonal vegetables, lemon butter.", photo: "" },
+    ] },
+    { name: "Desserts", items: [
+      { name: "Tiramisu", price: "8.00", description: "Espresso-soaked, mascarpone.", photo: "" },
+      { name: "Vanilla Gelato", price: "6.00", description: "Two scoops, made in-house.", photo: "" },
+    ] },
+  ],
+};
+
+// Picks the fetched menu for a given link (bagelology → its menu, else generic)
+function sampleForUrl(url) {
+  return /bagelolog/i.test(url || "") ? BAGELOLOGY_SAMPLE : GENERIC_SAMPLE;
+}
 
 // Builds the <option> markup for the location dropdown, preserving a
 // previously chosen value when that location still exists.
@@ -84,7 +119,7 @@ export function addMenu(containerEl, { removable = true, locations = [], prefill
 
   card.innerHTML = `
     <div class="menu-card__header">
-      <span class="menu-card__title">Menu ${id}</span>
+      <span class="menu-card__title">Menu</span>
       <button type="button" class="menu-card__remove ${removable ? "" : "is-hidden"}" data-role="remove-menu" aria-label="Remove menu">
         ${ICONS.close} Remove
       </button>
@@ -105,24 +140,12 @@ export function addMenu(containerEl, { removable = true, locations = [], prefill
       </div>
     </div>
 
-    <!-- Mode: build the menu in a structured editor -->
-    <div class="menu-card__panel" data-panel="manual" style="margin-top: var(--space-3);">
-      <div data-role="manual-editor"></div>
-    </div>
-
-    <!-- Mode: click or drag a PDF/image; preview replaces it once set -->
-    <div class="dropzone menu-card__dropzone menu-card__panel is-hidden" data-panel="upload" data-role="dropzone" style="margin-top: var(--space-3);">
-      <span class="dropzone__icon">${ICONS.image}</span>
-      <div class="dropzone__title">Drop menu or click to upload</div>
-      <div class="dropzone__hint">PDF, PNG, JPEG, or WEBP</div>
-    </div>
-
-    <!-- Mode: paste a link; we "search + scrape" it into the editor to review -->
-    <div class="menu-card__panel is-hidden" data-panel="link" style="margin-top: var(--space-3);">
+    <!-- Mode: paste a link; we "read + import" it into the card editor to review -->
+    <div class="menu-card__panel" data-panel="link" style="margin-top: var(--space-3);">
       <div class="menu-link">
         <div class="input-field menu-link__field">
           <span class="input-field__icon">${ICONS.link}</span>
-          <input class="input-field__control" type="url" data-role="link-input" placeholder="https://example.com/menu" />
+          <input class="input-field__control" type="url" data-role="link-input" placeholder="https://parcera.bagelology.com/menu" />
         </div>
         <button type="button" class="menu-link__fetch" data-role="fetch-link">${ICONS.sparkle} Fetch menu</button>
       </div>
@@ -132,6 +155,18 @@ export function addMenu(containerEl, { removable = true, locations = [], prefill
         <div data-role="scraped-editor"></div>
         <button type="button" class="menu-link__confirm" data-role="confirm-link">${ICONS.check} Confirm menu</button>
       </div>
+    </div>
+
+    <!-- Mode: click or drag a PDF/image; preview replaces it once set -->
+    <div class="dropzone menu-card__dropzone menu-card__panel is-hidden" data-panel="upload" data-role="dropzone" style="margin-top: var(--space-3);">
+      <span class="dropzone__icon">${ICONS.image}</span>
+      <div class="dropzone__title">Drop menu or click to upload</div>
+      <div class="dropzone__hint">PDF, PNG, JPEG, or WEBP</div>
+    </div>
+
+    <!-- Mode: build the menu by hand in the card editor -->
+    <div class="menu-card__panel is-hidden" data-panel="manual" style="margin-top: var(--space-3);">
+      <div data-role="manual-editor"></div>
     </div>
     </div>
   `;
@@ -147,7 +182,7 @@ export function addMenu(containerEl, { removable = true, locations = [], prefill
   const removeBtn = card.querySelector('[data-role="remove-menu"]');
   const locationSelect = card.querySelector(".menu-card__location");
   let fileName = ""; // most recent uploaded file's name
-  let mode = "manual";
+  let mode = "link"; // link-first: paste a URL and we read the menu for you
 
   // Structured editor for the "Type it in" mode
   const manualEditor = createMenuEditor(card.querySelector('[data-role="manual-editor"]'));
@@ -196,10 +231,11 @@ export function addMenu(containerEl, { removable = true, locations = [], prefill
       linkStatus.classList.add("is-hidden");
       fetchBtn.disabled = false;
       fetchBtn.innerHTML = `${ICONS.sparkle} Scan again`;
+      const scraped = sampleForUrl(url);
       if (!scrapedEditor) {
-        scrapedEditor = createMenuEditor(scrapedMount, SCRAPED_SAMPLE);
+        scrapedEditor = createMenuEditor(scrapedMount, scraped);
       } else {
-        scrapedEditor.setData(SCRAPED_SAMPLE);
+        scrapedEditor.setData(scraped);
       }
       linkResult.classList.remove("is-hidden");
     }, 1750));

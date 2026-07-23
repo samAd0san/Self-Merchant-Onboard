@@ -1,66 +1,75 @@
 // ==========================================================================
 // Component: Menu Editor
-// A compact structured menu builder shared by the Knowledge Base step: it
-// powers both the "Type it in" mode and the confirmation view after a menu
-// link is scraped. The user adds categories, adds items inside each category,
-// and each item carries a name, a price, and an optional photo. The whole
-// thing is intentionally dense — one row per item — so a full menu stays short
-// on screen.
+// A structured menu builder shared by the Restaurant Details step: it powers
+// both the "Add manually" mode and the review view after a menu link is
+// fetched. Items render as an editable card grid (photo + name + price +
+// description), mirroring the menu-review cards in operator-ui / merchant-ui.
 //
-// Each editor is self-contained and exposes a small API:
+// Each editor exposes a small API:
 //   { getData(), setData(data) }
-// getData() returns { categories: [{ name, items: [{ name, price, photo }] }] }
-// where `photo` is a data URL (or "").
+// getData() returns { categories: [{ name, items: [{ name, price, photo, description }] }] }
 // ==========================================================================
 
 import { ICONS } from "../utils/icons.js";
 
-// Builds one item row. `prefill` optionally seeds name / price / photo.
-function createItemRow(prefill = null) {
-  const row = document.createElement("div");
-  row.className = "menu-item";
-  row.innerHTML = `
-    <button type="button" class="menu-item__photo" data-role="photo" aria-label="Add item photo">
-      <span class="menu-item__photo-icon">${ICONS.image}</span>
+// First two letters of an item's name, used as the image-band fallback monogram
+function monogram(name) {
+  return (name || "").trim().slice(0, 2).toUpperCase() || "··";
+}
+
+// Builds one item card. `prefill` optionally seeds name / price / photo / description.
+function createItemCard(prefill = null) {
+  const card = document.createElement("div");
+  card.className = "menu-item-card";
+  card.innerHTML = `
+    <button type="button" class="menu-item-card__image" data-role="photo" aria-label="Add item photo">
+      <span class="menu-item-card__monogram" data-role="monogram">··</span>
     </button>
-    <input class="menu-item__name" type="text" placeholder="Item name" aria-label="Item name" />
-    <div class="menu-item__price">
-      <span class="menu-item__price-prefix">$</span>
-      <input class="menu-item__price-input" type="text" inputmode="decimal" placeholder="0.00" aria-label="Item price" />
+    <button type="button" class="menu-item-card__remove" data-role="remove-item" aria-label="Remove item">${ICONS.close}</button>
+    <div class="menu-item-card__body">
+      <div class="menu-item-card__toprow">
+        <input class="menu-item-card__name" type="text" placeholder="Item name" aria-label="Item name" />
+        <div class="menu-item-card__price">
+          <span class="menu-item-card__price-prefix">$</span>
+          <input class="menu-item-card__price-input" type="text" inputmode="decimal" placeholder="0.00" aria-label="Item price" />
+        </div>
+      </div>
+      <input class="menu-item-card__desc" type="text" placeholder="Add a short description" aria-label="Item description" />
     </div>
-    <button type="button" class="menu-item__remove" data-role="remove-item" aria-label="Remove item">${ICONS.close}</button>
   `;
 
-  const photoBtn = row.querySelector('[data-role="photo"]');
-  const nameInput = row.querySelector(".menu-item__name");
-  const priceInput = row.querySelector(".menu-item__price-input");
+  const photoBtn = card.querySelector('[data-role="photo"]');
+  const monogramEl = card.querySelector('[data-role="monogram"]');
+  const nameInput = card.querySelector(".menu-item-card__name");
+  const priceInput = card.querySelector(".menu-item-card__price-input");
+  const descInput = card.querySelector(".menu-item-card__desc");
 
   // Photo is stored on the element as a data URL so getData can read it back
-  row._photo = "";
+  card._photo = "";
 
-  // Hidden file input drives the photo picker for this row
+  // Hidden file input drives the photo picker for this card
   const fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.accept = "image/png,image/jpeg,image/webp";
   fileInput.className = "is-hidden";
-  row.appendChild(fileInput);
+  card.appendChild(fileInput);
 
   function renderPhoto() {
-    if (row._photo) {
+    if (card._photo) {
       photoBtn.classList.add("has-photo");
       photoBtn.innerHTML = `
-        <img class="menu-item__thumb" src="${row._photo}" alt="" />
-        <span class="menu-item__photo-clear" data-role="clear-photo" aria-label="Remove photo">${ICONS.close}</span>
+        <img class="menu-item-card__thumb" src="${card._photo}" alt="" />
+        <span class="menu-item-card__photo-clear" data-role="clear-photo" aria-label="Remove photo">${ICONS.close}</span>
       `;
       photoBtn.querySelector('[data-role="clear-photo"]').addEventListener("click", (event) => {
         event.stopPropagation();
-        row._photo = "";
+        card._photo = "";
         fileInput.value = "";
         renderPhoto();
       });
     } else {
       photoBtn.classList.remove("has-photo");
-      photoBtn.innerHTML = `<span class="menu-item__photo-icon">${ICONS.image}</span>`;
+      photoBtn.innerHTML = `<span class="menu-item-card__monogram" data-role="monogram">${monogram(nameInput.value)}</span>`;
     }
   }
 
@@ -70,50 +79,80 @@ function createItemRow(prefill = null) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      row._photo = reader.result;
+      card._photo = reader.result;
       renderPhoto();
     };
     reader.readAsDataURL(file);
   });
 
-  row.querySelector('[data-role="remove-item"]').addEventListener("click", () => row.remove());
+  // Keep the monogram fallback in sync with the name while no photo is set
+  nameInput.addEventListener("input", () => {
+    if (!card._photo) monogramEl.textContent = monogram(nameInput.value);
+  });
+
+  card.querySelector('[data-role="remove-item"]').addEventListener("click", () => {
+    const grid = card.parentElement;
+    card.remove();
+    if (grid && grid._syncCount) grid._syncCount();
+  });
 
   if (prefill) {
     nameInput.value = prefill.name || "";
     priceInput.value = prefill.price || "";
+    descInput.value = prefill.description || "";
+    monogramEl.textContent = monogram(nameInput.value);
     if (prefill.photo) {
-      row._photo = prefill.photo;
+      card._photo = prefill.photo;
       renderPhoto();
     }
   }
 
-  return row;
+  return card;
 }
 
 // Builds one category block, seeded with `prefill.items` (or a single empty
-// item row so the category never looks empty).
+// item card so the category never looks empty).
 function createCategory(prefill = null) {
   const cat = document.createElement("div");
   cat.className = "menu-cat";
   cat.innerHTML = `
     <div class="menu-cat__head">
-      <input class="menu-cat__name" type="text" placeholder="Category name (e.g. Starters)" aria-label="Category name" />
+      <input class="menu-cat__name" type="text" placeholder="Category name (e.g. Bagels)" aria-label="Category name" />
+      <span class="menu-cat__count" data-role="count">0 items</span>
       <button type="button" class="menu-cat__remove" data-role="remove-cat" aria-label="Remove category">${ICONS.close}</button>
     </div>
-    <div class="menu-cat__items" data-role="items"></div>
-    <button type="button" class="menu-cat__add-item" data-role="add-item">${ICONS.plus} Add item</button>
+    <div class="menu-cat__grid" data-role="items"></div>
   `;
 
   const nameInput = cat.querySelector(".menu-cat__name");
-  const itemsWrap = cat.querySelector('[data-role="items"]');
+  const grid = cat.querySelector('[data-role="items"]');
+  const countEl = cat.querySelector('[data-role="count"]');
 
-  cat.querySelector('[data-role="add-item"]').addEventListener("click", () => {
-    itemsWrap.appendChild(createItemRow());
-  });
+  // Dashed "Add item" tile that always sits at the end of the grid
+  const addTile = document.createElement("button");
+  addTile.type = "button";
+  addTile.className = "menu-cat__add-tile";
+  addTile.dataset.role = "add-item";
+  addTile.innerHTML = `${ICONS.plus}<span>Add item</span>`;
+
+  function syncCount() {
+    const n = grid.querySelectorAll(".menu-item-card").length;
+    countEl.textContent = `${n} item${n === 1 ? "" : "s"}`;
+  }
+  grid._syncCount = syncCount;
+
+  function addItem(itemPrefill) {
+    grid.insertBefore(createItemCard(itemPrefill), addTile);
+    syncCount();
+  }
+
+  addTile.addEventListener("click", () => addItem());
   cat.querySelector('[data-role="remove-cat"]').addEventListener("click", () => cat.remove());
 
   const items = (prefill && prefill.items && prefill.items.length) ? prefill.items : [null];
-  items.forEach((it) => itemsWrap.appendChild(createItemRow(it)));
+  items.forEach((it) => grid.insertBefore(createItemCard(it), null));
+  grid.appendChild(addTile);
+  syncCount();
   if (prefill && prefill.name) nameInput.value = prefill.name;
 
   return cat;
@@ -144,11 +183,12 @@ export function createMenuEditor(mountEl, initial = null) {
     catsWrap.querySelectorAll(".menu-cat").forEach((catEl) => {
       const name = catEl.querySelector(".menu-cat__name").value.trim();
       const items = [];
-      catEl.querySelectorAll(".menu-item").forEach((itemEl) => {
-        const itemName = itemEl.querySelector(".menu-item__name").value.trim();
-        const price = itemEl.querySelector(".menu-item__price-input").value.trim();
-        if (!itemName && !price && !itemEl._photo) return; // skip blank rows
-        items.push({ name: itemName, price, photo: itemEl._photo || "" });
+      catEl.querySelectorAll(".menu-item-card").forEach((itemEl) => {
+        const itemName = itemEl.querySelector(".menu-item-card__name").value.trim();
+        const price = itemEl.querySelector(".menu-item-card__price-input").value.trim();
+        const description = itemEl.querySelector(".menu-item-card__desc").value.trim();
+        if (!itemName && !price && !description && !itemEl._photo) return; // skip blank cards
+        items.push({ name: itemName, price, description, photo: itemEl._photo || "" });
       });
       if (name || items.length) categories.push({ name, items });
     });

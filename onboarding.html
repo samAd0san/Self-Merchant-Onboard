@@ -66,6 +66,12 @@
         <h2 class="wizard-panel__title">Tell Us About Your Business</h2>
         <p class="wizard-panel__subtitle">We'll create your business and a secure business contact account.</p>
 
+        <!-- Shown only in "Onboard new location" mode: details are prefilled -->
+        <div class="add-location-banner is-hidden" id="add-location-banner">
+          <span class="add-location-banner__icon" id="icon-add-location-banner"></span>
+          <span>Adding another location — your business details are prefilled. Just enter the new location's address below.</span>
+        </div>
+
         <div class="wizard-section">
           <div class="wizard-section__header">
             <span class="wizard-section__icon" id="icon-business"></span>
@@ -121,58 +127,90 @@
               <span class="input-field__icon" id="icon-owner-phone"></span>
               <input class="input-field__control" type="tel" id="input-owner-phone" placeholder="(555) 123-4567" required />
             </div>
-            <!-- Small grey opt-in for transactional business SMS -->
-            <label class="consent-check" for="checkbox-sms-consent">
-              <input type="checkbox" class="consent-check__input" id="checkbox-sms-consent" />
-              <span class="consent-check__label">I consent to receive text messages for business notifications.</span>
-            </label>
           </div>
 
-          <!-- Repeatable business locations: each address carries its own
-               map picker and optional menu uploads. Rendered by JS. -->
+          <!-- Single business location per onboarding run. Additional locations
+               are onboarded separately (prefilled) from the launch screen. -->
           <div class="field-group">
             <label class="field-group__label">Business Location</label>
             <div id="addresses-container"></div>
-            <button type="button" class="add-address-link" id="btn-add-address">
-              <span id="icon-add-address"></span> Add another location
-            </button>
+          </div>
+
+          <!-- Small grey opt-in for transactional business SMS, at the bottom -->
+          <label class="consent-check" for="checkbox-sms-consent" style="margin-top: var(--space-4);">
+            <input type="checkbox" class="consent-check__input" id="checkbox-sms-consent" />
+            <span class="consent-check__label">I consent to receive text messages for business notifications.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Step: Restaurant Details (the menu — paste a link / upload / add by hand) -->
+      <div class="wizard-step is-hidden" data-step-id="knowledge">
+        <h2 class="wizard-panel__title">Restaurant Details</h2>
+        <p class="wizard-panel__subtitle">Add your menu so your Parcera AI knows your items and prices. Paste a link and we read it for you, upload a photo, or add it by hand — then edit anything before you continue.</p>
+
+        <div class="wizard-section">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-kb-details"></span>
+            <div>
+              <div class="wizard-section__heading">Menu</div>
+              <div class="wizard-section__heading-meta">What your ordering agent reads items and prices from</div>
+            </div>
+          </div>
+
+          <!-- Ordering-only menu entry. Hidden for the reservation agent, which
+               shows the note below instead. -->
+          <div class="field-group" id="kb-menus-group" style="margin-top: 0;">
+            <p class="field-group__hint menu-uploads__intro">Paste a link and we read the items automatically, upload a menu image, or add items by hand.</p>
+            <div id="kb-menus-container"></div>
+          </div>
+
+          <!-- Shown instead of the menu when a reservation agent is selected -->
+          <div class="kb-reservation-note is-hidden" id="kb-reservation-note">
+            <span class="kb-reservation-note__icon" id="icon-kb-reservation-note"></span>
+            <div>
+              <div class="kb-reservation-note__title">Reservations don't use a menu</div>
+              <p>Your booking agent doesn't take food orders, so there's nothing to add here. Continue to set your booking rules and opening hours.</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Step: Knowledge Base -->
-      <div class="wizard-step is-hidden" data-step-id="knowledge">
-        <h2 class="wizard-panel__title">Knowledge Base</h2>
-        <p class="wizard-panel__subtitle">Give your Parcera AI the details it needs to answer common customer questions.</p>
+      <!-- Step: Rules & Hours (the guardrails the AI enforces + opening hours) -->
+      <div class="wizard-step is-hidden" data-step-id="rules-hours">
+        <h2 class="wizard-panel__title">Rules &amp; Hours</h2>
+        <p class="wizard-panel__subtitle">Set the limits your Parcera AI enforces on every call, your opening hours, and a few optional details it can mention.</p>
 
-        <!-- Restaurant details -->
-        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+        <!-- Dynamic service rules: ordering-rules OR reservation-rules, chosen by
+             the agent picked earlier. Filled in by JS on step entry. -->
+        <div class="wizard-section" id="service-rules-section" style="margin-bottom: var(--space-5);">
           <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-kb-details"></span>
+            <span class="wizard-section__icon" id="icon-service-rules"></span>
             <div>
-              <div class="wizard-section__heading">Restaurant Details</div>
-              <div class="wizard-section__heading-meta">Help your AI answer common customer questions</div>
+              <div class="wizard-section__heading" id="service-rules-heading">Service Rules</div>
+              <div class="wizard-section__heading-meta" id="service-rules-meta">Guardrails your Parcera AI enforces on every call</div>
             </div>
           </div>
+          <div id="service-rules-fields"></div>
+        </div>
 
-          <!-- Menus: repeatable upload cards, each linkable to a location -->
-          <div class="field-group" style="margin-top: 0;">
-            <label class="field-group__label">Menus</label>
-            <p class="field-group__hint menu-uploads__intro">Upload one or more menus and link each to the location it belongs to.</p>
-            <div id="kb-menus-container"></div>
-            <button type="button" class="add-menu-link" id="btn-add-menu">
-              <span id="icon-add-menu"></span> Add menu
-            </button>
+        <!-- Operating hours -->
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-hours"></span>
+            <div>
+              <div class="wizard-section__heading">Operating Hours</div>
+              <div class="wizard-section__heading-meta">When you're open — your AI uses this to answer "are you open?"</div>
+            </div>
           </div>
+          <div id="kb-hours-container"></div>
+        </div>
 
-          <div class="field-group">
-            <label class="field-group__label">Operating Hours</label>
-            <div id="kb-hours-container"></div>
-          </div>
-
+        <!-- Extra details the AI can mention (all optional) -->
+        <div class="wizard-section">
           <div class="accordion">
             <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
-              <span class="accordion__toggle-text">More business details <span class="accordion__toggle-hint">(dietary, allergens, kids, parking, about)</span></span>
+              <span class="accordion__toggle-text">More business details <span class="accordion__toggle-hint">(dietary, allergens, kids, parking, accepted payments, about)</span></span>
               <span class="accordion__chevron" id="icon-accordion-details"></span>
             </button>
             <div class="accordion__body is-hidden" data-role="accordion-body">
@@ -205,6 +243,20 @@
               </div>
 
               <div class="field-group">
+                <label class="field-group__label">Accepted Payment Methods</label>
+                <div class="kb-chips" id="kb-payment-methods">
+                  <label class="kb-chip"><input type="checkbox" value="Visa" checked /><span>Visa</span></label>
+                  <label class="kb-chip"><input type="checkbox" value="Mastercard" checked /><span>Mastercard</span></label>
+                  <label class="kb-chip"><input type="checkbox" value="Amex" /><span>Amex</span></label>
+                  <label class="kb-chip"><input type="checkbox" value="Discover" /><span>Discover</span></label>
+                  <label class="kb-chip"><input type="checkbox" value="Cash" checked /><span>Cash</span></label>
+                  <label class="kb-chip"><input type="checkbox" value="Apple Pay" /><span>Apple Pay</span></label>
+                  <label class="kb-chip"><input type="checkbox" value="Google Pay" /><span>Google Pay</span></label>
+                  <label class="kb-chip"><input type="checkbox" value="Samsung Pay" /><span>Samsung Pay</span></label>
+                </div>
+              </div>
+
+              <div class="field-group">
                 <label class="field-group__label" for="kb-about">About Us Description</label>
                 <div class="input-field">
                   <textarea class="input-field__control" style="padding-left: var(--space-4); resize: vertical; min-height: 72px;" id="kb-about" placeholder="A short description of your restaurant"></textarea>
@@ -213,51 +265,77 @@
             </div>
           </div>
         </div>
-
-        <!-- Payment methods accepted -->
-        <div class="wizard-section" style="margin-bottom: var(--space-5);">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-kb-payments"></span>
-            <div>
-              <div class="wizard-section__heading">Payment Methods</div>
-              <div class="wizard-section__heading-meta">Which payment methods do you accept?</div>
-            </div>
-          </div>
-          <div class="kb-chips" id="kb-payment-methods">
-            <label class="kb-chip"><input type="checkbox" value="Visa" checked /><span>Visa</span></label>
-            <label class="kb-chip"><input type="checkbox" value="Mastercard" checked /><span>Mastercard</span></label>
-            <label class="kb-chip"><input type="checkbox" value="Amex" /><span>Amex</span></label>
-            <label class="kb-chip"><input type="checkbox" value="Discover" /><span>Discover</span></label>
-            <label class="kb-chip"><input type="checkbox" value="Cash" checked /><span>Cash</span></label>
-            <label class="kb-chip"><input type="checkbox" value="Apple Pay" /><span>Apple Pay</span></label>
-            <label class="kb-chip"><input type="checkbox" value="Google Pay" /><span>Google Pay</span></label>
-            <label class="kb-chip"><input type="checkbox" value="Samsung Pay" /><span>Samsung Pay</span></label>
-          </div>
-        </div>
-
-        <!-- FAQs -->
-        <div class="wizard-section">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-kb-faq"></span>
-            <div>
-              <div class="wizard-section__heading">Frequently Asked Questions</div>
-              <div class="wizard-section__heading-meta">Add common questions your customers ask</div>
-            </div>
-          </div>
-          <div id="kb-faq-container"></div>
-          <button type="button" class="add-faq-link" id="btn-add-faq">
-            <span id="icon-add-faq"></span> Add FAQ
-          </button>
-        </div>
       </div>
 
-      <!-- Step: Service Setup -->
+      <!-- Step: Choose Agent (single-select — reservation OR ordering) -->
       <div class="wizard-step is-hidden" data-step-id="integration">
-        <h2 class="wizard-panel__title">Service Setup</h2>
-        <p class="wizard-panel__subtitle">Pick every Parcera product you want and a tier for each. You can mix and match.</p>
+        <h2 class="wizard-panel__title">Choose Your Agent</h2>
+        <p class="wizard-panel__subtitle">Pick one Parcera agent for this location — reservations or ordering — and a plan.</p>
 
-        <!-- Rendered by JS: one tile per service, each with 3 tiers -->
+        <!-- Rendered by JS: one tile per agent, single-select, each with 3 tiers -->
         <div class="service-tiles" id="service-tiles-container"></div>
+
+        <!-- Phone Calls (PSTN) is OPTIONAL — the user can continue without it.
+             Revealed once an agent is chosen. Enabling opens the assign / manual
+             number panel below. -->
+        <div class="phone-enable is-hidden" id="phone-enable">
+          <div class="phone-enable__head">
+            <span class="phone-enable__icon" id="icon-phone-enable"></span>
+            <div style="flex:1; min-width:0;">
+              <div class="phone-enable__title-row">
+                <span class="phone-enable__title">Phone Calls</span>
+                <span class="pill pill--optional">Optional</span>
+              </div>
+              <p class="phone-enable__desc">Customers can call a dedicated phone number to reach your AI assistant.</p>
+
+              <div class="phone-enable__toggle-row">
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-switch__input" id="phone-enable-toggle" />
+                </label>
+                <span class="phone-enable__toggle-label" id="phone-enable-label">Click to enable</span>
+              </div>
+
+              <!-- Assign / manual number panel, revealed when Phone Calls is on -->
+              <div class="phone-panel is-hidden" id="phone-panel">
+                <div class="phone-panel__head">
+                  <div class="phone-panel__title-wrap">
+                    <span class="phone-panel__icon" id="icon-phone-panel"></span>
+                    <span class="phone-panel__title">Phone Number</span>
+                  </div>
+                  <button type="button" class="phone-panel__cancel" id="phone-cancel">
+                    <span id="icon-phone-cancel"></span> Cancel
+                  </button>
+                </div>
+
+                <div class="phone-choices">
+                  <button type="button" class="phone-opt is-selected" data-phone-mode="auto">
+                    <span class="phone-opt__radio"></span>
+                    <span class="phone-opt__label">Assign one for me</span>
+                  </button>
+                  <button type="button" class="phone-opt" data-phone-mode="manual">
+                    <span class="phone-opt__radio"></span>
+                    <span class="phone-opt__label"><span id="icon-phone-manual"></span> Enter manually</span>
+                  </button>
+                </div>
+
+                <!-- Auto: we assign a number at launch -->
+                <div class="phone-detail" data-phone-detail="auto">
+                  <div class="phone-assign-note">We'll assign an available phone number to your assistant when you launch.</div>
+                </div>
+
+                <!-- Manual: a Twilio number in E.164 -->
+                <div class="phone-detail is-hidden" data-phone-detail="manual">
+                  <div class="input-field">
+                    <span class="input-field__icon" id="icon-phone-field"></span>
+                    <input class="input-field__control" type="tel" id="phone-manual-input" placeholder="+15551234567" style="font-family: monospace;" />
+                  </div>
+                  <p class="field-group__hint">Include country code (e.g. +1 for US).</p>
+                  <p class="phone-manual-warn">Supports Twilio numbers only.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Step: Parcera AI Setup -->
@@ -336,14 +414,14 @@
                 <span class="checkbox-card__meta">Primary language</span>
               </span>
             </label>
-            <label class="checkbox-card">
-              <input type="checkbox" class="checkbox-card__input" id="checkbox-spanish" />
+            <label class="checkbox-card checkbox-card--disabled" title="Spanish support is coming soon">
+              <input type="checkbox" class="checkbox-card__input" id="checkbox-spanish" disabled />
               <span>
                 <span class="checkbox-card__title-row">
                   <span class="checkbox-card__title">Spanish</span>
-                  <span class="pill pill--optional">Optional</span>
+                  <span class="pill pill--soon">Coming soon</span>
                 </span>
-                <span class="checkbox-card__meta">Add Spanish support</span>
+                <span class="checkbox-card__meta">Spanish support is on the way</span>
               </span>
             </label>
           </div>
@@ -358,181 +436,6 @@
             <li><span class="tips-list__number">2</span> Include business name and assistant's name</li>
             <li><span class="tips-list__number">3</span> Ask how you can help</li>
           </ul>
-        </div>
-      </div>
-
-      <!-- Step: Payment Method (individual paying for the Parcera service) -->
-      <div class="wizard-step is-hidden" data-step-id="payments">
-        <h2 class="wizard-panel__title">Payment Method</h2>
-        <p class="wizard-panel__subtitle">Choose how you'd like to pay for your Parcera plan. You can update this anytime from billing.</p>
-
-        <!-- Plan summary: one row per selected service + tier, then the total.
-             Rendered by JS from the Service Setup selections. -->
-        <div class="plan-breakdown" id="plan-breakdown"></div>
-        <div class="pay-plan">
-          <div class="pay-plan__info">
-            <span class="pay-plan__label">Total, monthly</span>
-            <span class="pay-plan__meta" id="pay-plan-meta">No services selected</span>
-          </div>
-          <span class="pay-plan__amount">$<span id="pay-plan-amount">0</span><span class="pay-plan__per">/mo</span></span>
-        </div>
-        <button type="button" class="btn--tab-link" id="btn-add-service-payment" style="display:block; margin: var(--space-3) 0 var(--space-4) auto;">+ Add another service</button>
-
-        <!-- Method picker: a single choice, low-friction, one panel of fields -->
-        <div class="pay-methods" id="pay-method-options">
-          <button type="button" class="pay-option is-selected" data-method="card">
-            <span class="pay-option__icon" id="icon-method-card"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Card</span>
-              <span class="pay-option__meta">Credit or debit</span>
-            </span>
-            <span class="pay-option__check" id="icon-method-card-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="apple">
-            <span class="pay-option__icon" id="icon-method-apple"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Apple Pay</span>
-              <span class="pay-option__meta">One-tap checkout</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-apple-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="google">
-            <span class="pay-option__icon" id="icon-method-google"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Google Pay</span>
-              <span class="pay-option__meta">One-tap checkout</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-google-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="samsung">
-            <span class="pay-option__icon" id="icon-method-samsung"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Samsung Pay</span>
-              <span class="pay-option__meta">One-tap checkout</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-samsung-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="paypal">
-            <span class="pay-option__icon" id="icon-method-paypal"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">PayPal</span>
-              <span class="pay-option__meta">Pay with your balance</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-paypal-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="ach">
-            <span class="pay-option__icon" id="icon-method-ach"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Bank (ACH)</span>
-              <span class="pay-option__meta">US bank account</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-ach-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="bnpl">
-            <span class="pay-option__icon" id="icon-method-bnpl"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Pay later</span>
-              <span class="pay-option__meta">Klarna, Afterpay, Affirm</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-bnpl-check"></span>
-          </button>
-        </div>
-
-        <!-- Card fields -->
-        <div class="pay-fields" data-pay-fields="card">
-          <div class="field-group" style="margin-top: 0;">
-            <label class="field-group__label" for="pay-card-name">Name on card</label>
-            <div class="input-field">
-              <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-name" placeholder="Jordan Smith" />
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-group__label" for="pay-card-number">Card number</label>
-            <div class="input-field">
-              <span class="input-field__icon" id="icon-card-field"></span>
-              <input class="input-field__control" type="text" id="pay-card-number" inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" />
-            </div>
-          </div>
-          <div class="pay-fields__row">
-            <div>
-              <label class="field-group__label" for="pay-card-exp">Expiry</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-exp" placeholder="MM / YY" autocomplete="cc-exp" />
-              </div>
-            </div>
-            <div>
-              <label class="field-group__label" for="pay-card-cvc">CVC</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-cvc" inputmode="numeric" placeholder="123" autocomplete="cc-csc" maxlength="4" />
-              </div>
-            </div>
-            <div>
-              <label class="field-group__label" for="pay-card-zip">ZIP</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-zip" inputmode="numeric" placeholder="90210" maxlength="10" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Wallet / express-checkout confirmation (Apple, Google, PayPal) -->
-        <div class="pay-fields is-hidden" data-pay-fields="wallet">
-          <div class="pay-wallet-note">
-            <span id="icon-wallet-note"></span>
-            <p>You'll confirm the payment securely in a <strong id="pay-wallet-name">wallet</strong> popup after you launch. No card details are entered here.</p>
-          </div>
-        </div>
-
-        <!-- ACH bank fields -->
-        <div class="pay-fields is-hidden" data-pay-fields="ach">
-          <div class="pay-fields__row pay-fields__row--two">
-            <div>
-              <label class="field-group__label" for="pay-ach-routing2">Routing number</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-routing2" inputmode="numeric" placeholder="9 digits" maxlength="9" />
-              </div>
-            </div>
-            <div>
-              <label class="field-group__label" for="pay-ach-account2">Account number</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-account2" inputmode="numeric" placeholder="Account number" />
-              </div>
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-group__label" for="pay-ach-type2">Account type</label>
-            <div class="select-field">
-              <select class="select-field__control" id="pay-ach-type2">
-                <option value="checking">Checking</option>
-                <option value="savings">Savings</option>
-              </select>
-              <span class="select-field__chevron" id="icon-chevron-ach2"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Buy now, pay later provider choice -->
-        <div class="pay-fields is-hidden" data-pay-fields="bnpl">
-          <div class="field-group" style="margin-top: 0;">
-            <label class="field-group__label" for="pay-bnpl-provider">Provider</label>
-            <div class="select-field">
-              <select class="select-field__control" id="pay-bnpl-provider">
-                <option value="klarna">Klarna</option>
-                <option value="afterpay">Afterpay</option>
-                <option value="affirm">Affirm</option>
-              </select>
-              <span class="select-field__chevron" id="icon-chevron-bnpl"></span>
-            </div>
-            <p class="field-group__hint">You'll be redirected to your chosen provider to approve the plan.</p>
-          </div>
-        </div>
-
-        <div class="wizard-callout wizard-callout--icon" style="margin-top: var(--space-5);">
-          <span id="icon-pay-info"></span>
-          <div>
-            <div class="wizard-callout__title">Secure &amp; encrypted</div>
-            Payments run through Parcera's PCI-compliant gateway. Your details are encrypted and tokenized, never stored on our servers.
-          </div>
         </div>
       </div>
 
@@ -589,6 +492,7 @@
               <div class="report__rows">
                 <div class="report__row"><span class="report__key">Name</span><span class="report__val" id="rep-assistant-name">Not set</span></div>
                 <div class="report__row"><span class="report__key">Voice</span><span class="report__val" id="rep-voice">Not set</span></div>
+                <div class="report__row"><span class="report__key">Phone calls</span><span class="report__val" id="rep-phone">In-app only</span></div>
                 <div class="report__row"><span class="report__key">Languages</span><span class="report__val" id="rep-languages">Not set</span></div>
                 <div class="report__row"><span class="report__key">Transfer #s</span><span class="report__val" id="rep-transfers">Not set</span></div>
                 <div class="report__row report__row--stack">
@@ -600,12 +504,11 @@
 
             <div class="report__group">
               <div class="report__group-head">
-                <span class="report__group-title">Payment Method</span>
-                <button type="button" class="report__edit" data-edit-step="payments">Edit</button>
+                <span class="report__group-title">Plan</span>
+                <button type="button" class="report__edit" data-edit-step="integration">Edit</button>
               </div>
               <div class="report__rows">
                 <div class="report__row"><span class="report__key">Total</span><span class="report__val" id="rep-plan-total">$0/mo</span></div>
-                <div class="report__row"><span class="report__key">Paying with</span><span class="report__val" id="rep-payment">Not set</span></div>
               </div>
             </div>
           </div>
@@ -641,6 +544,16 @@
                 <span class="launch-next__meta">Design your public ordering page</span>
               </span>
               <span class="launch-next__arrow" id="icon-next-arrow-2"></span>
+            </a>
+
+            <!-- Re-onboard at another location: business details carry over prefilled -->
+            <a href="onboarding.html?flow=add-location" class="launch-next__option" id="link-add-location">
+              <span class="launch-next__icon" id="icon-next-add-location"></span>
+              <span class="launch-next__text">
+                <span class="launch-next__title">Onboard new location</span>
+                <span class="launch-next__meta">Set up another location — your details are prefilled</span>
+              </span>
+              <span class="launch-next__arrow" id="icon-next-arrow-3"></span>
             </a>
           </div>
 

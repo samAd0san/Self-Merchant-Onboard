@@ -15,7 +15,7 @@ import { addMenu, getAllMenus, resetMenus, refreshMenuLocationOptions } from "..
 import { saveOnboardingState, loadOnboardingState, clearOnboardingState } from "../utils/onboardingState.js";
 import { validators as V, formatters as F, attachValidation } from "../utils/validation.js";
 import { markContactVerified, clearVerifiedContacts } from "../utils/verifiedContacts.js";
-import { addFaq, getAllFaqs, resetFaqs } from "../components/knowledgeBase.js";
+// FAQs are managed on the Storefront config, not in onboarding.
 import { makeCollapsible } from "../components/collapsible.js";
 import { initPageTransitions } from "../utils/pageTransition.js";
 
@@ -35,10 +35,8 @@ function injectStaticIcons() {
     "icon-add-address": "plus",
     "icon-kb-details": "storefront",
     "icon-accordion-details": "chevronDown",
-    "icon-kb-payments": "creditCard",
     "icon-kb-faq": "chat",
     "icon-add-faq": "plus",
-    "icon-add-menu": "book",
     "icon-arrow-4": "arrowRight",
     "icon-chevron-left": "chevronLeft",
     "icon-assistant-name": "user",
@@ -50,26 +48,17 @@ function injectStaticIcons() {
     "icon-chevron-voice": "chevronDown",
     "icon-languages": "globe",
     "icon-tips": "lightbulb",
-    // Payment Method step (individual pays for the service)
-    "icon-method-card": "creditCard",
-    "icon-method-apple": "smartphone",
-    "icon-method-google": "smartphone",
-    "icon-method-samsung": "smartphone",
-    "icon-method-paypal": "creditCard",
-    "icon-method-ach": "building",
-    "icon-method-bnpl": "calendar",
-    "icon-method-card-check": "check",
-    "icon-method-apple-check": "check",
-    "icon-method-google-check": "check",
-    "icon-method-samsung-check": "check",
-    "icon-method-paypal-check": "check",
-    "icon-method-ach-check": "check",
-    "icon-method-bnpl-check": "check",
-    "icon-card-field": "creditCard",
-    "icon-chevron-ach2": "chevronDown",
-    "icon-chevron-bnpl": "chevronDown",
-    "icon-wallet-note": "shield",
-    "icon-pay-info": "shield",
+    // Rules & Hours step
+    "icon-service-rules": "shield",
+    "icon-hours": "clock",
+    "icon-kb-reservation-note": "calendar",
+    // Optional Phone Calls (PSTN) card + assign/manual panel
+    "icon-phone-enable": "phone",
+    "icon-phone-panel": "phone",
+    "icon-phone-cancel": "close",
+    "icon-phone-manual": "pencil",
+    "icon-phone-field": "phone",
+    "icon-add-location-banner": "pin",
     "icon-launch-sparkle": "sparkle",
     "icon-launch-success": "partyPopper",
     // Post-launch "what's next" option cards
@@ -77,6 +66,8 @@ function injectStaticIcons() {
     "icon-next-storefront": "palette",
     "icon-next-arrow-1": "arrowRight",
     "icon-next-arrow-2": "arrowRight",
+    "icon-next-add-location": "storefront",
+    "icon-next-arrow-3": "arrowRight",
   };
 
   Object.entries(iconMap).forEach(([id, iconKey]) => {
@@ -117,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerPhoneInput = qs("#input-owner-phone");
   const smsConsentCheckbox = qs("#checkbox-sms-consent");
   const addressesContainer = qs("#addresses-container");
-  const addAddressButton = qs("#btn-add-address");
 
   // Contact captured on the landing page and passed via the URL, used below
   // to prefill this step's contact fields.
@@ -131,9 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
     markContactVerified(landingChannel, landingContact);
   }
 
-  // Seed the first (non-removable) location so at least one always exists
+  // Single location per run (additional locations are onboarded separately).
   addAddressBlock(addressesContainer, { removable: false });
-  addAddressButton.addEventListener("click", () => addAddressBlock(addressesContainer, { removable: true }));
 
   // Keep Continue's enabled state live as the form is filled
   [businessNameInput, businessEINInput, ownerNameInput, ownerEmailInput, ownerPhoneInput].forEach((input) => {
@@ -174,9 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ======================================================================
   const kbHoursContainer = qs("#kb-hours-container");
   const kbMenusContainer = qs("#kb-menus-container");
-  const kbAddMenuButton = qs("#btn-add-menu");
-  const kbFaqContainer = qs("#kb-faq-container");
-  const kbAddFaqButton = qs("#btn-add-faq");
   // Free-text Knowledge Base fields (all carried across onboardings)
   const kbTextInputs = {
     dietary: qs("#kb-dietary"),
@@ -198,15 +184,9 @@ document.addEventListener("DOMContentLoaded", () => {
     detailsToggle.setAttribute("aria-expanded", String(!isOpen));
   });
 
-  // Menus: start with one card; each new card is seeded with the current
-  // business locations so it can be linked straight away.
-  addMenu(kbMenusContainer, { removable: true, locations: getLocationOptions() });
-  kbAddMenuButton.addEventListener("click", () =>
-    addMenu(kbMenusContainer, { removable: true, locations: getLocationOptions() })
-  );
-
-  addFaq(kbFaqContainer, { removable: false }); // always start with one FAQ
-  kbAddFaqButton.addEventListener("click", () => addFaq(kbFaqContainer, { removable: true }));
+  // Single menu per location — one non-removable card that link-fetch, upload,
+  // and manual entry all feed into.
+  addMenu(kbMenusContainer, { removable: false, locations: getLocationOptions() });
 
   // Collects the accepted payment methods from the chip checkboxes
   function getKbPaymentMethods() {
@@ -232,38 +212,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // ======================================================================
   const serviceTilesContainer = qs("#service-tiles-container");
 
+  // Single-select: a location runs ONE agent — reservation (Toast/Parcera) OR
+  // ordering (via Parcera POS). Matches what the backend supports today.
   const SERVICES = [
     {
       id: "reservations",
-      label: "Parcera Reservations",
+      label: "Reservation Voice Agent",
       icon: "calendar",
-      description: "Manage bookings with Parcera Tables, or connect your existing Toast Tables.",
+      description: "Voice AI answers calls and books tables — via Parcera Tables or your existing Toast Tables.",
       tiers: [
-        { name: "Starter", price: 19, blurb: "Online booking calendar with email confirmations." },
+        { name: "Starter", price: 19, blurb: "Answers booking calls with email confirmations." },
         { name: "Growth", price: 39, blurb: "Adds SMS reminders, waitlists, and table assignments." },
         { name: "Pro", price: 69, blurb: "Multi-location sync plus priority phone support." },
       ],
     },
     {
-      id: "calling",
-      label: "Parcera Call Ordering",
-      icon: "phone",
-      description: "No busy signals. Every guest gets through on the first try.",
+      id: "ordering",
+      label: "Ordering Voice Agent",
+      icon: "cart",
+      description: "Voice AI takes food orders end to end, powered by Parcera POS.",
       tiers: [
-        { name: "Starter", price: 29, blurb: "Voice AI answers calls and logs orders after hours." },
+        { name: "Starter", price: 29, blurb: "Answers calls and logs orders straight into your POS." },
         { name: "Growth", price: 59, blurb: "Live order routing with automatic upsell prompts." },
         { name: "Pro", price: 99, blurb: "Multi-line support with real-time kitchen sync." },
-      ],
-    },
-    {
-      id: "pos",
-      label: "Parcera POS",
-      icon: "cart",
-      description: "Food ordering, kitchen display, and payments end to end.",
-      tiers: [
-        { name: "Starter", price: 25, blurb: "Single register with basic order tracking." },
-        { name: "Growth", price: 55, blurb: "Adds kitchen display screens and staff logins." },
-        { name: "Pro", price: 89, blurb: "Multi-register plus advanced sales reporting." },
       ],
     },
   ];
@@ -363,13 +334,15 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.addEventListener("click", () => {
         const current = selectedServices[svc.id];
         if (current && current.tierIndex === i) {
-          delete selectedServices[svc.id]; // clicking the active tier again removes the service
+          delete selectedServices[svc.id]; // clicking the active tier again removes the agent
         } else {
+          // Single-select: one agent per location — drop any other agent first.
+          Object.keys(selectedServices).forEach((k) => { if (k !== svc.id) delete selectedServices[k]; });
           selectedServices[svc.id] = current
             ? { ...current, tierIndex: i }
             : { tierIndex: i, management: "parcera", toastLink: "" };
         }
-        paint();
+        syncServiceTiles(); // repaint ALL tiles since the other agent may have been cleared
         onServiceSelectionChange();
       });
     });
@@ -421,9 +394,144 @@ document.addEventListener("DOMContentLoaded", () => {
   function onServiceSelectionChange() {
     updateContinueState();
     renderPlanBreakdown();
+    updatePhoneCard();
+    refreshStepper(); // agent kind decides whether the menu step is shown
   }
 
   renderServiceTiles();
+
+  // ── Optional Phone Calls (PSTN) ─────────────────────────────────────────
+  // PSTN is optional: the user can continue without it. Enabling reveals the
+  // "Assign one for me" (auto) vs "Enter manually" (a Twilio number) choice.
+  // Shown once an agent is picked.
+  const phoneEnableEl = qs("#phone-enable");
+  const phoneToggle = qs("#phone-enable-toggle");
+  const phoneToggleLabel = qs("#phone-enable-label");
+  const phonePanel = qs("#phone-panel");
+  const phoneManualInput = qs("#phone-manual-input");
+  const phoneCancelBtn = qs("#phone-cancel");
+  const phoneOptButtons = qsa(".phone-opt");
+  const phoneDetails = qsa("[data-phone-detail]");
+  // enabled = PSTN on; mode = 'auto' | 'manual'; manualNumber = typed E.164
+  const phone = { enabled: false, mode: "auto", manualNumber: "" };
+
+  function renderPhonePanel() {
+    phoneOptButtons.forEach((b) => b.classList.toggle("is-selected", b.dataset.phoneMode === phone.mode));
+    phoneDetails.forEach((d) => setHidden(d, d.dataset.phoneDetail !== phone.mode));
+  }
+  function setPhoneEnabled(on) {
+    phone.enabled = on;
+    if (phoneToggle) phoneToggle.checked = on;
+    if (phoneEnableEl) phoneEnableEl.classList.toggle("is-on", on);
+    if (phoneToggleLabel) phoneToggleLabel.textContent = on ? "Enabled" : "Click to enable";
+    if (phonePanel) setHidden(phonePanel, !on);
+    if (on) renderPhonePanel();
+  }
+  if (phoneToggle) phoneToggle.addEventListener("change", () => setPhoneEnabled(phoneToggle.checked));
+  phoneOptButtons.forEach((btn) => btn.addEventListener("click", () => {
+    phone.mode = btn.dataset.phoneMode;
+    renderPhonePanel();
+  }));
+  if (phoneManualInput) phoneManualInput.addEventListener("input", () => { phone.manualNumber = phoneManualInput.value.trim(); });
+  if (phoneCancelBtn) phoneCancelBtn.addEventListener("click", () => {
+    phone.mode = "auto";
+    phone.manualNumber = "";
+    if (phoneManualInput) phoneManualInput.value = "";
+    renderPhonePanel();
+    setPhoneEnabled(false);
+  });
+  // Phone Calls is ordering-only: shown when the Ordering agent is selected,
+  // hidden (and reset off) for the reservation agent or no selection.
+  function updatePhoneCard() {
+    const isOrdering = selectedAgentKind() === "ordering";
+    if (phoneEnableEl) setHidden(phoneEnableEl, !isOrdering);
+    if (!isOrdering && phone.enabled) {
+      if (phoneManualInput) phoneManualInput.value = "";
+      phone.mode = "auto";
+      phone.manualNumber = "";
+      setPhoneEnabled(false);
+    }
+  }
+
+  // ── Dynamic service rules: ordering-rules OR reservation-rules, rendered on
+  //    the Restaurant Details step from the agent chosen on the previous step. ──
+  const serviceRulesFields = qs("#service-rules-fields");
+  const serviceRulesHeading = qs("#service-rules-heading");
+  const serviceRulesMeta = qs("#service-rules-meta");
+  function selectedAgentKind() {
+    if (selectedServices.ordering) return "ordering";
+    if (selectedServices.reservations) return "reservation";
+    return null;
+  }
+  const ruleRow = (id, label, value, { min = 0, max, step, hint } = {}) => `
+    <div class="field-group">
+      <label class="field-group__label" for="${id}">${label}</label>
+      <div class="input-field">
+        <input class="input-field__control" style="padding-left: var(--space-4);" type="number" id="${id}"
+          value="${value}" min="${min}"${max != null ? ` max="${max}"` : ""}${step ? ` step="${step}"` : ""} />
+      </div>
+      ${hint ? `<p class="field-group__hint">${hint}</p>` : ""}
+    </div>`;
+  function orderingRulesTemplate() {
+    return `
+      <div class="field-group" style="margin-top: 0;">
+        <label class="field-group__label">Supported order types</label>
+        <div class="kb-chips" id="rule-order-types">
+          <label class="kb-chip"><input type="checkbox" value="pickup" checked /><span>Pickup</span></label>
+          <label class="kb-chip"><input type="checkbox" value="delivery" /><span>Delivery</span></label>
+        </div>
+      </div>
+      <div class="rules-grid">
+        ${ruleRow("rule-min-order", "Minimum order ($)", "0", { step: "0.01" })}
+        ${ruleRow("rule-max-items", "Max items per order", "20", { min: 1, hint: "Total items in one order — stops abusive orders (e.g. 100 bagels)." })}
+        ${ruleRow("rule-max-qty", "Max quantity per item", "25", { min: 1, hint: "Most of any single item in one order." })}
+        ${ruleRow("rule-prep", "Estimated prep (min)", "15", { min: 0 })}
+      </div>
+      <div class="rules-note">
+        <span class="rules-note__icon">${ICONS.shield}</span>
+        <span>These are safety fallbacks. Your agent enforces them as hard caps so customers can't place abusive orders.</span>
+      </div>`;
+  }
+  function reservationRulesTemplate() {
+    return `
+      <div class="rules-grid">
+        ${ruleRow("rule-min-party", "Min party size", "1", { min: 1 })}
+        ${ruleRow("rule-max-party", "Max party size", "20", { min: 1, max: 200, hint: "Hard cap (up to 200)." })}
+        ${ruleRow("rule-advance", "Advance booking (days)", "30", { min: 0 })}
+        ${ruleRow("rule-lead", "Lead time (min)", "60", { min: 0 })}
+        ${ruleRow("rule-large-party", "Large party threshold", "6", { min: 1 })}
+        ${ruleRow("rule-cutoff", "Same-day cutoff (min)", "120", { min: 0 })}
+      </div>
+      <div class="rules-note">
+        <span class="rules-note__icon">${ICONS.shield}</span>
+        <span>Your agent enforces these on every booking. Bookings past these limits are declined or held for approval.</span>
+      </div>`;
+  }
+  const kbMenusGroup = qs("#kb-menus-group");
+  const kbReservationNote = qs("#kb-reservation-note");
+  // Menu is ordering-only; a reservation agent sees a short note instead.
+  function syncMenuVisibility() {
+    const isReservation = selectedAgentKind() === "reservation";
+    if (kbMenusGroup) setHidden(kbMenusGroup, isReservation);
+    if (kbReservationNote) setHidden(kbReservationNote, !isReservation);
+  }
+  function renderServiceRules() {
+    if (!serviceRulesFields) return;
+    const kind = selectedAgentKind();
+    if (kind === "ordering") {
+      serviceRulesHeading.textContent = "Ordering Rules";
+      serviceRulesMeta.textContent = "Safety limits your agent enforces so no one can place an abusive order.";
+      serviceRulesFields.innerHTML = orderingRulesTemplate();
+    } else if (kind === "reservation") {
+      serviceRulesHeading.textContent = "Reservation Rules";
+      serviceRulesMeta.textContent = "Booking limits your agent enforces on every reservation.";
+      serviceRulesFields.innerHTML = reservationRulesTemplate();
+    } else {
+      serviceRulesHeading.textContent = "Service Rules";
+      serviceRulesMeta.textContent = "Choose an agent on the previous step to configure its rules.";
+      serviceRulesFields.innerHTML = `<p class="field-group__hint">No agent selected yet — go back and pick your agent.</p>`;
+    }
+  }
 
   // At least one service must be selected; if Reservations is on Toast
   // Tables, its link must also be a valid URL.
@@ -609,131 +717,9 @@ document.addEventListener("DOMContentLoaded", () => {
   spanishCheckbox.addEventListener("change", renderGreetings);
   voiceSelect.addEventListener("change", updateContinueState);
 
-  // ======================================================================
-  // Step: Payment Method (individual paying for the Parcera service)
-  // A single method is selected at a time; picking one reveals just that
-  // method's fields. Keeps the checkout low-friction.
-  // ======================================================================
-  const payOptions = qsa(".pay-option");
-  const payFieldPanels = qsa("[data-pay-fields]");
-  const walletNameEl = qs("#pay-wallet-name");
-  let selectedPaymentMethod = "card";
-
-  // Renders one row per selected service + tier, then the running total.
-  // Called whenever the Service Setup selection changes, and again on entry
-  // to this step so it's never stale.
-  const planBreakdownEl = qs("#plan-breakdown");
-  const payPlanMetaEl = qs("#pay-plan-meta");
-  const payPlanAmountEl = qs("#pay-plan-amount");
-
-  function renderPlanBreakdown() {
-    const entries = Object.entries(selectedServices);
-    if (!planBreakdownEl) return;
-    if (!entries.length) {
-      planBreakdownEl.innerHTML = `<p class="plan-breakdown__empty">No services selected yet.</p>`;
-    } else {
-      planBreakdownEl.innerHTML = entries.map(([id, sel]) => {
-        const svc = getService(id);
-        const tier = svc.tiers[sel.tierIndex];
-        return `
-          <div class="plan-breakdown__row">
-            <span class="plan-breakdown__label">${svc.label} <span class="plan-breakdown__tier">· ${tier.name}</span></span>
-            <span class="plan-breakdown__price">$${tier.price}/mo</span>
-          </div>
-        `;
-      }).join("");
-    }
-    const total = serviceTotal();
-    if (payPlanMetaEl) {
-      payPlanMetaEl.textContent = entries.length
-        ? `${entries.length} service${entries.length === 1 ? "" : "s"} selected`
-        : "No services selected";
-    }
-    if (payPlanAmountEl) payPlanAmountEl.textContent = String(total);
-  }
-
-  const addServicePaymentBtn = qs("#btn-add-service-payment");
-  if (addServicePaymentBtn) {
-    addServicePaymentBtn.addEventListener("click", () => {
-      navigateToStep(WIZARD_STEPS.findIndex((s) => s.id === "integration"));
-    });
-  }
-
-  // Payment field controls (only the active method's fields are validated)
-  const payCardName = qs("#pay-card-name");
-  const payCardNumber = qs("#pay-card-number");
-  const payCardExp = qs("#pay-card-exp");
-  const payCardCvc = qs("#pay-card-cvc");
-  const payCardZip = qs("#pay-card-zip");
-  const payAchRouting = qs("#pay-ach-routing2");
-  const payAchAccount = qs("#pay-ach-account2");
-  const payAchType = qs("#pay-ach-type2");
-  const payBnplProvider = qs("#pay-bnpl-provider");
-
-  attachValidation(payCardName, { required: true, message: "Name on card is required.", onChange: () => updateContinueState() });
-  attachValidation(payCardNumber, { validate: V.cardNumber, format: F.cardNumber, required: true, message: "Enter a valid card number.", onChange: () => updateContinueState() });
-  attachValidation(payCardExp, { validate: V.cardExp, format: F.cardExp, required: true, message: "Use MM / YY.", onChange: () => updateContinueState() });
-  attachValidation(payCardCvc, { validate: V.cvc, format: F.digits, required: true, message: "3–4 digit CVC.", onChange: () => updateContinueState() });
-  attachValidation(payCardZip, { validate: V.zip, format: F.digits, required: true, message: "Enter a valid ZIP.", onChange: () => updateContinueState() });
-  attachValidation(payAchRouting, { validate: V.routing, format: F.digits, required: true, message: "9-digit routing number.", onChange: () => updateContinueState() });
-  attachValidation(payAchAccount, { validate: V.account, format: F.digits, required: true, message: "Enter a valid account number.", onChange: () => updateContinueState() });
-
-  const PAYMENT_LABELS = {
-    card: "Card (credit/debit)",
-    apple: "Apple Pay",
-    google: "Google Pay",
-    samsung: "Samsung Pay",
-    paypal: "PayPal",
-    ach: "Bank transfer (ACH)",
-    bnpl: "Buy now, pay later",
-  };
-
-  // Card / ACH / BNPL each show a dedicated field panel; the express
-  // wallets share the single "wallet" confirmation panel.
-  function panelForMethod(method) {
-    if (method === "apple" || method === "google" || method === "samsung" || method === "paypal") return "wallet";
-    return method;
-  }
-
-  function selectPaymentMethod(method) {
-    selectedPaymentMethod = method;
-
-    payOptions.forEach((opt) => {
-      const isSel = opt.dataset.method === method;
-      opt.classList.toggle("is-selected", isSel);
-      const check = qs(`#icon-method-${opt.dataset.method}-check`);
-      if (check) setHidden(check, !isSel);
-    });
-
-    const activePanel = panelForMethod(method);
-    payFieldPanels.forEach((panel) => {
-      setHidden(panel, panel.dataset.payFields !== activePanel);
-    });
-
-    // Personalize the wallet confirmation copy
-    if (activePanel === "wallet" && walletNameEl) {
-      walletNameEl.textContent = PAYMENT_LABELS[method];
-    }
-    updateContinueState();
-  }
-
-  payOptions.forEach((opt) => {
-    opt.addEventListener("click", () => selectPaymentMethod(opt.dataset.method));
-  });
-
-  // A method must be selected, and the active method's fields must be valid.
-  // Wallet (Apple/Google/PayPal) and BNPL collect nothing here.
-  function paymentReady() {
-    if (!selectedPaymentMethod) return false;
-    if (selectedPaymentMethod === "card") {
-      return V.required(payCardName.value) && V.cardNumber(payCardNumber.value) &&
-        V.cardExp(payCardExp.value) && V.cvc(payCardCvc.value) && V.zip(payCardZip.value);
-    }
-    if (selectedPaymentMethod === "ach") {
-      return V.routing(payAchRouting.value) && V.account(payAchAccount.value);
-    }
-    return true;
-  }
+  // Billing was removed from the self-serve flow; the plan total still shows in
+  // the review. This no-op keeps the service-selection call sites unchanged.
+  function renderPlanBreakdown() {}
 
   // ======================================================================
   // Step: Review & Launch full report pulling from every node
@@ -839,15 +825,17 @@ document.addEventListener("DOMContentLoaded", () => {
     setReport("rep-assistant-name", assistantNameInput.value.trim() || "Your Assistant");
     const voiceLabel = voiceSelect.options[voiceSelect.selectedIndex]?.textContent;
     setReport("rep-voice", voiceSelect.value ? voiceLabel : "Not selected");
+    setReport("rep-phone", phone.enabled
+      ? (phone.mode === "manual" ? (phone.manualNumber || "Manual number") : "Auto-assigned at launch")
+      : "In-app only");
     setReport("rep-languages", spanishCheckbox.checked ? "English, Spanish" : "English");
     const transferCount = transferRulesContainer.querySelectorAll(".transfer-rule").length;
     setReport("rep-transfers", transferCount ? `${transferCount} number${transferCount === 1 ? "" : "s"}` : "Not set");
     const greeting = getFirstGreetingText();
     setReport("rep-greeting", greeting ? `"${greeting}"` : "Not set");
 
-    // Payment
+    // Plan total
     setReport("rep-plan-total", `$${serviceTotal()}/mo`);
-    setReport("rep-payment", PAYMENT_LABELS[selectedPaymentMethod]);
 
     // Fold every group to its fresh one-line summary so the review opens as a
     // compact, scannable list (each group expands on demand).
@@ -880,7 +868,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return `${n} service${n === 1 ? "" : "s"} · $${serviceTotal()}/mo`;
     },
     "Parcera AI": () => `${repText("rep-assistant-name")} · ${repText("rep-voice")}`,
-    "Payment Method": () => `${repText("rep-plan-total")} · ${repText("rep-payment")}`,
+    "Plan": () => repText("rep-plan-total"),
   };
   function initReviewCollapsibles() {
     if (reviewCollapsibles.length) return; // wire once
@@ -953,6 +941,8 @@ document.addEventListener("DOMContentLoaded", () => {
       case "business":
         return businessFormComplete();
       case "knowledge":
+        return true; // optional (menu), never blocks
+      case "rules-hours":
         return true; // optional, never blocks
       case "integration":
         return integrationComplete();
@@ -965,8 +955,6 @@ document.addEventListener("DOMContentLoaded", () => {
           : false;
         return hasName && hasVoice && hasTransfer;
       }
-      case "payments":
-        return paymentReady();
       case "launch":
         return false;
       default:
@@ -974,19 +962,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // The menu (Restaurant Details) step is skipped for reservation agents —
+  // a booking agent has no menu, so the step is hidden and jumped over.
+  function stepSkipped(stepId) {
+    return stepId === "knowledge" && selectedAgentKind() === "reservation";
+  }
+  // Walks from `index` in direction `dir` (+1/-1) past any skipped steps.
+  function skipPast(index, dir) {
+    let i = index;
+    while (i > 0 && i < WIZARD_STEPS.length - 1 && stepSkipped(WIZARD_STEPS[i].id)) i += dir;
+    return i;
+  }
+
   // Re-render the stepper reflecting current completion + reachability
   function refreshStepper() {
+    const skipped = new Set();
+    if (selectedAgentKind() === "reservation") skipped.add("knowledge");
     renderStepper(stepperEl, currentStepIndex, {
       completed: completedSteps,
       maxReachable: maxReachedIndex,
       onNavigate: navigateToStep,
+      skipped,
     });
   }
 
   // Jump to any reachable step from a stepper badge click. Before leaving
   // the current step, record whether it was completed so it greens out.
   function navigateToStep(index) {
-    if (index === currentStepIndex) return;
+    if (index === currentStepIndex || stepSkipped(WIZARD_STEPS[index].id)) return;
     syncCurrentStepCompletion();
     showStep(index);
   }
@@ -1016,11 +1019,14 @@ document.addEventListener("DOMContentLoaded", () => {
       setHidden(panel, panel.dataset.stepId !== step.id);
     });
 
-    // Keep each menu's location dropdown in sync with the latest locations
-    if (step.id === "knowledge") refreshMenuLocationOptions(getLocationOptions());
+    // Keep each menu's location dropdown in sync + hide the menu for reservation
+    if (step.id === "knowledge") {
+      refreshMenuLocationOptions(getLocationOptions());
+      syncMenuVisibility();
+    }
 
-    // Keep the price breakdown fresh in case services changed elsewhere
-    if (step.id === "payments") renderPlanBreakdown();
+    // Render the agent's rules (ordering vs reservation) on entry
+    if (step.id === "rules-hours") renderServiceRules();
 
     if (step.id === "launch") showLaunchReviewPhase();
 
@@ -1062,8 +1068,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ? firstRule.querySelector(".transfer-label").value.trim() && V.phone(firstRule.querySelector(".transfer-phone").value)
         : false;
       enabled = hasName && hasVoice && hasTransferNumber;
-    } else if (step.id === "payments") {
-      enabled = paymentReady();
     }
 
     continueButton.disabled = !enabled;
@@ -1072,7 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Advances to the next step, used by the shared Continue button.
   function goToNextStep() {
     syncCurrentStepCompletion();
-    if (currentStepIndex < WIZARD_STEPS.length - 1) showStep(currentStepIndex + 1);
+    if (currentStepIndex < WIZARD_STEPS.length - 1) showStep(skipPast(currentStepIndex + 1, +1));
   }
 
   function goBack() {
@@ -1086,7 +1090,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     syncCurrentStepCompletion();
-    showStep(currentStepIndex - 1);
+    showStep(skipPast(currentStepIndex - 1, -1));
   }
 
   function goContinue() {
@@ -1111,10 +1115,6 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedServices = {};
     syncServiceTiles();
     renderPlanBreakdown();
-
-    // Re-apply the CURRENT payment method (keeps the details entered on the
-    // first walkthrough rather than resetting to Card).
-    selectPaymentMethod(selectedPaymentMethod);
     refreshCustomSelects();
 
     completedSteps.clear();
@@ -1144,21 +1144,15 @@ document.addEventListener("DOMContentLoaded", () => {
     resetAddressBlocks(addressesContainer);
     addAddressBlock(addressesContainer, { removable: false });
 
-    // Reset the Knowledge Base: menus, FAQs, hours, text fields, payment chips
+    // Reset Restaurant Details: menu, hours, text fields, payment chips
     resetMenus(kbMenusContainer);
-    addMenu(kbMenusContainer, { removable: true, locations: getLocationOptions() });
-    resetFaqs(kbFaqContainer);
-    addFaq(kbFaqContainer, { removable: false });
+    addMenu(kbMenusContainer, { removable: false, locations: getLocationOptions() });
     renderBusinessHours(kbHoursContainer);
     Object.values(kbTextInputs).forEach((el) => { if (el) el.value = ""; });
     setKbPaymentMethods(DEFAULT_KB_PAYMENTS);
 
     // Transfer rules only fully reset here (they persist between services)
     resetTransferRules();
-
-    // Full reset also clears the payment method + entered details
-    [payCardName, payCardNumber, payCardExp, payCardCvc, payCardZip, payAchRouting, payAchAccount].forEach((el) => { if (el) el.value = ""; });
-    selectedPaymentMethod = "card";
 
     clearServiceSpecificState(); // also clears selectedServices + repaints tiles
 
@@ -1222,18 +1216,7 @@ document.addEventListener("DOMContentLoaded", () => {
       locations: addrs.map((a, i) => ({ id: opts[i] ? opts[i].value : null, address: a.address, verified: a.verified })),
       menus: getAllMenus(),                   // [{ fileName, locationValue, locationLabel }]
       services: selectedServices,             // { [serviceId]: { tierIndex, management, toastLink } }
-      payment: {
-        method: selectedPaymentMethod,
-        cardName: payCardName.value,
-        cardNumber: payCardNumber.value,
-        cardExp: payCardExp.value,
-        cardCvc: payCardCvc.value,
-        cardZip: payCardZip.value,
-        achRouting: payAchRouting.value,
-        achAccount: payAchAccount.value,
-        achType: payAchType ? payAchType.value : "",
-        bnplProvider: payBnplProvider ? payBnplProvider.value : "",
-      },
+      phone: { ...phone },                    // optional PSTN: { enabled, mode, manualNumber }
       // Knowledge Base: hours, free-text fields, payment chips, FAQs
       knowledge: {
         hours: getBusinessHoursValue(kbHoursContainer),
@@ -1243,7 +1226,6 @@ document.addEventListener("DOMContentLoaded", () => {
         parking: kbTextInputs.parking.value,
         about: kbTextInputs.about.value,
         paymentMethods: getKbPaymentMethods(),
-        faqs: getAllFaqs(),
       },
       // Transfer numbers from AI setup (carried across services)
       transferRules: [...transferRulesContainer.querySelectorAll(".transfer-rule")].map((r) => ({
@@ -1281,33 +1263,23 @@ document.addEventListener("DOMContentLoaded", () => {
       if (loc && loc.id != null) idMap[String(loc.id)] = String(entry.id);
     });
 
+    // Single menu — restore the first saved one (if any) into the one card
     resetMenus(kbMenusContainer);
-    const menus = state.menus || [];
-    if (menus.length) {
-      menus.forEach((m) => {
-        const remapped = { ...m, locationValue: idMap[m.locationValue] || "" };
-        addMenu(kbMenusContainer, { removable: true, locations: getLocationOptions(), prefill: remapped });
-      });
-    } else {
-      addMenu(kbMenusContainer, { removable: true, locations: getLocationOptions() });
-    }
+    const savedMenu = (state.menus || [])[0];
+    const remapped = savedMenu ? { ...savedMenu, locationValue: idMap[savedMenu.locationValue] || "" } : null;
+    addMenu(kbMenusContainer, { removable: false, locations: getLocationOptions(), prefill: remapped });
 
     selectedServices = state.services || {};
     syncServiceTiles();
     renderPlanBreakdown();
+    updatePhoneCard();
 
-    // Restore the payment method + entered details from the first walkthrough
-    const p = state.payment || {};
-    if (payCardName) payCardName.value = p.cardName || "";
-    if (payCardNumber) payCardNumber.value = p.cardNumber || "";
-    if (payCardExp) payCardExp.value = p.cardExp || "";
-    if (payCardCvc) payCardCvc.value = p.cardCvc || "";
-    if (payCardZip) payCardZip.value = p.cardZip || "";
-    if (payAchRouting) payAchRouting.value = p.achRouting || "";
-    if (payAchAccount) payAchAccount.value = p.achAccount || "";
-    if (payAchType && p.achType) payAchType.value = p.achType;
-    if (payBnplProvider && p.bnplProvider) payBnplProvider.value = p.bnplProvider;
-    selectPaymentMethod(p.method || "card");
+    // Restore optional Phone Calls (enabled + assign/manual + typed number)
+    const ph = state.phone || {};
+    phone.mode = ph.mode === "manual" ? "manual" : "auto";
+    phone.manualNumber = ph.manualNumber || "";
+    if (phoneManualInput) phoneManualInput.value = phone.manualNumber;
+    setPhoneEnabled(!!ph.enabled);
 
     // Restore the Knowledge Base (hours, free-text fields, payment chips, FAQs)
     const kb = state.knowledge || {};
@@ -1318,9 +1290,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (kbTextInputs.parking) kbTextInputs.parking.value = kb.parking || "";
     if (kbTextInputs.about) kbTextInputs.about.value = kb.about || "";
     if (kb.paymentMethods) setKbPaymentMethods(kb.paymentMethods);
-    resetFaqs(kbFaqContainer);
-    const faqs = (kb.faqs && kb.faqs.length) ? kb.faqs : [null];
-    faqs.forEach((f, i) => addFaq(kbFaqContainer, { removable: i > 0, prefill: f }));
 
     // Restore the transfer numbers from AI setup
     resetTransferRules();
@@ -1331,13 +1300,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---- Initial render -----------------------------------------------------
-  selectPaymentMethod("card"); // default method + reveal its fields
 
   // Land on the celebration screen when deep-linked (e.g. Storefront's "Back
   // to launch"), restoring the business, menus, and services first.
   if (landingParams.get("view") === "launched") {
     restoreCarryOver(loadOnboardingState());
     showLaunchCelebration();
+  } else if (landingParams.get("flow") === "add-location") {
+    // Re-onboarding another location: prefill everything from the last run,
+    // then clear just the location address so they enter the new one.
+    const saved = loadOnboardingState();
+    if (saved) {
+      restoreCarryOver(saved);
+      resetAddressBlocks(addressesContainer);
+      addAddressBlock(addressesContainer, { removable: false });
+      // A new location starts with its own fresh (off) phone choice
+      if (phoneManualInput) phoneManualInput.value = "";
+      phone.mode = "auto";
+      phone.manualNumber = "";
+      setPhoneEnabled(false);
+      updatePhoneCard();
+      setHidden(qs("#add-location-banner"), false);
+    }
+    showStep(0);
   } else {
     showStep(0);
   }
