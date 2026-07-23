@@ -221,9 +221,9 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "calendar",
       description: "Voice AI answers calls and books tables — via Parcera Tables or your existing Toast Tables.",
       tiers: [
-        { name: "Starter", price: 19, blurb: "Answers booking calls with email confirmations." },
-        { name: "Growth", price: 39, blurb: "Adds SMS reminders, waitlists, and table assignments." },
-        { name: "Pro", price: 69, blurb: "Multi-location sync plus priority phone support." },
+        { name: "Starter", price: 9.99, blurb: "Answers booking calls with email confirmations." },
+        { name: "Growth", price: 99, blurb: "Adds SMS reminders, waitlists, and table assignments." },
+        { name: "Pro", price: 199, blurb: "Multi-location sync plus priority phone support." },
       ],
     },
     {
@@ -232,9 +232,9 @@ document.addEventListener("DOMContentLoaded", () => {
       icon: "cart",
       description: "Voice AI takes food orders end to end, powered by Parcera POS.",
       tiers: [
-        { name: "Starter", price: 29, blurb: "Answers calls and logs orders straight into your POS." },
-        { name: "Growth", price: 59, blurb: "Live order routing with automatic upsell prompts." },
-        { name: "Pro", price: 99, blurb: "Multi-line support with real-time kitchen sync." },
+        { name: "Starter", price: 9.99, blurb: "Answers calls and logs orders straight into your POS." },
+        { name: "Growth", price: 99, blurb: "Live order routing with automatic upsell prompts." },
+        { name: "Pro", price: 199, blurb: "Multi-line support with real-time kitchen sync." },
       ],
     },
   ];
