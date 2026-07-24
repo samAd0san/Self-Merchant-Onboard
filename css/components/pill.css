@@ -25,8 +25,8 @@
   color: var(--color-text-secondary);
 }
 
-/* "Coming soon" — muted amber, signals a not-yet-available option */
+/* "Coming soon" — blue, matching the consent checkbox's blue (unchecked) styling */
 .pill--soon {
-  background: #fef3c7;
-  color: #92600a;
+  background: var(--blue-ice-active);
+  color: var(--blue-vivid);
 }
