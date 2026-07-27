@@ -127,6 +127,11 @@
               <span class="input-field__icon" id="icon-owner-phone"></span>
               <input class="input-field__control" type="tel" id="input-owner-phone" placeholder="(555) 123-4567" required />
             </div>
+            <!-- Small grey opt-in for transactional business SMS -->
+            <label class="consent-check" for="checkbox-sms-consent">
+              <input type="checkbox" class="consent-check__input" id="checkbox-sms-consent" />
+              <span class="consent-check__label">I consent to receive text messages for business notifications.</span>
+            </label>
           </div>
 
           <!-- Single business location per onboarding run. Additional locations
@@ -135,12 +140,6 @@
             <label class="field-group__label">Business Location</label>
             <div id="addresses-container"></div>
           </div>
-
-          <!-- Small grey opt-in for transactional business SMS, at the bottom -->
-          <label class="consent-check" for="checkbox-sms-consent" style="margin-top: var(--space-4);">
-            <input type="checkbox" class="consent-check__input" id="checkbox-sms-consent" />
-            <span class="consent-check__label">I consent to receive text messages for business notifications.</span>
-          </label>
         </div>
       </div>
 
