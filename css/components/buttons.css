@@ -40,7 +40,7 @@
   transform: none;
 }
 
-/* Loading state — hide label/icon, show a centered spinner, block clicks */
+/* Loading state - hide label/icon, show a centered spinner, block clicks */
 .btn.is-loading {
   color: transparent !important;
   pointer-events: none;
@@ -70,7 +70,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* Primary CTA — blue solid color, used for Continue / Verify */
+/* Primary CTA - blue solid color, used for Continue / Verify */
 .btn--primary {
   color: var(--color-white);
   background: var(--blue-vivid);
@@ -92,7 +92,7 @@
   background: var(--blue-vivid-hover);
 }
 
-/* Secondary action — outlined, used for Resend Code */
+/* Secondary action - outlined, used for Resend Code */
 .btn--secondary {
   color: var(--color-text-primary);
   background: var(--color-white);

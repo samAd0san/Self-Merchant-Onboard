@@ -34,7 +34,7 @@ function write(state) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (err) {
-    /* storage unavailable — verification simply won't be remembered */
+    /* storage unavailable - verification simply won't be remembered */
   }
 }
 

@@ -7,8 +7,8 @@
 //
 // This module persists just enough to carry that state across navigations,
 // using sessionStorage so it lives for the browser session and clears on
-// "Start over". File bytes aren't stored — only each menu's name and linked
-// location — which is all that's needed to restore the linkage.
+// "Start over". File bytes aren't stored - only each menu's name and linked
+// location - which is all that's needed to restore the linkage.
 // ==========================================================================
 
 const STORAGE_KEY = "parcera.onboarding.v1";
@@ -19,7 +19,7 @@ export function saveOnboardingState(state) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (err) {
-    /* storage unavailable — carry-over simply won't survive navigation */
+    /* storage unavailable - carry-over simply won't survive navigation */
   }
 }
 

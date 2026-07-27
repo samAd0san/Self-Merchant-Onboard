@@ -202,14 +202,14 @@ export function createMenuEditor(mountEl, initial = null) {
 }
 
 // Renders a structured menu as plain text, used for the review summary and as
-// the value the AI would ingest. Kept terse: "Category\n  Item — $price".
+// the value the AI would ingest. Kept terse: "Category\n  Item - $price".
 export function menuToText(data) {
   if (!data || !data.categories) return "";
   const lines = [];
   data.categories.forEach((cat) => {
     if (cat.name) lines.push(cat.name);
     cat.items.forEach((it) => {
-      const price = it.price ? ` — $${it.price}` : "";
+      const price = it.price ? ` - $${it.price}` : "";
       lines.push(`  ${it.name}${price}`);
     });
   });
