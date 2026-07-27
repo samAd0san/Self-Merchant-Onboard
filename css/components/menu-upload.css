@@ -459,7 +459,7 @@
   height: 18px;
 }
 
-/* Fetch / Scan-again button — brand blue, compact */
+/* Fetch / Scan-again button - brand blue, compact */
 .menu-link__fetch {
   display: inline-flex;
   align-items: center;
@@ -538,7 +538,7 @@
   flex-shrink: 0;
 }
 
-/* Confirm button — outlined until confirmed, then solid blue with a check */
+/* Confirm button - outlined until confirmed, then solid blue with a check */
 .menu-link__confirm {
   display: inline-flex;
   align-items: center;
@@ -598,7 +598,7 @@
 }
 
 /* ==========================================================================
-   Menu editor — item cards
+   Menu editor - item cards
    Items render as an editable card grid (photo band + name + price +
    description), mirroring the menu-review cards in operator-ui / merchant-ui.
    ========================================================================== */
@@ -636,7 +636,7 @@
   box-shadow: 0 6px 18px rgba(25, 28, 46, 0.10);
 }
 
-/* Image band — a chosen photo, or a gradient monogram fallback (first 2 letters) */
+/* Image band - a chosen photo, or a gradient monogram fallback (first 2 letters) */
 .menu-item-card__image {
   position: relative;
   width: 100%;

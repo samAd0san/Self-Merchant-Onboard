@@ -5,7 +5,7 @@
    ========================================================================== */
 
 /* Logo intentionally uses the shared .brand__logo sizing/filter from
-   layout.css — kept identical to the Operator Console for brand consistency */
+   layout.css - kept identical to the Operator Console for brand consistency */
 
 .brand--merchant-portal .brand__wordmark {
   font-size: 2rem;

@@ -112,7 +112,7 @@ export function addAddressBlock(containerEl, { removable = true, prefill = null 
   }
 
   // Typing: invalidate a prior verification, then queue an auto-verify. No
-  // button press is needed — the verify button runs on its own.
+  // button press is needed - the verify button runs on its own.
   lineInput.addEventListener("input", () => {
     if (verified) resetVerify();
     scheduleAutoVerify();
