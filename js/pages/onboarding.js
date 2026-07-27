@@ -68,6 +68,26 @@ function injectStaticIcons() {
     "icon-next-arrow-2": "arrowRight",
     "icon-next-add-location": "storefront",
     "icon-next-arrow-3": "arrowRight",
+    // Payment Method step
+    "icon-method-card": "creditCard",
+    "icon-method-apple": "smartphone",
+    "icon-method-google": "smartphone",
+    "icon-method-samsung": "smartphone",
+    "icon-method-paypal": "creditCard",
+    "icon-method-ach": "building",
+    "icon-method-bnpl": "qr",
+    "icon-method-card-check": "check",
+    "icon-method-apple-check": "check",
+    "icon-method-google-check": "check",
+    "icon-method-samsung-check": "check",
+    "icon-method-paypal-check": "check",
+    "icon-method-ach-check": "check",
+    "icon-method-bnpl-check": "check",
+    "icon-card-field": "creditCard",
+    "icon-chevron-ach2": "chevronDown",
+    "icon-wallet-note": "shield",
+    "icon-pay-qr-note": "shield",
+    "icon-pay-info": "shield",
   };
 
   Object.entries(iconMap).forEach(([id, iconKey]) => {
@@ -717,9 +737,129 @@ document.addEventListener("DOMContentLoaded", () => {
   spanishCheckbox.addEventListener("change", renderGreetings);
   voiceSelect.addEventListener("change", updateContinueState);
 
-  // Billing was removed from the self-serve flow; the plan total still shows in
-  // the review. This no-op keeps the service-selection call sites unchanged.
-  function renderPlanBreakdown() {}
+  // ======================================================================
+  // Step: Payment Method (individual paying for the Parcera service)
+  // A single method is selected at a time; picking one reveals just that
+  // method's fields. Keeps the checkout low-friction.
+  // ======================================================================
+  const payOptions = qsa(".pay-option");
+  const payFieldPanels = qsa("[data-pay-fields]");
+  const walletNameEl = qs("#pay-wallet-name");
+  let selectedPaymentMethod = "card";
+
+  // Renders the selected service + tier as a single row, then the running
+  // total. Called whenever the Service Setup selection changes, and again on
+  // entry to this step so it's never stale. Only one service can be active
+  // at a time in this flow, so there's at most one row.
+  const planBreakdownEl = qs("#plan-breakdown");
+  const payPlanMetaEl = qs("#pay-plan-meta");
+  const payPlanAmountEl = qs("#pay-plan-amount");
+
+  function renderPlanBreakdown() {
+    if (!planBreakdownEl) return;
+    const entries = Object.entries(selectedServices);
+    if (!entries.length) {
+      planBreakdownEl.innerHTML = `<p class="plan-breakdown__empty">No services selected yet.</p>`;
+    } else {
+      planBreakdownEl.innerHTML = entries.map(([id, sel]) => {
+        const svc = getService(id);
+        const tier = svc.tiers[sel.tierIndex];
+        return `
+          <div class="plan-breakdown__row">
+            <span class="plan-breakdown__label">${svc.label} <span class="plan-breakdown__tier">· ${tier.name}</span></span>
+            <span class="plan-breakdown__price">$${tier.price}/mo</span>
+          </div>
+        `;
+      }).join("");
+    }
+    const total = serviceTotal();
+    if (payPlanMetaEl) {
+      payPlanMetaEl.textContent = entries.length ? "1 service selected" : "No services selected";
+    }
+    if (payPlanAmountEl) payPlanAmountEl.textContent = String(total);
+  }
+
+  const addServicePaymentBtn = qs("#btn-add-service-payment");
+  if (addServicePaymentBtn) {
+    addServicePaymentBtn.addEventListener("click", () => {
+      navigateToStep(WIZARD_STEPS.findIndex((s) => s.id === "integration"));
+    });
+  }
+
+  // Payment field controls (only the active method's fields are validated)
+  const payCardName = qs("#pay-card-name");
+  const payCardNumber = qs("#pay-card-number");
+  const payCardExp = qs("#pay-card-exp");
+  const payCardCvc = qs("#pay-card-cvc");
+  const payCardZip = qs("#pay-card-zip");
+  const payAchRouting = qs("#pay-ach-routing2");
+  const payAchAccount = qs("#pay-ach-account2");
+  const payAchType = qs("#pay-ach-type2");
+
+  attachValidation(payCardName, { required: true, message: "Name on card is required.", onChange: () => updateContinueState() });
+  attachValidation(payCardNumber, { validate: V.cardNumber, format: F.cardNumber, required: true, message: "Enter a valid card number.", onChange: () => updateContinueState() });
+  attachValidation(payCardExp, { validate: V.cardExp, format: F.cardExp, required: true, message: "Use MM / YY.", onChange: () => updateContinueState() });
+  attachValidation(payCardCvc, { validate: V.cvc, format: F.digits, required: true, message: "3–4 digit CVC.", onChange: () => updateContinueState() });
+  attachValidation(payCardZip, { validate: V.zip, format: F.digits, required: true, message: "Enter a valid ZIP.", onChange: () => updateContinueState() });
+  attachValidation(payAchRouting, { validate: V.routing, format: F.digits, required: true, message: "9-digit routing number.", onChange: () => updateContinueState() });
+  attachValidation(payAchAccount, { validate: V.account, format: F.digits, required: true, message: "Enter a valid account number.", onChange: () => updateContinueState() });
+
+  const PAYMENT_LABELS = {
+    card: "Card (credit/debit)",
+    apple: "Apple Pay",
+    google: "Google Pay",
+    samsung: "Samsung Pay",
+    paypal: "PayPal",
+    ach: "Bank transfer (ACH)",
+    bnpl: "Pay by QR",
+  };
+
+  // Card / ACH / BNPL each show a dedicated field panel; the express
+  // wallets share the single "wallet" confirmation panel.
+  function panelForMethod(method) {
+    if (method === "apple" || method === "google" || method === "samsung" || method === "paypal") return "wallet";
+    return method;
+  }
+
+  function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+
+    payOptions.forEach((opt) => {
+      const isSel = opt.dataset.method === method;
+      opt.classList.toggle("is-selected", isSel);
+      const check = qs(`#icon-method-${opt.dataset.method}-check`);
+      if (check) setHidden(check, !isSel);
+    });
+
+    const activePanel = panelForMethod(method);
+    payFieldPanels.forEach((panel) => {
+      setHidden(panel, panel.dataset.payFields !== activePanel);
+    });
+
+    // Personalize the wallet confirmation copy
+    if (activePanel === "wallet" && walletNameEl) {
+      walletNameEl.textContent = PAYMENT_LABELS[method];
+    }
+    updateContinueState();
+  }
+
+  payOptions.forEach((opt) => {
+    opt.addEventListener("click", () => selectPaymentMethod(opt.dataset.method));
+  });
+
+  // A method must be selected, and the active method's fields must be valid.
+  // Wallet (Apple/Google/PayPal) and BNPL collect nothing here.
+  function paymentReady() {
+    if (!selectedPaymentMethod) return false;
+    if (selectedPaymentMethod === "card") {
+      return V.required(payCardName.value) && V.cardNumber(payCardNumber.value) &&
+        V.cardExp(payCardExp.value) && V.cvc(payCardCvc.value) && V.zip(payCardZip.value);
+    }
+    if (selectedPaymentMethod === "ach") {
+      return V.routing(payAchRouting.value) && V.account(payAchAccount.value);
+    }
+    return true;
+  }
 
   // ======================================================================
   // Step: Review & Launch full report pulling from every node
@@ -834,8 +974,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const greeting = getFirstGreetingText();
     setReport("rep-greeting", greeting ? `"${greeting}"` : "Not set");
 
-    // Plan total
+    // Payment
     setReport("rep-plan-total", `$${serviceTotal()}/mo`);
+    setReport("rep-payment", PAYMENT_LABELS[selectedPaymentMethod]);
 
     // Fold every group to its fresh one-line summary so the review opens as a
     // compact, scannable list (each group expands on demand).
@@ -868,7 +1009,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return `${n} service${n === 1 ? "" : "s"} · $${serviceTotal()}/mo`;
     },
     "Parcera AI": () => `${repText("rep-assistant-name")} · ${repText("rep-voice")}`,
-    "Plan": () => repText("rep-plan-total"),
+    "Payment Method": () => `${repText("rep-plan-total")} · ${repText("rep-payment")}`,
   };
   function initReviewCollapsibles() {
     if (reviewCollapsibles.length) return; // wire once
@@ -955,6 +1096,8 @@ document.addEventListener("DOMContentLoaded", () => {
           : false;
         return hasName && hasVoice && hasTransfer;
       }
+      case "payments":
+        return paymentReady();
       case "launch":
         return false;
       default:
@@ -1028,6 +1171,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Render the agent's rules (ordering vs reservation) on entry
     if (step.id === "rules-hours") renderServiceRules();
 
+    if (step.id === "payments") renderPlanBreakdown();
+
     if (step.id === "launch") showLaunchReviewPhase();
 
     // The Launch step uses its own in-panel button instead of the shared Continue
@@ -1068,6 +1213,8 @@ document.addEventListener("DOMContentLoaded", () => {
         ? firstRule.querySelector(".transfer-label").value.trim() && V.phone(firstRule.querySelector(".transfer-phone").value)
         : false;
       enabled = hasName && hasVoice && hasTransferNumber;
+    } else if (step.id === "payments") {
+      enabled = paymentReady();
     }
 
     continueButton.disabled = !enabled;
@@ -1154,6 +1301,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Transfer rules only fully reset here (they persist between services)
     resetTransferRules();
 
+    // Full reset also clears the payment method + entered details
+    [payCardName, payCardNumber, payCardExp, payCardCvc, payCardZip, payAchRouting, payAchAccount].forEach((el) => { if (el) el.value = ""; });
+    selectedPaymentMethod = "card";
+
     clearServiceSpecificState(); // also clears selectedServices + repaints tiles
 
     showStep(0);
@@ -1216,6 +1367,17 @@ document.addEventListener("DOMContentLoaded", () => {
       locations: addrs.map((a, i) => ({ id: opts[i] ? opts[i].value : null, address: a.address, verified: a.verified })),
       menus: getAllMenus(),                   // [{ fileName, locationValue, locationLabel }]
       services: selectedServices,             // { [serviceId]: { tierIndex, management, toastLink } }
+      payment: {
+        method: selectedPaymentMethod,
+        cardName: payCardName.value,
+        cardNumber: payCardNumber.value,
+        cardExp: payCardExp.value,
+        cardCvc: payCardCvc.value,
+        cardZip: payCardZip.value,
+        achRouting: payAchRouting.value,
+        achAccount: payAchAccount.value,
+        achType: payAchType ? payAchType.value : "",
+      },
       phone: { ...phone },                    // optional PSTN: { enabled, mode, manualNumber }
       // Knowledge Base: hours, free-text fields, payment chips, FAQs
       knowledge: {
@@ -1274,6 +1436,18 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlanBreakdown();
     updatePhoneCard();
 
+    // Restore the payment method + entered details from the first walkthrough
+    const p = state.payment || {};
+    if (payCardName) payCardName.value = p.cardName || "";
+    if (payCardNumber) payCardNumber.value = p.cardNumber || "";
+    if (payCardExp) payCardExp.value = p.cardExp || "";
+    if (payCardCvc) payCardCvc.value = p.cardCvc || "";
+    if (payCardZip) payCardZip.value = p.cardZip || "";
+    if (payAchRouting) payAchRouting.value = p.achRouting || "";
+    if (payAchAccount) payAchAccount.value = p.achAccount || "";
+    if (payAchType && p.achType) payAchType.value = p.achType;
+    selectPaymentMethod(p.method || "card");
+
     // Restore optional Phone Calls (enabled + assign/manual + typed number)
     const ph = state.phone || {};
     phone.mode = ph.mode === "manual" ? "manual" : "auto";
@@ -1300,6 +1474,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---- Initial render -----------------------------------------------------
+  selectPaymentMethod("card"); // default method + reveal its fields
 
   // Land on the celebration screen when deep-linked (e.g. Storefront's "Back
   // to launch"), restoring the business, menus, and services first.
