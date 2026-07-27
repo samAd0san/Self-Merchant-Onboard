@@ -43,6 +43,11 @@
   transform: translateX(16px);
 }
 
+.toggle-switch__input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .toggle-switch__label {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);

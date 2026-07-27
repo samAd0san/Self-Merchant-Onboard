@@ -68,6 +68,7 @@ function injectStaticIcons() {
     "icon-next-arrow-2": "arrowRight",
     "icon-next-add-location": "storefront",
     "icon-next-arrow-3": "arrowRight",
+    "icon-digital-suite": "globe",
     // Payment Method step
     "icon-method-card": "creditCard",
     "icon-method-apple": "smartphone",
@@ -257,17 +258,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "Pro", price: 199, blurb: "Multi-line support with real-time kitchen sync." },
       ],
     },
-    {
-      id: "digital-suite",
-      label: "Digital Suite",
-      icon: "globe",
-      description: "A branded website with built-in online ordering and reservations.",
-      tiers: [
-        { name: "Starter", price: 9.99, blurb: "A single-page website with your menu, hours, and contact info." },
-        { name: "Growth", price: 99, blurb: "Adds online ordering and table reservations, taken right on the site." },
-        { name: "Pro", price: 199, blurb: "Full site customization plus priority support." },
-      ],
-    },
   ];
 
   // { [serviceId]: { tierIndex, management, toastLink } } - only present
@@ -420,6 +410,18 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshCustomSelects();
   }
 
+  // Digital Suite has no price or tier of its own - it's included automatically
+  // with whichever agent is chosen. The toggle is a read-only indicator (not a
+  // control the merchant clicks): on the moment any agent is selected, off the
+  // moment none is.
+  const digitalSuiteTile = qs("#digital-suite-tile");
+  const digitalSuiteToggle = qs("#digital-suite-toggle");
+  function syncDigitalSuiteToggle() {
+    const included = Object.keys(selectedServices).length > 0;
+    if (digitalSuiteToggle) digitalSuiteToggle.checked = included;
+    if (digitalSuiteTile) digitalSuiteTile.classList.toggle("is-selected", included);
+  }
+
   // Keeps the Payment breakdown (and Continue button) in sync with whatever
   // just changed in the tiles
   function onServiceSelectionChange() {
@@ -427,9 +429,11 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlanBreakdown();
     updatePhoneCard();
     refreshStepper(); // agent kind decides whether the menu step is shown
+    syncDigitalSuiteToggle();
   }
 
   renderServiceTiles();
+  syncDigitalSuiteToggle();
 
   // ── Optional Phone Calls (PSTN) ─────────────────────────────────────────
   // PSTN is optional: the user can continue without it. Enabling reveals the
@@ -492,7 +496,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function selectedAgentKind() {
     if (selectedServices.ordering) return "ordering";
     if (selectedServices.reservations) return "reservation";
-    if (selectedServices["digital-suite"]) return "digital-suite";
     return null;
   }
   const ruleRow = (id, label, value, { min = 0, max, step, hint } = {}) => `
@@ -558,10 +561,6 @@ document.addEventListener("DOMContentLoaded", () => {
       serviceRulesHeading.textContent = "Reservation Rules";
       serviceRulesMeta.textContent = "Booking limits your agent enforces on every reservation.";
       serviceRulesFields.innerHTML = reservationRulesTemplate();
-    } else if (kind === "digital-suite") {
-      serviceRulesHeading.textContent = "Digital Suite Rules";
-      serviceRulesMeta.textContent = "Safety limits your online ordering enforces so no one can place an abusive order.";
-      serviceRulesFields.innerHTML = orderingRulesTemplate();
     } else {
       serviceRulesHeading.textContent = "Service Rules";
       serviceRulesMeta.textContent = "Choose an agent on the previous step to configure its rules.";
@@ -947,6 +946,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderServicesReport();
         setReport("rep-plan-total", `$${serviceTotal()}/mo`);
         updateLaunchButtonState();
+        syncDigitalSuiteToggle();
       });
     });
     initCustomSelects(rowsEl);
@@ -1279,6 +1279,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncServiceTiles();
     renderPlanBreakdown();
     refreshCustomSelects();
+    syncDigitalSuiteToggle();
 
     completedSteps.clear();
     maxReachedIndex = 0;
@@ -1451,6 +1452,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncServiceTiles();
     renderPlanBreakdown();
     updatePhoneCard();
+    syncDigitalSuiteToggle();
 
     // Restore the payment method + entered details from the first walkthrough
     const p = state.payment || {};
