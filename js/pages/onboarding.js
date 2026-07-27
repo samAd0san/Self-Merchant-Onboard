@@ -257,6 +257,17 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "Pro", price: 199, blurb: "Multi-line support with real-time kitchen sync." },
       ],
     },
+    {
+      id: "digital-suite",
+      label: "Digital Suite",
+      icon: "globe",
+      description: "A branded website with built-in online ordering and reservations.",
+      tiers: [
+        { name: "Starter", price: 9.99, blurb: "A single-page website with your menu, hours, and contact info." },
+        { name: "Growth", price: 99, blurb: "Adds online ordering and table reservations, taken right on the site." },
+        { name: "Pro", price: 199, blurb: "Full site customization plus priority support." },
+      ],
+    },
   ];
 
   // { [serviceId]: { tierIndex, management, toastLink } } - only present
@@ -481,6 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function selectedAgentKind() {
     if (selectedServices.ordering) return "ordering";
     if (selectedServices.reservations) return "reservation";
+    if (selectedServices["digital-suite"]) return "digital-suite";
     return null;
   }
   const ruleRow = (id, label, value, { min = 0, max, step, hint } = {}) => `
@@ -546,6 +558,10 @@ document.addEventListener("DOMContentLoaded", () => {
       serviceRulesHeading.textContent = "Reservation Rules";
       serviceRulesMeta.textContent = "Booking limits your agent enforces on every reservation.";
       serviceRulesFields.innerHTML = reservationRulesTemplate();
+    } else if (kind === "digital-suite") {
+      serviceRulesHeading.textContent = "Digital Suite Rules";
+      serviceRulesMeta.textContent = "Safety limits your online ordering enforces so no one can place an abusive order.";
+      serviceRulesFields.innerHTML = orderingRulesTemplate();
     } else {
       serviceRulesHeading.textContent = "Service Rules";
       serviceRulesMeta.textContent = "Choose an agent on the previous step to configure its rules.";
