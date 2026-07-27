@@ -16,6 +16,7 @@ export const WIZARD_STEPS = [
   { id: "knowledge", icon: "book", label: "Restaurant Details" },
   { id: "rules-hours", icon: "clock", label: "Rules & Hours" },
   { id: "voice-greeting", icon: "mic", label: "Parcera AI Setup" },
+  { id: "payments", icon: "creditCard", label: "Payment" },
   { id: "launch", icon: "rocket", label: "Launch" },
 ];
 
