@@ -232,12 +232,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // ======================================================================
   const serviceTilesContainer = qs("#service-tiles-container");
 
-  // Single-select: a location runs ONE agent - reservation (Toast/Parcera) OR
+  // Single-select: a location runs ONE product - reservation (Toast/Parcera) OR
   // ordering (via Parcera POS). Matches what the backend supports today.
   const SERVICES = [
     {
       id: "reservations",
-      label: "Reservation Voice Agent",
+      label: "Voice Reservations",
       icon: "calendar",
       description: "Voice AI answers calls and books tables - via Parcera Tables or your existing Toast Tables.",
       tiers: [
@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "ordering",
-      label: "Ordering Voice Agent",
+      label: "Voice Ordering",
       icon: "cart",
       description: "Voice AI takes food orders end to end, powered by Parcera POS.",
       tiers: [
@@ -354,15 +354,15 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.addEventListener("click", () => {
         const current = selectedServices[svc.id];
         if (current && current.tierIndex === i) {
-          delete selectedServices[svc.id]; // clicking the active tier again removes the agent
+          delete selectedServices[svc.id]; // clicking the active tier again removes the product
         } else {
-          // Single-select: one agent per location - drop any other agent first.
+          // Single-select: one product per location - drop any other product first.
           Object.keys(selectedServices).forEach((k) => { if (k !== svc.id) delete selectedServices[k]; });
           selectedServices[svc.id] = current
             ? { ...current, tierIndex: i }
             : { tierIndex: i, management: "parcera", toastLink: "" };
         }
-        syncServiceTiles(); // repaint ALL tiles since the other agent may have been cleared
+        syncServiceTiles(); // repaint ALL tiles since the other product may have been cleared
         onServiceSelectionChange();
       });
     });
@@ -415,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateContinueState();
     renderPlanBreakdown();
     updatePhoneCard();
-    refreshStepper(); // agent kind decides whether the menu step is shown
+    refreshStepper(); // product kind decides whether the menu step is shown
   }
 
   renderServiceTiles();
@@ -423,7 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── Optional Phone Calls (PSTN) ─────────────────────────────────────────
   // PSTN is optional: the user can continue without it. Enabling reveals the
   // "Assign one for me" (auto) vs "Enter manually" (a Twilio number) choice.
-  // Shown once an agent is picked.
+  // Shown once a product is picked.
   const phoneEnableEl = qs("#phone-enable");
   const phoneToggle = qs("#phone-enable-toggle");
   const phoneToggleLabel = qs("#phone-enable-label");
@@ -460,8 +460,8 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPhonePanel();
     setPhoneEnabled(false);
   });
-  // Phone Calls is ordering-only: shown when the Ordering agent is selected,
-  // hidden (and reset off) for the reservation agent or no selection.
+  // Phone Calls is ordering-only: shown when the Ordering product is selected,
+  // hidden (and reset off) for the Reservation product or no selection.
   function updatePhoneCard() {
     const isOrdering = selectedAgentKind() === "ordering";
     if (phoneEnableEl) setHidden(phoneEnableEl, !isOrdering);
@@ -474,7 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── Dynamic service rules: ordering-rules OR reservation-rules, rendered on
-  //    the Restaurant Details step from the agent chosen on the previous step. ──
+  //    the Restaurant Details step from the product chosen on the previous step. ──
   const serviceRulesFields = qs("#service-rules-fields");
   const serviceRulesHeading = qs("#service-rules-heading");
   const serviceRulesMeta = qs("#service-rules-meta");
@@ -529,7 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   const kbMenusGroup = qs("#kb-menus-group");
   const kbReservationNote = qs("#kb-reservation-note");
-  // Menu is ordering-only; a reservation agent sees a short note instead.
+  // Menu is ordering-only; the Reservation product sees a short note instead.
   function syncMenuVisibility() {
     const isReservation = selectedAgentKind() === "reservation";
     if (kbMenusGroup) setHidden(kbMenusGroup, isReservation);
@@ -548,8 +548,8 @@ document.addEventListener("DOMContentLoaded", () => {
       serviceRulesFields.innerHTML = reservationRulesTemplate();
     } else {
       serviceRulesHeading.textContent = "Service Rules";
-      serviceRulesMeta.textContent = "Choose an agent on the previous step to configure its rules.";
-      serviceRulesFields.innerHTML = `<p class="field-group__hint">No agent selected yet - go back and pick your agent.</p>`;
+      serviceRulesMeta.textContent = "Choose a product on the previous step to configure its rules.";
+      serviceRulesFields.innerHTML = `<p class="field-group__hint">No product selected yet - go back and pick your product.</p>`;
     }
   }
 
@@ -1105,8 +1105,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // The menu (Restaurant Details) step is skipped for reservation agents -
-  // a booking agent has no menu, so the step is hidden and jumped over.
+  // The menu (Restaurant Details) step is skipped for the Reservation product -
+  // it has no menu, so the step is hidden and jumped over.
   function stepSkipped(stepId) {
     return stepId === "knowledge" && selectedAgentKind() === "reservation";
   }
@@ -1168,7 +1168,7 @@ document.addEventListener("DOMContentLoaded", () => {
       syncMenuVisibility();
     }
 
-    // Render the agent's rules (ordering vs reservation) on entry
+    // Render the product's rules (ordering vs reservation) on entry
     if (step.id === "rules-hours") renderServiceRules();
 
     if (step.id === "payments") renderPlanBreakdown();

@@ -153,23 +153,23 @@
             <span class="wizard-section__icon" id="icon-kb-details"></span>
             <div>
               <div class="wizard-section__heading">Menu</div>
-              <div class="wizard-section__heading-meta">What your ordering agent reads items and prices from</div>
+              <div class="wizard-section__heading-meta">What your ordering product reads items and prices from</div>
             </div>
           </div>
 
-          <!-- Ordering-only menu entry. Hidden for the reservation agent, which
+          <!-- Ordering-only menu entry. Hidden for the Reservation product, which
                shows the note below instead. -->
           <div class="field-group" id="kb-menus-group" style="margin-top: 0;">
             <p class="field-group__hint menu-uploads__intro">Paste a link and we read the items automatically, upload a menu image, or add items by hand.</p>
             <div id="kb-menus-container"></div>
           </div>
 
-          <!-- Shown instead of the menu when a reservation agent is selected -->
+          <!-- Shown instead of the menu when the Reservation product is selected -->
           <div class="kb-reservation-note is-hidden" id="kb-reservation-note">
             <span class="kb-reservation-note__icon" id="icon-kb-reservation-note"></span>
             <div>
               <div class="kb-reservation-note__title">Reservations don't use a menu</div>
-              <p>Your booking agent doesn't take food orders, so there's nothing to add here. Continue to set your booking rules and opening hours.</p>
+              <p>Reservations doesn't take food orders, so there's nothing to add here. Continue to set your booking rules and opening hours.</p>
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@
         <p class="wizard-panel__subtitle">Set the limits your Parcera AI enforces on every call, your opening hours, and a few optional details it can mention.</p>
 
         <!-- Dynamic service rules: ordering-rules OR reservation-rules, chosen by
-             the agent picked earlier. Filled in by JS on step entry. -->
+             the product picked earlier. Filled in by JS on step entry. -->
         <div class="wizard-section" id="service-rules-section" style="margin-bottom: var(--space-5);">
           <div class="wizard-section__header">
             <span class="wizard-section__icon" id="icon-service-rules"></span>
@@ -266,16 +266,16 @@
         </div>
       </div>
 
-      <!-- Step: Choose Agent (single-select - reservation OR ordering) -->
+      <!-- Step: Choose Product (single-select - reservation OR ordering) -->
       <div class="wizard-step is-hidden" data-step-id="integration">
-        <h2 class="wizard-panel__title">Choose Your Agent</h2>
-        <p class="wizard-panel__subtitle">Pick one Parcera agent for this location - reservations or ordering - and a plan.</p>
+        <h2 class="wizard-panel__title">Choose Your Product</h2>
+        <p class="wizard-panel__subtitle">Pick one Parcera product for this location - reservations or ordering - and a plan.</p>
 
-        <!-- Rendered by JS: one tile per agent, single-select, each with 3 tiers -->
+        <!-- Rendered by JS: one tile per product, single-select, each with 3 tiers -->
         <div class="service-tiles" id="service-tiles-container"></div>
 
         <!-- Phone Calls (PSTN) is OPTIONAL - the user can continue without it.
-             Revealed once an agent is chosen. Enabling opens the assign / manual
+             Revealed once a product is chosen. Enabling opens the assign / manual
              number panel below. -->
         <div class="phone-enable is-hidden" id="phone-enable">
           <div class="phone-enable__head">

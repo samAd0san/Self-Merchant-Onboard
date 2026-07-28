@@ -8,11 +8,11 @@ import { ICONS } from "../utils/icons.js";
 
 // The full onboarding sequence. Each step maps to a .wizard-step section
 // in onboarding.html by matching `id` against its data-step-id.
-// Agent selection ("integration") comes BEFORE Restaurant Details ("knowledge")
+// Product selection ("integration") comes BEFORE Restaurant Details ("knowledge")
 // so the details step can render the right rules (ordering vs reservation).
 export const WIZARD_STEPS = [
   { id: "business", icon: "building", label: "Business Details" },
-  { id: "integration", icon: "storefront", label: "Choose Agent" },
+  { id: "integration", icon: "storefront", label: "Choose Product" },
   { id: "knowledge", icon: "book", label: "Restaurant Details" },
   { id: "rules-hours", icon: "clock", label: "Rules & Hours" },
   { id: "voice-greeting", icon: "mic", label: "Parcera AI Setup" },
