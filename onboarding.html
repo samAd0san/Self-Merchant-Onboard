@@ -274,6 +274,22 @@
         <!-- Rendered by JS: one tile per product, single-select, each with 3 tiers -->
         <div class="service-tiles" id="service-tiles-container"></div>
 
+        <!-- Digital Suite: no pricing/tiers - it's included free with whichever
+             agent is chosen. The toggle just reflects that; it auto-switches on
+             when an agent is selected and off when none is. -->
+        <div class="service-tile" id="digital-suite-tile" style="margin-top: var(--space-4);">
+          <div class="service-tile__header">
+            <span class="service-tile__icon" id="icon-digital-suite"></span>
+            <div class="service-tile__heading">
+              <div class="service-tile__title">Digital Suite</div>
+              <div class="service-tile__description">A branded website with online ordering and reservations, included free with your agent.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" class="toggle-switch__input" id="digital-suite-toggle" disabled />
+            </label>
+          </div>
+        </div>
+
         <!-- Phone Calls (PSTN) is OPTIONAL - the user can continue without it.
              Revealed once a product is chosen. Enabling opens the assign / manual
              number panel below. -->
@@ -480,14 +496,6 @@
               <span class="pay-option__meta">One-tap checkout</span>
             </span>
             <span class="pay-option__check is-hidden" id="icon-method-google-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="samsung">
-            <span class="pay-option__icon" id="icon-method-samsung"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Samsung Pay</span>
-              <span class="pay-option__meta">One-tap checkout</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-samsung-check"></span>
           </button>
           <button type="button" class="pay-option" data-method="paypal">
             <span class="pay-option__icon" id="icon-method-paypal"></span>

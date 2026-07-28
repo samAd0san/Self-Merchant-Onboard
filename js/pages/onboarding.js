@@ -68,18 +68,17 @@ function injectStaticIcons() {
     "icon-next-arrow-2": "arrowRight",
     "icon-next-add-location": "storefront",
     "icon-next-arrow-3": "arrowRight",
+    "icon-digital-suite": "globe",
     // Payment Method step
     "icon-method-card": "creditCard",
     "icon-method-apple": "smartphone",
     "icon-method-google": "smartphone",
-    "icon-method-samsung": "smartphone",
     "icon-method-paypal": "creditCard",
     "icon-method-ach": "building",
     "icon-method-bnpl": "qr",
     "icon-method-card-check": "check",
     "icon-method-apple-check": "check",
     "icon-method-google-check": "check",
-    "icon-method-samsung-check": "check",
     "icon-method-paypal-check": "check",
     "icon-method-ach-check": "check",
     "icon-method-bnpl-check": "check",
@@ -409,16 +408,30 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshCustomSelects();
   }
 
+  // Digital Suite has no price or tier of its own - it's included automatically
+  // with whichever agent is chosen. The toggle is a read-only indicator (not a
+  // control the merchant clicks): on the moment any agent is selected, off the
+  // moment none is.
+  const digitalSuiteTile = qs("#digital-suite-tile");
+  const digitalSuiteToggle = qs("#digital-suite-toggle");
+  function syncDigitalSuiteToggle() {
+    const included = Object.keys(selectedServices).length > 0;
+    if (digitalSuiteToggle) digitalSuiteToggle.checked = included;
+    if (digitalSuiteTile) digitalSuiteTile.classList.toggle("is-selected", included);
+  }
+
   // Keeps the Payment breakdown (and Continue button) in sync with whatever
   // just changed in the tiles
   function onServiceSelectionChange() {
     updateContinueState();
     renderPlanBreakdown();
     updatePhoneCard();
-    refreshStepper(); // product kind decides whether the menu step is shown
+    refreshStepper(); // agent kind decides whether the menu step is shown
+    syncDigitalSuiteToggle();
   }
 
   renderServiceTiles();
+  syncDigitalSuiteToggle();
 
   // ── Optional Phone Calls (PSTN) ─────────────────────────────────────────
   // PSTN is optional: the user can continue without it. Enabling reveals the
@@ -699,7 +712,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `
           <div class="wizard-section" style="margin-bottom: var(--space-5);" data-lang-section="${lang.code}">
             <div class="wizard-section__header">
-              <span class="wizard-section__icon" style="background:#2563eb;">${ICONS.chat}</span>
+              <span class="wizard-section__icon">${ICONS.chat}</span>
               <div>
                 <div class="wizard-section__heading">${lang.label} Greeting</div>
                 <div class="wizard-section__heading-meta">First words ${lang.label}-speaking callers will hear</div>
@@ -808,7 +821,6 @@ document.addEventListener("DOMContentLoaded", () => {
     card: "Card (credit/debit)",
     apple: "Apple Pay",
     google: "Google Pay",
-    samsung: "Samsung Pay",
     paypal: "PayPal",
     ach: "Bank transfer (ACH)",
     bnpl: "Pay by QR",
@@ -817,7 +829,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Card / ACH / BNPL each show a dedicated field panel; the express
   // wallets share the single "wallet" confirmation panel.
   function panelForMethod(method) {
-    if (method === "apple" || method === "google" || method === "samsung" || method === "paypal") return "wallet";
+    if (method === "apple" || method === "google" || method === "paypal") return "wallet";
     return method;
   }
 
@@ -931,6 +943,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderServicesReport();
         setReport("rep-plan-total", `$${serviceTotal()}/mo`);
         updateLaunchButtonState();
+        syncDigitalSuiteToggle();
       });
     });
     initCustomSelects(rowsEl);
@@ -1263,6 +1276,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncServiceTiles();
     renderPlanBreakdown();
     refreshCustomSelects();
+    syncDigitalSuiteToggle();
 
     completedSteps.clear();
     maxReachedIndex = 0;
@@ -1435,6 +1449,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncServiceTiles();
     renderPlanBreakdown();
     updatePhoneCard();
+    syncDigitalSuiteToggle();
 
     // Restore the payment method + entered details from the first walkthrough
     const p = state.payment || {};
