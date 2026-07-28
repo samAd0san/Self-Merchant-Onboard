@@ -699,7 +699,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `
           <div class="wizard-section" style="margin-bottom: var(--space-5);" data-lang-section="${lang.code}">
             <div class="wizard-section__header">
-              <span class="wizard-section__icon" style="background:#2563eb;">${ICONS.chat}</span>
+              <span class="wizard-section__icon">${ICONS.chat}</span>
               <div>
                 <div class="wizard-section__heading">${lang.label} Greeting</div>
                 <div class="wizard-section__heading-meta">First words ${lang.label}-speaking callers will hear</div>
