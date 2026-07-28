@@ -259,7 +259,7 @@
 }
 
 /* ==========================================================================
-   Choose-Agent step: optional "Phone Calls" enablement + phone-number panel.
+   Choose-Product step: optional "Phone Calls" enablement + phone-number panel.
    PSTN is optional - the user can continue without enabling it. When on, they
    pick "Assign one for me" (automatic) or "Enter manually" (a Twilio number).
    ========================================================================== */
@@ -570,7 +570,7 @@
 
 /* ==========================================================================
    Reservation "no menu needed" note (shown on Restaurant Details for the
-   reservation agent, in place of the menu entry).
+   Reservation product, in place of the menu entry).
    ========================================================================== */
 .kb-reservation-note {
   display: flex;
