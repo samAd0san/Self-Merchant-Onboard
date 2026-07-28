@@ -125,6 +125,15 @@
   line-height: 1.5;
 }
 
+/* Channel tags (e.g. Voice / Online / Mobile Ordering) for a tile that
+   bundles several sub-services under one product */
+.service-tile__channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
 /* Text "Remove" trigger, only shown once the tile is selected */
 .service-tile__remove {
   display: inline-flex;

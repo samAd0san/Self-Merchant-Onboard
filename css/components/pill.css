@@ -30,3 +30,10 @@
   background: var(--blue-ice-active);
   color: var(--blue-vivid);
 }
+
+/* Channel tag inside a bundled service tile (e.g. Voice/Online/Mobile Ordering) */
+.pill--channel {
+  background: var(--wizard-purple-tint);
+  color: var(--blue-vivid);
+  font-weight: 600;
+}
