@@ -72,14 +72,12 @@ function injectStaticIcons() {
     "icon-method-card": "creditCard",
     "icon-method-apple": "smartphone",
     "icon-method-google": "smartphone",
-    "icon-method-samsung": "smartphone",
     "icon-method-paypal": "creditCard",
     "icon-method-ach": "building",
     "icon-method-bnpl": "qr",
     "icon-method-card-check": "check",
     "icon-method-apple-check": "check",
     "icon-method-google-check": "check",
-    "icon-method-samsung-check": "check",
     "icon-method-paypal-check": "check",
     "icon-method-ach-check": "check",
     "icon-method-bnpl-check": "check",
@@ -808,7 +806,6 @@ document.addEventListener("DOMContentLoaded", () => {
     card: "Card (credit/debit)",
     apple: "Apple Pay",
     google: "Google Pay",
-    samsung: "Samsung Pay",
     paypal: "PayPal",
     ach: "Bank transfer (ACH)",
     bnpl: "Pay by QR",
@@ -817,7 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Card / ACH / BNPL each show a dedicated field panel; the express
   // wallets share the single "wallet" confirmation panel.
   function panelForMethod(method) {
-    if (method === "apple" || method === "google" || method === "samsung" || method === "paypal") return "wallet";
+    if (method === "apple" || method === "google" || method === "paypal") return "wallet";
     return method;
   }
 
