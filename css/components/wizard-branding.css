@@ -140,7 +140,7 @@
 }
 
 /* Native color inputs render an internal square swatch that ignores the
-   element's own border-radius — round it explicitly per browser engine */
+   element's own border-radius - round it explicitly per browser engine */
 .color-field__swatch::-webkit-color-swatch-wrapper {
   padding: 0;
   border-radius: var(--radius-md);

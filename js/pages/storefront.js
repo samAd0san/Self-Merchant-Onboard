@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initImageDropzone({ dropzoneId: "dropzone-logo", urlLinkId: "link-logo-url", urlInputId: "input-logo-url" });
   initImageDropzone({ dropzoneId: "dropzone-hero", urlLinkId: "link-hero-url", urlInputId: "input-hero-url" });
 
-  // FAQs — moved here from onboarding; managed anytime from the storefront config
+  // FAQs - moved here from onboarding; managed anytime from the storefront config
   const sfFaqContainer = qs("#sf-faq-container");
   const sfAddFaqButton = qs("#btn-sf-add-faq");
   if (sfFaqContainer && sfAddFaqButton) {

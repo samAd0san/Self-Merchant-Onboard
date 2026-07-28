@@ -46,7 +46,7 @@
   box-shadow: var(--shadow-focus);
 }
 
-/* Error state — applied to the wrapping .input-field so both the icon
+/* Error state - applied to the wrapping .input-field so both the icon
    and the control pick up the error color via descendant selectors */
 .input-field--error .input-field__control {
   border-color: var(--color-error-border);

@@ -131,7 +131,7 @@
   margin-top: 2px;
 }
 
-/* Callout box — used for the "don't have a code" helper message */
+/* Callout box - used for the "don't have a code" helper message */
 .wizard-callout {
   margin-top: var(--space-5);
   background: #eef4ff;
@@ -143,7 +143,7 @@
 }
 
 /* Fixed bottom navigation bar with Back / Continue controls */
-/* In-panel navigation — sits inside the white wizard-panel box itself,
+/* In-panel navigation - sits inside the white wizard-panel box itself,
    Back pinned to the left edge and Continue pinned to the right, separated
    from the step content above by a hairline rule */
 .wizard-bottom-nav {
@@ -260,7 +260,7 @@
 
 /* ==========================================================================
    Choose-Agent step: optional "Phone Calls" enablement + phone-number panel.
-   PSTN is optional — the user can continue without enabling it. When on, they
+   PSTN is optional - the user can continue without enabling it. When on, they
    pick "Assign one for me" (automatic) or "Enter manually" (a Twilio number).
    ========================================================================== */
 .phone-enable {
@@ -431,7 +431,7 @@
   color: var(--color-text-secondary);
   line-height: 1.5;
 }
-/* "Supports Twilio numbers only" — amber caution under the manual field */
+/* "Supports Twilio numbers only" - amber caution under the manual field */
 .phone-manual-warn {
   margin-top: 2px;
   font-size: var(--font-size-xs);
@@ -449,7 +449,7 @@
 }
 
 /* ==========================================================================
-   Dynamic service rules (ordering / reservation) — Restaurant Details step
+   Dynamic service rules (ordering / reservation) - Restaurant Details step
    ========================================================================== */
 .rules-grid {
   display: grid;

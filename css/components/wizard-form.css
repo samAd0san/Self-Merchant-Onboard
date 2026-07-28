@@ -1026,7 +1026,7 @@
   color: var(--color-text-secondary);
 }
 
-/* Method grid — each option is a selectable card */
+/* Method grid - each option is a selectable card */
 .pay-methods {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

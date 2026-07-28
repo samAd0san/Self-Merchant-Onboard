@@ -1,7 +1,7 @@
 /* ==========================================================================
    Component: Custom Select
-   Replaces the native <select> popup — which browsers render with plain
-   OS chrome no CSS can touch — with a fully custom trigger + listbox that
+   Replaces the native <select> popup - which browsers render with plain
+   OS chrome no CSS can touch - with a fully custom trigger + listbox that
    matches the rest of the design system: rounded corners, brand-colored
    selected state, Poppins throughout.
    ========================================================================== */
@@ -71,7 +71,7 @@
   transform: rotate(180deg);
 }
 
-/* Floating panel — rounded, shadowed, and animated in, unlike the flat
+/* Floating panel - rounded, shadowed, and animated in, unlike the flat
    square OS-native popup it replaces */
 .custom-select__listbox {
   position: absolute;
@@ -113,7 +113,7 @@
   background: var(--color-input-bg);
 }
 
-/* Selected row — a very light tint of the primary brand blue, keeping the
+/* Selected row - a very light tint of the primary brand blue, keeping the
    dark text readable rather than the previous saturated gradient fill */
 .custom-select__option.is-selected {
   background: var(--blue-ice-active);

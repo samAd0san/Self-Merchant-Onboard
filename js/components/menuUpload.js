@@ -30,7 +30,7 @@ const menuCards = []; // { id, element, getData, setLocations }
 const ACCEPTED_TYPES = "application/pdf,image/png,image/jpeg,image/webp";
 
 // Menu modes, in the order a merchant reaches for them: paste a link first
-// (fastest — we read it for you), else upload a file, else type it by hand.
+// (fastest - we read it for you), else upload a file, else type it by hand.
 const MODES = [
   { key: "link", label: "Paste a link" },
   { key: "upload", label: "Upload" },
@@ -38,7 +38,7 @@ const MODES = [
 ];
 
 // Stand-in for a real "search the web + scrape the page" backend. The demo's
-// point is the review-and-fix step, not the fetch — so a known restaurant URL
+// point is the review-and-fix step, not the fetch - so a known restaurant URL
 // (e.g. bagelology) returns that restaurant's menu; anything else falls back
 // to a generic sample. Real onboarding runs the POS menu-import extractor.
 const BAGELOLOGY_SAMPLE = {
@@ -151,7 +151,7 @@ export function addMenu(containerEl, { removable = true, locations = [], prefill
       </div>
       <div class="menu-link__status is-hidden" data-role="link-status" aria-live="polite"></div>
       <div class="menu-link__result is-hidden" data-role="link-result">
-        <p class="menu-link__result-note">${ICONS.check} We found this menu — edit anything that's off, then confirm.</p>
+        <p class="menu-link__result-note">${ICONS.check} We found this menu - edit anything that's off, then confirm.</p>
         <div data-role="scraped-editor"></div>
         <button type="button" class="menu-link__confirm" data-role="confirm-link">${ICONS.check} Confirm menu</button>
       </div>

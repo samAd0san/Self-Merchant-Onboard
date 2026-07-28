@@ -73,14 +73,12 @@ function injectStaticIcons() {
     "icon-method-card": "creditCard",
     "icon-method-apple": "smartphone",
     "icon-method-google": "smartphone",
-    "icon-method-samsung": "smartphone",
     "icon-method-paypal": "creditCard",
     "icon-method-ach": "building",
     "icon-method-bnpl": "qr",
     "icon-method-card-check": "check",
     "icon-method-apple-check": "check",
     "icon-method-google-check": "check",
-    "icon-method-samsung-check": "check",
     "icon-method-paypal-check": "check",
     "icon-method-ach-check": "check",
     "icon-method-bnpl-check": "check",
@@ -137,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const landingContact = (landingParams.get("contact") || "").trim();
 
   // The landing contact was already verified on the sign-in page, so record
-  // it up front — the dashboard sign-in relies on this to skip its own OTP.
+  // it up front - the dashboard sign-in relies on this to skip its own OTP.
   if ((landingChannel === "email" || landingChannel === "phone") && landingContact) {
     markContactVerified(landingChannel, landingContact);
   }
@@ -205,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
     detailsToggle.setAttribute("aria-expanded", String(!isOpen));
   });
 
-  // Single menu per location — one non-removable card that link-fetch, upload,
+  // Single menu per location - one non-removable card that link-fetch, upload,
   // and manual entry all feed into.
   addMenu(kbMenusContainer, { removable: false, locations: getLocationOptions() });
 
@@ -233,14 +231,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // ======================================================================
   const serviceTilesContainer = qs("#service-tiles-container");
 
-  // Single-select: a location runs ONE agent — reservation (Toast/Parcera) OR
+  // Single-select: a location runs ONE agent - reservation (Toast/Parcera) OR
   // ordering (via Parcera POS). Matches what the backend supports today.
   const SERVICES = [
     {
       id: "reservations",
       label: "Reservation Voice Agent",
       icon: "calendar",
-      description: "Voice AI answers calls and books tables — via Parcera Tables or your existing Toast Tables.",
+      description: "Voice AI answers calls and books tables - via Parcera Tables or your existing Toast Tables.",
       tiers: [
         { name: "Starter", price: 9.99, blurb: "Answers booking calls with email confirmations." },
         { name: "Growth", price: 99, blurb: "Adds SMS reminders, waitlists, and table assignments." },
@@ -357,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (current && current.tierIndex === i) {
           delete selectedServices[svc.id]; // clicking the active tier again removes the agent
         } else {
-          // Single-select: one agent per location — drop any other agent first.
+          // Single-select: one agent per location - drop any other agent first.
           Object.keys(selectedServices).forEach((k) => { if (k !== svc.id) delete selectedServices[k]; });
           selectedServices[svc.id] = current
             ? { ...current, tierIndex: i }
@@ -518,7 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="rules-grid">
         ${ruleRow("rule-min-order", "Minimum order ($)", "0", { step: "0.01" })}
-        ${ruleRow("rule-max-items", "Max items per order", "20", { min: 1, hint: "Total items in one order — stops abusive orders (e.g. 100 bagels)." })}
+        ${ruleRow("rule-max-items", "Max items per order", "20", { min: 1, hint: "Total items in one order - stops abusive orders (e.g. 100 bagels)." })}
         ${ruleRow("rule-max-qty", "Max quantity per item", "25", { min: 1, hint: "Most of any single item in one order." })}
         ${ruleRow("rule-prep", "Estimated prep (min)", "15", { min: 0 })}
       </div>
@@ -564,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       serviceRulesHeading.textContent = "Service Rules";
       serviceRulesMeta.textContent = "Choose an agent on the previous step to configure its rules.";
-      serviceRulesFields.innerHTML = `<p class="field-group__hint">No agent selected yet — go back and pick your agent.</p>`;
+      serviceRulesFields.innerHTML = `<p class="field-group__hint">No agent selected yet - go back and pick your agent.</p>`;
     }
   }
 
@@ -714,7 +712,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `
           <div class="wizard-section" style="margin-bottom: var(--space-5);" data-lang-section="${lang.code}">
             <div class="wizard-section__header">
-              <span class="wizard-section__icon" style="background:#2563eb;">${ICONS.chat}</span>
+              <span class="wizard-section__icon">${ICONS.chat}</span>
               <div>
                 <div class="wizard-section__heading">${lang.label} Greeting</div>
                 <div class="wizard-section__heading-meta">First words ${lang.label}-speaking callers will hear</div>
@@ -823,7 +821,6 @@ document.addEventListener("DOMContentLoaded", () => {
     card: "Card (credit/debit)",
     apple: "Apple Pay",
     google: "Google Pay",
-    samsung: "Samsung Pay",
     paypal: "PayPal",
     ach: "Bank transfer (ACH)",
     bnpl: "Pay by QR",
@@ -832,7 +829,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Card / ACH / BNPL each show a dedicated field panel; the express
   // wallets share the single "wallet" confirmation panel.
   function panelForMethod(method) {
-    if (method === "apple" || method === "google" || method === "samsung" || method === "paypal") return "wallet";
+    if (method === "apple" || method === "google" || method === "paypal") return "wallet";
     return method;
   }
 
@@ -1121,7 +1118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // The menu (Restaurant Details) step is skipped for reservation agents —
+  // The menu (Restaurant Details) step is skipped for reservation agents -
   // a booking agent has no menu, so the step is hidden and jumped over.
   function stepSkipped(stepId) {
     return stepId === "knowledge" && selectedAgentKind() === "reservation";
@@ -1442,7 +1439,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (loc && loc.id != null) idMap[String(loc.id)] = String(entry.id);
     });
 
-    // Single menu — restore the first saved one (if any) into the one card
+    // Single menu - restore the first saved one (if any) into the one card
     resetMenus(kbMenusContainer);
     const savedMenu = (state.menus || [])[0];
     const remapped = savedMenu ? { ...savedMenu, locationValue: idMap[savedMenu.locationValue] || "" } : null;

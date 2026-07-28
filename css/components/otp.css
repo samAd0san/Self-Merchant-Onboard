@@ -69,7 +69,7 @@
   box-shadow: var(--shadow-focus);
 }
 
-/* Error state — applied to the whole group when the submitted code is
+/* Error state - applied to the whole group when the submitted code is
    wrong or incomplete; boxes flash red and shake briefly for feedback */
 .otp-input.is-error .otp-input__box {
   border-color: var(--color-error-border);
