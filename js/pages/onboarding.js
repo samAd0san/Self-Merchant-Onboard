@@ -247,9 +247,10 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "ordering",
-      label: "Voice Ordering",
+      label: "Parcera Ordering",
       icon: "cart",
-      description: "Voice AI takes food orders end to end, powered by Parcera POS.",
+      description: "One AI-powered ordering system across every channel your customers use.",
+      channels: ["Voice Ordering", "Online Ordering", "Mobile Ordering"],
       tiers: [
         { name: "Starter", price: 9.99, blurb: "Answers calls and logs orders straight into your POS." },
         { name: "Growth", price: 99, blurb: "Live order routing with automatic upsell prompts." },
@@ -287,6 +288,11 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           <button type="button" class="service-tile__remove is-hidden" data-role="remove-service">${ICONS.close} Remove</button>
         </div>
+        ${svc.channels ? `
+          <div class="service-tile__channels">
+            ${svc.channels.map((c) => `<span class="pill pill--channel">${c}</span>`).join("")}
+          </div>
+        ` : ""}
         <div class="tier-options">
           ${svc.tiers.map((t, i) => `
             <button type="button" class="tier-option" data-tier-index="${i}">
