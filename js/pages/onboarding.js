@@ -420,10 +420,43 @@ document.addEventListener("DOMContentLoaded", () => {
   // moment none is.
   const digitalSuiteTile = qs("#digital-suite-tile");
   const digitalSuiteToggle = qs("#digital-suite-toggle");
+  const digitalSuiteChoicesWrap = qs("#digital-suite-choices-wrap");
+  const digitalSuiteOptButtons = qsa("[data-suite-mode]");
+  const digitalSuiteDetails = qsa("[data-suite-detail]");
+  const digitalSuiteLinkInput = qs("#digital-suite-link-input");
+  const digitalSuiteDomainPreview = qs("#digital-suite-domain-preview");
+  // Where the free website comes from: Parcera hosts one at a subdomain of
+  // the business name, or the merchant links their own existing site.
+  const digitalSuite = { mode: "parcera", ownLink: "" };
+
+  function slugifyBusinessName(name) {
+    return (name || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "") || "yourbusiness";
+  }
+  function updateDigitalSuiteDomainPreview() {
+    if (digitalSuiteDomainPreview) digitalSuiteDomainPreview.textContent = `${slugifyBusinessName(businessNameInput.value)}.parcera.site`;
+  }
+  function renderDigitalSuiteChoice() {
+    digitalSuiteOptButtons.forEach((b) => b.classList.toggle("is-selected", b.dataset.suiteMode === digitalSuite.mode));
+    digitalSuiteDetails.forEach((d) => setHidden(d, d.dataset.suiteDetail !== digitalSuite.mode));
+  }
+  digitalSuiteOptButtons.forEach((btn) => btn.addEventListener("click", () => {
+    digitalSuite.mode = btn.dataset.suiteMode;
+    renderDigitalSuiteChoice();
+    updateContinueState();
+  }));
+  if (digitalSuiteLinkInput) {
+    digitalSuiteLinkInput.addEventListener("input", () => { digitalSuite.ownLink = digitalSuiteLinkInput.value.trim(); });
+    attachValidation(digitalSuiteLinkInput, { validate: V.url, message: "Enter a valid https:// link.", onChange: updateContinueState });
+  }
+  if (businessNameInput) businessNameInput.addEventListener("input", updateDigitalSuiteDomainPreview);
+  updateDigitalSuiteDomainPreview();
+
   function syncDigitalSuiteToggle() {
     const included = Object.keys(selectedServices).length > 0;
     if (digitalSuiteToggle) digitalSuiteToggle.checked = included;
     if (digitalSuiteTile) digitalSuiteTile.classList.toggle("is-selected", included);
+    if (digitalSuiteChoicesWrap) setHidden(digitalSuiteChoicesWrap, !included);
+    if (included) renderDigitalSuiteChoice();
   }
 
   // Keeps the Payment breakdown (and Continue button) in sync with whatever
@@ -578,7 +611,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const ids = Object.keys(selectedServices);
     if (!ids.length) return false;
     const res = selectedServices.reservations;
-    if (res && res.management === "toast") return V.url(res.toastLink);
+    if (res && res.management === "toast" && !V.url(res.toastLink)) return false;
+    if (digitalSuite.mode === "own" && !V.url(digitalSuite.ownLink)) return false;
     return true;
   }
 
@@ -1282,6 +1316,11 @@ document.addEventListener("DOMContentLoaded", () => {
     syncServiceTiles();
     renderPlanBreakdown();
     refreshCustomSelects();
+
+    digitalSuite.mode = "parcera";
+    digitalSuite.ownLink = "";
+    if (digitalSuiteLinkInput) digitalSuiteLinkInput.value = "";
+    renderDigitalSuiteChoice();
     syncDigitalSuiteToggle();
 
     completedSteps.clear();
@@ -1387,6 +1426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       locations: addrs.map((a, i) => ({ id: opts[i] ? opts[i].value : null, address: a.address, verified: a.verified })),
       menus: getAllMenus(),                   // [{ fileName, locationValue, locationLabel }]
       services: selectedServices,             // { [serviceId]: { tierIndex, management, toastLink } }
+      digitalSuite: { ...digitalSuite },      // { mode: 'parcera' | 'own', ownLink }
       payment: {
         method: selectedPaymentMethod,
         cardName: payCardName.value,
@@ -1455,6 +1495,13 @@ document.addEventListener("DOMContentLoaded", () => {
     syncServiceTiles();
     renderPlanBreakdown();
     updatePhoneCard();
+
+    // Restore which Digital Suite website option was chosen
+    const ds = state.digitalSuite || {};
+    digitalSuite.mode = ds.mode === "own" ? "own" : "parcera";
+    digitalSuite.ownLink = ds.ownLink || "";
+    if (digitalSuiteLinkInput) digitalSuiteLinkInput.value = digitalSuite.ownLink;
+    updateDigitalSuiteDomainPreview();
     syncDigitalSuiteToggle();
 
     // Restore the payment method + entered details from the first walkthrough

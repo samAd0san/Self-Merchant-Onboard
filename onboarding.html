@@ -274,22 +274,6 @@
         <!-- Rendered by JS: one tile per product, single-select, each with 3 tiers -->
         <div class="service-tiles" id="service-tiles-container"></div>
 
-        <!-- Digital Suite: no pricing/tiers - it's included free with whichever
-             agent is chosen. The toggle just reflects that; it auto-switches on
-             when an agent is selected and off when none is. -->
-        <div class="service-tile" id="digital-suite-tile" style="margin-top: var(--space-4);">
-          <div class="service-tile__header">
-            <span class="service-tile__icon" id="icon-digital-suite"></span>
-            <div class="service-tile__heading">
-              <div class="service-tile__title">Digital Suite</div>
-              <div class="service-tile__description">A branded website with online ordering and reservations, included free with your agent.</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" class="toggle-switch__input" id="digital-suite-toggle" disabled />
-            </label>
-          </div>
-        </div>
-
         <!-- Phone Calls (PSTN) is OPTIONAL - the user can continue without it.
              Revealed once a product is chosen. Enabling opens the assign / manual
              number panel below. -->
@@ -347,6 +331,47 @@
                   <p class="field-group__hint">Include country code (e.g. +1 for US).</p>
                   <p class="phone-manual-warn">Supports Twilio numbers only.</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Digital Suite: no pricing/tiers - it's included free with whichever
+             agent is chosen. The toggle just reflects that; it auto-switches on
+             when an agent is selected and off when none is.
+             Keep this the LAST block in this step - it must always render after
+             every product tile and every optional add-on (like Phone Calls
+             above), including any added in the future. -->
+        <div class="service-tile" id="digital-suite-tile" style="margin-top: var(--space-4);">
+          <div class="service-tile__header">
+            <span class="service-tile__icon" id="icon-digital-suite"></span>
+            <div class="service-tile__heading">
+              <div class="service-tile__title">Digital Suite</div>
+              <div class="service-tile__description">A branded website for your business, included free with your plan.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" class="toggle-switch__input" id="digital-suite-toggle" disabled />
+            </label>
+          </div>
+
+          <!-- Where the free website comes from - shown once Digital Suite is on -->
+          <div class="service-tile__subfields is-hidden" id="digital-suite-choices-wrap">
+            <div class="phone-choices">
+              <button type="button" class="suite-opt is-selected" data-suite-mode="parcera">
+                <span class="suite-opt__radio"></span>
+                <span class="suite-opt__label">Let Parcera give you the website</span>
+              </button>
+              <button type="button" class="suite-opt" data-suite-mode="own">
+                <span class="suite-opt__radio"></span>
+                <span class="suite-opt__label">Put your website link</span>
+              </button>
+            </div>
+            <div class="phone-detail" data-suite-detail="parcera">
+              <div class="phone-assign-note">We'll host your site at <strong id="digital-suite-domain-preview">yourbusiness.parcera.site</strong> - your business name, plus your Parcera additions.</div>
+            </div>
+            <div class="phone-detail is-hidden" data-suite-detail="own">
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="url" id="digital-suite-link-input" placeholder="https://www.yourrestaurant.com" />
               </div>
             </div>
           </div>

@@ -86,7 +86,7 @@
 
 .service-tile__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
 }
 

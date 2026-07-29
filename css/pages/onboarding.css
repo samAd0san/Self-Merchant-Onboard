@@ -373,7 +373,11 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
 }
-.phone-opt {
+/* .suite-opt (Digital Suite's website-source choice) shares this look but
+   must stay a separate class from .phone-opt - Phone Calls' JS queries
+   `.phone-opt` by class, so sharing the class made clicking either widget's
+   buttons cross-trigger the other's selection logic. */
+.phone-opt, .suite-opt {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -384,12 +388,12 @@
   background: var(--color-white);
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }
-.phone-opt:hover { border-color: var(--brand-purple); }
-.phone-opt.is-selected {
+.phone-opt:hover, .suite-opt:hover { border-color: var(--brand-purple); }
+.phone-opt.is-selected, .suite-opt.is-selected {
   border-color: var(--brand-purple);
   background: var(--wizard-purple-tint);
 }
-.phone-opt__radio {
+.phone-opt__radio, .suite-opt__radio {
   position: relative;
   flex-shrink: 0;
   width: 16px;
@@ -398,8 +402,8 @@
   border: 2px solid var(--color-border);
   transition: border-color var(--transition-fast);
 }
-.phone-opt.is-selected .phone-opt__radio { border-color: var(--brand-magenta); }
-.phone-opt.is-selected .phone-opt__radio::after {
+.phone-opt.is-selected .phone-opt__radio, .suite-opt.is-selected .suite-opt__radio { border-color: var(--brand-magenta); }
+.phone-opt.is-selected .phone-opt__radio::after, .suite-opt.is-selected .suite-opt__radio::after {
   content: "";
   position: absolute;
   top: 2px;
@@ -409,7 +413,7 @@
   border-radius: 50%;
   background: var(--brand-magenta);
 }
-.phone-opt__label {
+.phone-opt__label, .suite-opt__label {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -417,8 +421,8 @@
   font-weight: 600;
   color: var(--color-text-primary);
 }
-.phone-opt.is-selected .phone-opt__label { color: var(--brand-magenta); }
-.phone-opt__label svg { width: 14px; height: 14px; }
+.phone-opt.is-selected .phone-opt__label, .suite-opt.is-selected .suite-opt__label { color: var(--brand-magenta); }
+.phone-opt__label svg, .suite-opt__label svg { width: 14px; height: 14px; }
 
 /* Detail area under the choices: the assign note or the manual number field */
 .phone-detail { margin-top: var(--space-3); }
