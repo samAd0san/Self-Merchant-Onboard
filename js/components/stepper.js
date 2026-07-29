@@ -8,14 +8,15 @@ import { ICONS } from "../utils/icons.js";
 
 // The full onboarding sequence. Each step maps to a .wizard-step section
 // in onboarding.html by matching `id` against its data-step-id.
-// Product selection ("integration") comes BEFORE Restaurant Details ("knowledge")
-// so the details step can render the right rules (ordering vs reservation).
+// Product selection ("integration") comes BEFORE the Knowledge Base ("knowledge")
+// so that step can render the right rules (ordering vs reservation). The
+// Knowledge Base consolidates the menu, service rules, operating hours, and
+// optional details into one step (menu + rules are collapsible accordions).
 export const WIZARD_STEPS = [
   { id: "business", icon: "building", label: "Business Details" },
   { id: "integration", icon: "storefront", label: "Choose Product" },
-  { id: "knowledge", icon: "book", label: "Restaurant Details" },
-  { id: "rules-hours", icon: "clock", label: "Rules & Hours" },
-  { id: "voice-greeting", icon: "mic", label: "Parcera AI Setup" },
+  { id: "knowledge", icon: "book", label: "Knowledge Base" },
+  { id: "voice-greeting", icon: "mic", label: "Voice AI" },
   { id: "payments", icon: "creditCard", label: "Payment" },
   { id: "launch", icon: "rocket", label: "Launch" },
 ];
