@@ -152,14 +152,14 @@
         <h2 class="wizard-panel__title">Knowledge Base</h2>
         <p class="wizard-panel__subtitle">Everything your Parcera AI should know - your menu, the rules it enforces, your hours, and any extra details.</p>
 
-        <!-- Menu accordion (default closed) - holds all menu entry, shown for
-             both products. -->
+        <!-- Menu accordion (default OPEN) - holds all menu entry, shown for
+             both products. Still collapsible; just starts expanded. -->
         <div class="accordion">
-          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+          <button type="button" class="accordion__toggle is-open" data-role="accordion-toggle" aria-expanded="true">
             <span class="accordion__toggle-text">Menu</span>
             <span class="accordion__chevron" id="icon-accordion-menu"></span>
           </button>
-          <div class="accordion__body is-hidden" data-role="accordion-body">
+          <div class="accordion__body" data-role="accordion-body">
             <div class="field-group" id="kb-menus-group" style="margin-top: 0;">
               <p class="field-group__hint menu-uploads__intro">Paste a link and we read the items automatically, upload a menu image, or add items by hand.</p>
               <div id="kb-menus-container"></div>
