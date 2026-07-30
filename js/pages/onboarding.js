@@ -192,19 +192,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderBusinessHours(kbHoursContainer);
 
-  // Generic accordions: each `.accordion` toggles its own body independently.
-  // Backs the Knowledge Base's Menu + Rules sections and the optional
-  // "More business details" block. All start collapsed (markup ships the body
-  // with is-hidden and the toggle aria-expanded="false").
+  // Accordions behave as one exclusive group per wizard step: opening one
+  // collapses the others in the same step (Knowledge Base: Menu -> Ordering
+  // Rules -> More details, one open at a time). Closing the open one leaves
+  // all collapsed. The Menu ships open (see markup).
+  function setAccordionOpen(acc, open) {
+    const toggle = acc.querySelector("[data-role='accordion-toggle']");
+    const body = acc.querySelector("[data-role='accordion-body']");
+    if (!toggle || !body) return;
+    body.classList.toggle("is-hidden", !open);
+    toggle.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+  }
   qsa(".accordion").forEach((acc) => {
     const toggle = acc.querySelector("[data-role='accordion-toggle']");
     const body = acc.querySelector("[data-role='accordion-body']");
     if (!toggle || !body) return;
     toggle.addEventListener("click", () => {
-      const isOpen = !body.classList.contains("is-hidden");
-      body.classList.toggle("is-hidden", isOpen);
-      toggle.classList.toggle("is-open", !isOpen);
-      toggle.setAttribute("aria-expanded", String(!isOpen));
+      const willOpen = body.classList.contains("is-hidden");
+      if (willOpen) {
+        // Collapse sibling accordions in the same step before opening this one
+        const scope = acc.closest(".wizard-step") || document;
+        qsa(".accordion", scope).forEach((other) => {
+          if (other !== acc) setAccordionOpen(other, false);
+        });
+      }
+      setAccordionOpen(acc, willOpen);
     });
   });
 
