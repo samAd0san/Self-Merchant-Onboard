@@ -490,8 +490,10 @@
 
 .accordion__toggle-text {
   flex: 1;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  /* Match the section heading (Operating Hours) so every Knowledge Base
+     block header reads at the same size/weight. */
+  font-size: var(--font-size-base);
+  font-weight: 700;
   color: var(--color-text-primary);
 }
 

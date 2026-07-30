@@ -144,76 +144,63 @@
         </div>
       </div>
 
-      <!-- Step: Restaurant Details (the menu - paste a link / upload / add by hand) -->
+      <!-- Step: Knowledge Base - consolidates the menu, service rules, operating
+           hours, and optional extra details into one step. The Menu and the
+           service Rules are each a collapsible accordion (both default closed);
+           Operating Hours and the extra details follow below. -->
       <div class="wizard-step is-hidden" data-step-id="knowledge">
-        <h2 class="wizard-panel__title">Restaurant Details</h2>
-        <p class="wizard-panel__subtitle">Add your menu so your Parcera AI knows your items and prices. Paste a link and we read it for you, upload a photo, or add it by hand - then edit anything before you continue.</p>
+        <h2 class="wizard-panel__title">Knowledge Base</h2>
+        <p class="wizard-panel__subtitle">Everything your Parcera AI should know - your menu, the rules it enforces, your hours, and any extra details.</p>
 
-        <div class="wizard-section">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-kb-details"></span>
-            <div>
-              <div class="wizard-section__heading">Menu</div>
-              <div class="wizard-section__heading-meta">What your ordering product reads items and prices from</div>
-            </div>
-          </div>
-
-          <!-- Ordering-only menu entry. Hidden for the Reservation product, which
-               shows the note below instead. -->
-          <div class="field-group" id="kb-menus-group" style="margin-top: 0;">
-            <p class="field-group__hint menu-uploads__intro">Paste a link and we read the items automatically, upload a menu image, or add items by hand.</p>
-            <div id="kb-menus-container"></div>
-          </div>
-
-          <!-- Shown instead of the menu when the Reservation product is selected -->
-          <div class="kb-reservation-note is-hidden" id="kb-reservation-note">
-            <span class="kb-reservation-note__icon" id="icon-kb-reservation-note"></span>
-            <div>
-              <div class="kb-reservation-note__title">Reservations don't use a menu</div>
-              <p>Reservations doesn't take food orders, so there's nothing to add here. Continue to set your booking rules and opening hours.</p>
+        <!-- Menu accordion (default OPEN) - holds all menu entry, shown for
+             both products. Still collapsible; just starts expanded. -->
+        <div class="accordion">
+          <button type="button" class="accordion__toggle is-open" data-role="accordion-toggle" aria-expanded="true">
+            <span class="accordion__toggle-text">Menu</span>
+            <span class="accordion__chevron" id="icon-accordion-menu"></span>
+          </button>
+          <div class="accordion__body" data-role="accordion-body">
+            <div class="field-group" id="kb-menus-group" style="margin-top: 0;">
+              <p class="field-group__hint menu-uploads__intro">Paste a link and we read the items automatically, upload a menu image, or add items by hand.</p>
+              <div id="kb-menus-container"></div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Step: Rules & Hours (the guardrails the AI enforces + opening hours) -->
-      <div class="wizard-step is-hidden" data-step-id="rules-hours">
-        <h2 class="wizard-panel__title">Rules &amp; Hours</h2>
-        <p class="wizard-panel__subtitle">Set the limits your Parcera AI enforces on every call, your opening hours, and a few optional details it can mention.</p>
-
-        <!-- Dynamic service rules: ordering-rules OR reservation-rules, chosen by
-             the product picked earlier. Filled in by JS on step entry. -->
-        <div class="wizard-section" id="service-rules-section" style="margin-bottom: var(--space-5);">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-service-rules"></span>
-            <div>
-              <div class="wizard-section__heading" id="service-rules-heading">Service Rules</div>
-              <div class="wizard-section__heading-meta" id="service-rules-meta">Guardrails your Parcera AI enforces on every call</div>
-            </div>
+        <!-- Service rules accordion (default closed): ordering vs reservation
+             rules, chosen by the product picked earlier. Toggle text + body
+             fields are filled in by JS on step entry. -->
+        <div class="accordion" id="service-rules-section">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text" id="service-rules-heading">Service Rules</span>
+            <span class="accordion__chevron" id="icon-accordion-rules"></span>
+          </button>
+          <div class="accordion__body is-hidden" data-role="accordion-body">
+            <p class="field-group__hint" id="service-rules-meta" style="margin-top: 0;">Guardrails your Parcera AI enforces on every call</p>
+            <div id="service-rules-fields"></div>
           </div>
-          <div id="service-rules-fields"></div>
         </div>
 
-        <!-- Operating hours -->
-        <div class="wizard-section" style="margin-bottom: var(--space-5);">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-hours"></span>
-            <div>
-              <div class="wizard-section__heading">Operating Hours</div>
-              <div class="wizard-section__heading-meta">When you're open - your AI uses this to answer "are you open?"</div>
-            </div>
+        <!-- Operating hours accordion (default closed) - same accordion pattern
+             as the rest of the Knowledge Base; joins the exclusive group. -->
+        <div class="accordion">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text">Operating Hours</span>
+            <span class="accordion__chevron" id="icon-accordion-hours"></span>
+          </button>
+          <div class="accordion__body is-hidden" data-role="accordion-body">
+            <p class="field-group__hint" style="margin-top: 0;">When you're open - your AI uses this to answer "are you open?"</p>
+            <div id="kb-hours-container"></div>
           </div>
-          <div id="kb-hours-container"></div>
         </div>
 
         <!-- Extra details the AI can mention (all optional) -->
-        <div class="wizard-section">
-          <div class="accordion">
-            <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
-              <span class="accordion__toggle-text">More business details <span class="accordion__toggle-hint">(dietary, allergens, kids, parking, accepted payments, about)</span></span>
-              <span class="accordion__chevron" id="icon-accordion-details"></span>
-            </button>
-            <div class="accordion__body is-hidden" data-role="accordion-body">
+        <div class="accordion">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text">More business details <span class="accordion__toggle-hint">(dietary, allergens, kids, parking, and more)</span></span>
+            <span class="accordion__chevron" id="icon-accordion-details"></span>
+          </button>
+          <div class="accordion__body is-hidden" data-role="accordion-body">
               <div class="field-group" style="margin-top: 0;">
                 <label class="field-group__label" for="kb-dietary">Dietary Options</label>
                 <div class="input-field">
@@ -265,20 +252,97 @@
             </div>
           </div>
         </div>
-      </div>
+      <!-- /Knowledge Base step -->
 
       <!-- Step: Choose Product (single-select - reservation OR ordering) -->
       <div class="wizard-step is-hidden" data-step-id="integration">
         <h2 class="wizard-panel__title">Choose Your Product</h2>
-        <p class="wizard-panel__subtitle">Pick one Parcera product for this location - reservations or ordering - and a plan.</p>
+        <p class="wizard-panel__subtitle">Pick one Parcera product for this location - ordering or reservations - and a plan. Your Digital Storefront is included free.</p>
 
         <!-- Rendered by JS: one tile per product, single-select, each with 3 tiers -->
         <div class="service-tiles" id="service-tiles-container"></div>
 
-        <!-- Phone Calls (PSTN) is OPTIONAL - the user can continue without it.
-             Revealed once a product is chosen. Enabling opens the assign / manual
-             number panel below. -->
-        <div class="phone-enable is-hidden" id="phone-enable">
+        <!-- Digital Storefront: a free branded website included with the plan.
+             Its toggle is ON by default but the merchant can turn it off.
+             Keep this the LAST block in this step - it must always render after
+             every product tile and every optional add-on (like Phone Calls
+             above), including any added in the future. -->
+        <div class="service-tile is-selected" id="digital-suite-tile" style="margin-top: var(--space-4);">
+          <div class="service-tile__header">
+            <span class="service-tile__icon" id="icon-digital-suite"></span>
+            <div class="service-tile__heading">
+              <div class="service-tile__title">Digital Storefront</div>
+              <div class="service-tile__description">A branded storefront website for your business, included free with your plan. Toggle it off if you don't need one.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" class="toggle-switch__input" id="digital-suite-toggle" checked />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step: Voice AI -->
+      <div class="wizard-step is-hidden" data-step-id="voice-greeting">
+        <h2 class="wizard-panel__title">Voice AI</h2>
+        <p class="wizard-panel__subtitle">Personalize your Voice AI with a name, voice, and custom greeting</p>
+
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-assistant-name"></span>
+            <div>
+              <div class="wizard-section__heading">Name your Voice AI</div>
+              <div class="wizard-section__heading-meta">Give your Voice AI a friendly name</div>
+            </div>
+          </div>
+          <label class="field-group__label" for="input-assistant-name">Voice AI Name</label>
+          <div class="input-field">
+            <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-assistant-name" placeholder="e.g., Aria" />
+          </div>
+          <p class="field-group__hint" style="display:flex; align-items:center; gap: var(--space-1);"><span id="icon-hint-sparkle" style="width:12px;height:12px; color: var(--brand-magenta);"></span> Used when your Voice AI introduces itself</p>
+        </div>
+
+        <!-- Voice selection follows the name -->
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-choose-voice"></span>
+            <div>
+              <div class="wizard-section__heading">Choose a Voice <span class="required-mark">*</span></div>
+              <div class="wizard-section__heading-meta">Pick the voice your Voice AI will use</div>
+            </div>
+          </div>
+          <div class="select-field">
+            <select class="select-field__control" id="input-voice-select">
+              <option value="">Select a voice</option>
+              <option value="aria">Aria, Warm & Friendly</option>
+              <option value="kai">Kai, Professional</option>
+              <option value="luna">Luna, Energetic</option>
+            </select>
+            <span class="select-field__chevron" id="icon-chevron-voice"></span>
+          </div>
+        </div>
+
+        <div class="wizard-section" style="margin-bottom: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-transfer-numbers"></span>
+            <div>
+              <div class="wizard-section__heading">Transfer Numbers <span class="required-mark">*</span></div>
+              <div class="wizard-section__heading-meta">Phone numbers the AI can transfer calls to (e.g., General, Catering, Manager)</div>
+            </div>
+          </div>
+
+          <div id="transfer-rules-container"></div>
+
+          <button type="button" class="add-transfer-link" id="btn-add-transfer">
+            <span id="icon-add-transfer"></span> Add Another Transfer Number
+          </button>
+          <p class="field-group__hint" style="display:flex; align-items:center; gap: var(--space-2); margin-top: var(--space-3);">
+            <span id="icon-hint-phone" style="width:14px;height:14px;"></span> Add multiple numbers for different departments. The AI will transfer based on the condition you set.
+          </p>
+        </div>
+
+        <!-- Phone Calls (PSTN) is OPTIONAL and ordering-only. It sits below the
+             Transfer Numbers; enabling it opens the assign / manual number panel. -->
+        <div class="phone-enable is-hidden" id="phone-enable" style="margin-bottom: var(--space-5);">
           <div class="phone-enable__head">
             <span class="phone-enable__icon" id="icon-phone-enable"></span>
             <div style="flex:1; min-width:0;">
@@ -337,107 +401,6 @@
           </div>
         </div>
 
-        <!-- Digital Suite: no pricing/tiers - it's included free with whichever
-             agent is chosen. The toggle just reflects that; it auto-switches on
-             when an agent is selected and off when none is.
-             Keep this the LAST block in this step - it must always render after
-             every product tile and every optional add-on (like Phone Calls
-             above), including any added in the future. -->
-        <div class="service-tile" id="digital-suite-tile" style="margin-top: var(--space-4);">
-          <div class="service-tile__header">
-            <span class="service-tile__icon" id="icon-digital-suite"></span>
-            <div class="service-tile__heading">
-              <div class="service-tile__title">Digital Suite</div>
-              <div class="service-tile__description">A branded website for your business, included free with your plan.</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" class="toggle-switch__input" id="digital-suite-toggle" disabled />
-            </label>
-          </div>
-
-          <!-- Where the free website comes from - shown once Digital Suite is on -->
-          <div class="service-tile__subfields is-hidden" id="digital-suite-choices-wrap">
-            <div class="phone-choices">
-              <button type="button" class="suite-opt is-selected" data-suite-mode="parcera">
-                <span class="suite-opt__radio"></span>
-                <span class="suite-opt__label">Let Parcera give you the website</span>
-              </button>
-              <button type="button" class="suite-opt" data-suite-mode="own">
-                <span class="suite-opt__radio"></span>
-                <span class="suite-opt__label">Put your website link</span>
-              </button>
-            </div>
-            <div class="phone-detail" data-suite-detail="parcera">
-              <div class="phone-assign-note">We'll host your site at <strong id="digital-suite-domain-preview">yourbusiness.parcera.site</strong> - your business name, plus your Parcera additions.</div>
-            </div>
-            <div class="phone-detail is-hidden" data-suite-detail="own">
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="url" id="digital-suite-link-input" placeholder="https://www.yourrestaurant.com" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step: Parcera AI Setup -->
-      <div class="wizard-step is-hidden" data-step-id="voice-greeting">
-        <h2 class="wizard-panel__title">Parcera AI Setup</h2>
-        <p class="wizard-panel__subtitle">Personalize your Parcera AI with a name, voice, and custom greeting</p>
-
-        <div class="wizard-section" style="margin-bottom: var(--space-5);">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-assistant-name"></span>
-            <div>
-              <div class="wizard-section__heading">Name your Parcera AI</div>
-              <div class="wizard-section__heading-meta">Give your Parcera AI a friendly name</div>
-            </div>
-          </div>
-          <label class="field-group__label" for="input-assistant-name">Parcera AI Name</label>
-          <div class="input-field">
-            <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="input-assistant-name" placeholder="e.g., Aria" />
-          </div>
-          <p class="field-group__hint" style="display:flex; align-items:center; gap: var(--space-1);"><span id="icon-hint-sparkle" style="width:12px;height:12px; color: var(--brand-magenta);"></span> Used when your Parcera AI introduces itself</p>
-        </div>
-
-        <!-- Voice selection follows the name -->
-        <div class="wizard-section" style="margin-bottom: var(--space-5);">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-choose-voice"></span>
-            <div>
-              <div class="wizard-section__heading">Choose a Voice <span class="required-mark">*</span></div>
-              <div class="wizard-section__heading-meta">Pick the voice your Parcera AI will use</div>
-            </div>
-          </div>
-          <div class="select-field">
-            <select class="select-field__control" id="input-voice-select">
-              <option value="">Select a voice</option>
-              <option value="aria">Aria, Warm & Friendly</option>
-              <option value="kai">Kai, Professional</option>
-              <option value="luna">Luna, Energetic</option>
-            </select>
-            <span class="select-field__chevron" id="icon-chevron-voice"></span>
-          </div>
-        </div>
-
-        <div class="wizard-section" style="margin-bottom: var(--space-5);">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-transfer-numbers"></span>
-            <div>
-              <div class="wizard-section__heading">Transfer Numbers <span class="required-mark">*</span></div>
-              <div class="wizard-section__heading-meta">Phone numbers the AI can transfer calls to (e.g., General, Catering, Manager)</div>
-            </div>
-          </div>
-
-          <div id="transfer-rules-container"></div>
-
-          <button type="button" class="add-transfer-link" id="btn-add-transfer">
-            <span id="icon-add-transfer"></span> Add Another Transfer Number
-          </button>
-          <p class="field-group__hint" style="display:flex; align-items:center; gap: var(--space-2); margin-top: var(--space-3);">
-            <span id="icon-hint-phone" style="width:14px;height:14px;"></span> Add multiple numbers for different departments. The AI will transfer based on the condition you set.
-          </p>
-        </div>
-
         <div class="wizard-section" style="margin-bottom: var(--space-5);">
           <div class="wizard-section__header">
             <span class="wizard-section__icon" id="icon-languages"></span>
@@ -491,11 +454,10 @@
         <div class="pay-plan">
           <div class="pay-plan__info">
             <span class="pay-plan__label">Total, monthly</span>
-            <span class="pay-plan__meta" id="pay-plan-meta">No services selected</span>
+            <span class="pay-plan__meta" id="pay-plan-meta">No products selected</span>
           </div>
           <span class="pay-plan__amount">$<span id="pay-plan-amount">0</span><span class="pay-plan__per">/mo</span></span>
         </div>
-        <button type="button" class="btn--tab-link" id="btn-add-service-payment" style="display:block; margin: var(--space-3) 0 var(--space-4) auto;">+ Add another service</button>
 
         <!-- Method picker: a single choice, low-friction, one panel of fields -->
         <div class="pay-methods" id="pay-method-options">
@@ -670,23 +632,34 @@
               </div>
               <div class="report__rows" id="rep-locations-rows">
                 <div class="report__row"><span class="report__key">Locations</span><span class="report__val" id="rep-locations">Not set</span></div>
-                <div class="report__row"><span class="report__key">Menus</span><span class="report__val" id="rep-menus">Not set</span></div>
               </div>
             </div>
 
             <div class="report__group">
               <div class="report__group-head">
-                <span class="report__group-title">Services</span>
+                <span class="report__group-title">Products</span>
                 <button type="button" class="report__edit" data-edit-step="integration">Edit</button>
               </div>
-              <!-- One row per selected service: tier can be changed and the
-                   service removed right here, without leaving the summary -->
+              <!-- One row per selected product: tier can be changed and the
+                   product removed right here, without leaving the summary -->
               <div class="service-report-rows" id="rep-services-rows"></div>
             </div>
 
             <div class="report__group">
               <div class="report__group-head">
-                <span class="report__group-title">Parcera AI</span>
+                <span class="report__group-title">Knowledge Base</span>
+                <button type="button" class="report__edit" data-edit-step="knowledge">Edit</button>
+              </div>
+              <div class="report__rows">
+                <div class="report__row"><span class="report__key">Menu</span><span class="report__val" id="rep-menus">Not set</span></div>
+                <div class="report__row"><span class="report__key">Hours</span><span class="report__val" id="rep-hours">Not set</span></div>
+                <div class="report__row"><span class="report__key">Details</span><span class="report__val" id="rep-kb-details">Not set</span></div>
+              </div>
+            </div>
+
+            <div class="report__group">
+              <div class="report__group-head">
+                <span class="report__group-title">Voice AI</span>
                 <button type="button" class="report__edit" data-edit-step="voice-greeting">Edit</button>
               </div>
               <div class="report__rows">
@@ -714,10 +687,8 @@
             </div>
           </div>
 
-          <button type="button" class="btn--tab-link" id="btn-add-service-review" style="display:block; margin: 0 0 var(--space-4) auto;">+ Add another service</button>
-
           <button type="button" class="btn btn--launch" id="btn-launch">
-            <span id="icon-launch-sparkle"></span> Launch My AI Assistant
+            <span id="icon-launch-sparkle"></span> Launch my AI products
           </button>
         </div>
 
@@ -725,7 +696,7 @@
         <div class="launch-success is-hidden" id="launch-success-phase">
           <span class="launch-success__icon launch-success__icon--celebrate" id="icon-launch-success"></span>
           <h2 class="launch-success__title">You're all set!</h2>
-          <p class="launch-success__subtitle" id="launch-success-subtitle">Your business is ready. Your Parcera AI is live.</p>
+          <p class="launch-success__subtitle" id="launch-success-subtitle">Your subscription to the products is successful.</p>
 
           <!-- Two ways forward: light, tappable option cards -->
           <div class="launch-next" role="group" aria-label="What's next">

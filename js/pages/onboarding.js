@@ -33,7 +33,9 @@ function injectStaticIcons() {
     "icon-owner-email": "mail",
     "icon-owner-phone": "phone",
     "icon-add-address": "plus",
-    "icon-kb-details": "storefront",
+    "icon-accordion-menu": "chevronDown",
+    "icon-accordion-rules": "chevronDown",
+    "icon-accordion-hours": "chevronDown",
     "icon-accordion-details": "chevronDown",
     "icon-kb-faq": "chat",
     "icon-add-faq": "plus",
@@ -48,10 +50,6 @@ function injectStaticIcons() {
     "icon-chevron-voice": "chevronDown",
     "icon-languages": "globe",
     "icon-tips": "lightbulb",
-    // Rules & Hours step
-    "icon-service-rules": "shield",
-    "icon-hours": "clock",
-    "icon-kb-reservation-note": "calendar",
     // Optional Phone Calls (PSTN) card + assign/manual panel
     "icon-phone-enable": "phone",
     "icon-phone-panel": "phone",
@@ -193,14 +191,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderBusinessHours(kbHoursContainer);
 
-  // Generic accordion: collapses the lower-priority detail fields
-  const detailsToggle = qs("[data-role='accordion-toggle']");
-  const detailsBody = qs("[data-role='accordion-body']");
-  detailsToggle.addEventListener("click", () => {
-    const isOpen = !detailsBody.classList.contains("is-hidden");
-    detailsBody.classList.toggle("is-hidden", isOpen);
-    detailsToggle.classList.toggle("is-open", !isOpen);
-    detailsToggle.setAttribute("aria-expanded", String(!isOpen));
+  // Accordions behave as one exclusive group per wizard step: opening one
+  // collapses the others in the same step (Knowledge Base: Menu -> Ordering
+  // Rules -> More details, one open at a time). Closing the open one leaves
+  // all collapsed. The Menu ships open (see markup).
+  function setAccordionOpen(acc, open) {
+    const toggle = acc.querySelector("[data-role='accordion-toggle']");
+    const body = acc.querySelector("[data-role='accordion-body']");
+    if (!toggle || !body) return;
+    body.classList.toggle("is-hidden", !open);
+    toggle.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+  }
+  qsa(".accordion").forEach((acc) => {
+    const toggle = acc.querySelector("[data-role='accordion-toggle']");
+    const body = acc.querySelector("[data-role='accordion-body']");
+    if (!toggle || !body) return;
+    toggle.addEventListener("click", () => {
+      const willOpen = body.classList.contains("is-hidden");
+      if (willOpen) {
+        // Collapse sibling accordions in the same step before opening this one
+        const scope = acc.closest(".wizard-step") || document;
+        qsa(".accordion", scope).forEach((other) => {
+          if (other !== acc) setAccordionOpen(other, false);
+        });
+      }
+      setAccordionOpen(acc, willOpen);
+    });
   });
 
   // Single menu per location - one non-removable card that link-fetch, upload,
@@ -235,26 +252,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // ordering (via Parcera POS). Matches what the backend supports today.
   const SERVICES = [
     {
+      id: "ordering",
+      label: "Parcera Ordering",
+      icon: "cart",
+      description: "One AI-powered ordering system across every channel your customers use.",
+      channels: ["Voice AI Ordering", "Online Ordering", "Mobile Ordering"],
+      tiers: [
+        { name: "Starter", price: 9.99, blurb: "Answers calls and logs orders straight into your POS." },
+        { name: "Growth", price: 99, blurb: "Live order routing with automatic upsell prompts." },
+        { name: "Pro", price: 199, blurb: "Multi-line support with real-time kitchen sync." },
+      ],
+    },
+    {
       id: "reservations",
-      label: "Voice Reservations",
+      label: "Parcera Reservations",
       icon: "calendar",
       description: "Voice AI answers calls and books tables - via Parcera Tables or your existing Toast Tables.",
       tiers: [
         { name: "Starter", price: 9.99, blurb: "Answers booking calls with email confirmations." },
         { name: "Growth", price: 99, blurb: "Adds SMS reminders, waitlists, and table assignments." },
         { name: "Pro", price: 199, blurb: "Multi-location sync plus priority phone support." },
-      ],
-    },
-    {
-      id: "ordering",
-      label: "Parcera Ordering",
-      icon: "cart",
-      description: "One AI-powered ordering system across every channel your customers use.",
-      channels: ["Voice Ordering", "Online Ordering", "Mobile Ordering"],
-      tiers: [
-        { name: "Starter", price: 9.99, blurb: "Answers calls and logs orders straight into your POS." },
-        { name: "Growth", price: 99, blurb: "Live order routing with automatic upsell prompts." },
-        { name: "Pro", price: 199, blurb: "Multi-line support with real-time kitchen sync." },
       ],
     },
   ];
@@ -414,49 +431,23 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshCustomSelects();
   }
 
-  // Digital Suite has no price or tier of its own - it's included automatically
-  // with whichever agent is chosen. The toggle is a read-only indicator (not a
-  // control the merchant clicks): on the moment any agent is selected, off the
-  // moment none is.
+  // Digital Storefront is a free branded website, included with the plan. Its
+  // toggle is a real control the merchant owns: ON by default, but they can
+  // turn it off if they don't want the storefront.
   const digitalSuiteTile = qs("#digital-suite-tile");
   const digitalSuiteToggle = qs("#digital-suite-toggle");
-  const digitalSuiteChoicesWrap = qs("#digital-suite-choices-wrap");
-  const digitalSuiteOptButtons = qsa("[data-suite-mode]");
-  const digitalSuiteDetails = qsa("[data-suite-detail]");
-  const digitalSuiteLinkInput = qs("#digital-suite-link-input");
-  const digitalSuiteDomainPreview = qs("#digital-suite-domain-preview");
-  // Where the free website comes from: Parcera hosts one at a subdomain of
-  // the business name, or the merchant links their own existing site.
-  const digitalSuite = { mode: "parcera", ownLink: "" };
+  const digitalStorefront = { enabled: true };
 
-  function slugifyBusinessName(name) {
-    return (name || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "") || "yourbusiness";
-  }
-  function updateDigitalSuiteDomainPreview() {
-    if (digitalSuiteDomainPreview) digitalSuiteDomainPreview.textContent = `${slugifyBusinessName(businessNameInput.value)}.parcera.site`;
-  }
-  function renderDigitalSuiteChoice() {
-    digitalSuiteOptButtons.forEach((b) => b.classList.toggle("is-selected", b.dataset.suiteMode === digitalSuite.mode));
-    digitalSuiteDetails.forEach((d) => setHidden(d, d.dataset.suiteDetail !== digitalSuite.mode));
-  }
-  digitalSuiteOptButtons.forEach((btn) => btn.addEventListener("click", () => {
-    digitalSuite.mode = btn.dataset.suiteMode;
-    renderDigitalSuiteChoice();
-    updateContinueState();
-  }));
-  if (digitalSuiteLinkInput) {
-    digitalSuiteLinkInput.addEventListener("input", () => { digitalSuite.ownLink = digitalSuiteLinkInput.value.trim(); });
-    attachValidation(digitalSuiteLinkInput, { validate: V.url, message: "Enter a valid https:// link.", onChange: updateContinueState });
-  }
-  if (businessNameInput) businessNameInput.addEventListener("input", updateDigitalSuiteDomainPreview);
-  updateDigitalSuiteDomainPreview();
-
+  // Reflects the current enabled state onto the toggle + tile styling.
   function syncDigitalSuiteToggle() {
-    const included = Object.keys(selectedServices).length > 0;
-    if (digitalSuiteToggle) digitalSuiteToggle.checked = included;
-    if (digitalSuiteTile) digitalSuiteTile.classList.toggle("is-selected", included);
-    if (digitalSuiteChoicesWrap) setHidden(digitalSuiteChoicesWrap, !included);
-    if (included) renderDigitalSuiteChoice();
+    if (digitalSuiteToggle) digitalSuiteToggle.checked = digitalStorefront.enabled;
+    if (digitalSuiteTile) digitalSuiteTile.classList.toggle("is-selected", digitalStorefront.enabled);
+  }
+  if (digitalSuiteToggle) {
+    digitalSuiteToggle.addEventListener("change", () => {
+      digitalStorefront.enabled = digitalSuiteToggle.checked;
+      syncDigitalSuiteToggle();
+    });
   }
 
   // Keeps the Payment breakdown (and Continue button) in sync with whatever
@@ -465,8 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateContinueState();
     renderPlanBreakdown();
     updatePhoneCard();
-    refreshStepper(); // agent kind decides whether the menu step is shown
-    syncDigitalSuiteToggle();
+    refreshStepper();
   }
 
   renderServiceTiles();
@@ -579,14 +569,6 @@ document.addEventListener("DOMContentLoaded", () => {
         <span>Your agent enforces these on every booking. Bookings past these limits are declined or held for approval.</span>
       </div>`;
   }
-  const kbMenusGroup = qs("#kb-menus-group");
-  const kbReservationNote = qs("#kb-reservation-note");
-  // Menu is ordering-only; the Reservation product sees a short note instead.
-  function syncMenuVisibility() {
-    const isReservation = selectedAgentKind() === "reservation";
-    if (kbMenusGroup) setHidden(kbMenusGroup, isReservation);
-    if (kbReservationNote) setHidden(kbReservationNote, !isReservation);
-  }
   function renderServiceRules() {
     if (!serviceRulesFields) return;
     const kind = selectedAgentKind();
@@ -612,7 +594,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ids.length) return false;
     const res = selectedServices.reservations;
     if (res && res.management === "toast" && !V.url(res.toastLink)) return false;
-    if (digitalSuite.mode === "own" && !V.url(digitalSuite.ownLink)) return false;
     return true;
   }
 
@@ -812,7 +793,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!planBreakdownEl) return;
     const entries = Object.entries(selectedServices);
     if (!entries.length) {
-      planBreakdownEl.innerHTML = `<p class="plan-breakdown__empty">No services selected yet.</p>`;
+      planBreakdownEl.innerHTML = `<p class="plan-breakdown__empty">No products selected yet.</p>`;
     } else {
       planBreakdownEl.innerHTML = entries.map(([id, sel]) => {
         const svc = getService(id);
@@ -827,16 +808,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const total = serviceTotal();
     if (payPlanMetaEl) {
-      payPlanMetaEl.textContent = entries.length ? "1 service selected" : "No services selected";
+      payPlanMetaEl.textContent = entries.length ? "1 product selected" : "No products selected";
     }
     if (payPlanAmountEl) payPlanAmountEl.textContent = String(total);
-  }
-
-  const addServicePaymentBtn = qs("#btn-add-service-payment");
-  if (addServicePaymentBtn) {
-    addServicePaymentBtn.addEventListener("click", () => {
-      navigateToStep(WIZARD_STEPS.findIndex((s) => s.id === "integration"));
-    });
   }
 
   // Payment field controls (only the active method's fields are validated)
@@ -1005,12 +979,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const verifiedLabel = verifiedCount ? ` · ${verifiedCount} verified` : "";
     setReport("rep-locations", addresses.length ? `${locationLabel}${verifiedLabel}` : "No address yet");
 
-    // Menus (typed in, uploaded, or linked - any mode with content counts)
+    // Knowledge Base: menu, operating hours, and optional extra details
     const menus = getAllMenus().filter((menu) => menu.manualText || menu.fileName || menu.linkUrl);
     const menuLabel = menus.length === 1 ? "1 menu" : `${menus.length} menus`;
     setReport("rep-menus", menus.length ? menuLabel : "None uploaded");
+    const hasHours = qsa("#kb-hours-container input[type='time']").some((i) => i.value);
+    setReport("rep-hours", hasHours ? "Added" : "Not set");
+    const detailFields = ["dietary", "allergens", "kids", "parking", "about"]
+      .map((k) => kbTextInputs[k]).filter((el) => el && el.value.trim());
+    const detailCount = detailFields.length + (getKbPaymentMethods().length ? 1 : 0);
+    setReport("rep-kb-details", detailCount ? `${detailCount} added` : "None");
 
-    // Services (editable inline: tier select + remove per row)
+    // Products (editable inline: tier select + remove per row)
     renderServicesReport();
     updateLaunchButtonState();
 
@@ -1055,13 +1035,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   const reviewSummaries = {
     "Business Details": () => `${repText("rep-business-name")} · ${repText("rep-business-type")}`,
-    "Locations": () => `${repText("rep-locations")} · ${repText("rep-menus")}`,
-    "Services": () => {
+    "Locations": () => repText("rep-locations"),
+    "Products": () => {
       const n = Object.keys(selectedServices).length;
-      if (!n) return "<em>No services selected</em>";
-      return `${n} service${n === 1 ? "" : "s"} · $${serviceTotal()}/mo`;
+      if (!n) return "<em>No products selected</em>";
+      return `${n} product${n === 1 ? "" : "s"} · $${serviceTotal()}/mo`;
     },
-    "Parcera AI": () => `${repText("rep-assistant-name")} · ${repText("rep-voice")}`,
+    "Knowledge Base": () => `${repText("rep-menus")} · ${repText("rep-hours")}`,
+    "Voice AI": () => `${repText("rep-assistant-name")} · ${repText("rep-voice")}`,
     "Payment Method": () => `${repText("rep-plan-total")} · ${repText("rep-payment")}`,
   };
   function initReviewCollapsibles() {
@@ -1095,7 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   launchButton.addEventListener("click", () => {
     const businessName = businessNameInput.value.trim() || "Your Business";
-    launchSuccessSubtitle.textContent = `${businessName} is ready. Your Parcera AI is live.`;
+    launchSuccessSubtitle.textContent = `Your subscription to the products is successful.`;
 
     // Persist business + menus + selected services for cross-page carry-over
     persistCarryOver();
@@ -1116,15 +1097,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setHidden(backButton, true);
   });
 
-  // Small "+ Add another service" link, right before the Launch button -
-  // one last chance to add a service without leaving the summary.
-  const addServiceReviewBtn = qs("#btn-add-service-review");
-  if (addServiceReviewBtn) {
-    addServiceReviewBtn.addEventListener("click", () => {
-      navigateToStep(WIZARD_STEPS.findIndex((s) => s.id === "integration"));
-    });
-  }
-
   // ======================================================================
   // Navigation: stepper rendering, validation, back/continue/skip/restart
   // ======================================================================
@@ -1135,9 +1107,7 @@ document.addEventListener("DOMContentLoaded", () => {
       case "business":
         return businessFormComplete();
       case "knowledge":
-        return true; // optional (menu), never blocks
-      case "rules-hours":
-        return true; // optional, never blocks
+        return true; // optional (menu, rules, hours, details), never blocks
       case "integration":
         return integrationComplete();
       case "voice-greeting": {
@@ -1158,10 +1128,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // The menu (Restaurant Details) step is skipped for the Reservation product -
-  // it has no menu, so the step is hidden and jumped over.
+  // The Restaurant Details step always shows. For Reservations it has no menu,
+  // so it shows a short "reservations don't use a menu" note instead (see
+  // syncMenuVisibility) rather than being skipped - keeping the node visible.
   function stepSkipped(stepId) {
-    return stepId === "knowledge" && selectedAgentKind() === "reservation";
+    return false;
   }
   // Walks from `index` in direction `dir` (+1/-1) past any skipped steps.
   function skipPast(index, dir) {
@@ -1173,7 +1144,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Re-render the stepper reflecting current completion + reachability
   function refreshStepper() {
     const skipped = new Set();
-    if (selectedAgentKind() === "reservation") skipped.add("knowledge");
     renderStepper(stepperEl, currentStepIndex, {
       completed: completedSteps,
       maxReachable: maxReachedIndex,
@@ -1215,14 +1185,12 @@ document.addEventListener("DOMContentLoaded", () => {
       setHidden(panel, panel.dataset.stepId !== step.id);
     });
 
-    // Keep each menu's location dropdown in sync + hide the menu for reservation
+    // Knowledge Base: sync each menu's location dropdown (menu shows for both
+    // products), and render its rules (ordering vs reservation).
     if (step.id === "knowledge") {
       refreshMenuLocationOptions(getLocationOptions());
-      syncMenuVisibility();
+      renderServiceRules();
     }
-
-    // Render the product's rules (ordering vs reservation) on entry
-    if (step.id === "rules-hours") renderServiceRules();
 
     if (step.id === "payments") renderPlanBreakdown();
 
@@ -1231,10 +1199,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // The Launch step uses its own in-panel button instead of the shared Continue
     setHidden(continueButton, step.id === "launch");
 
-    // Make sure at least one transfer rule and one greeting block exist
+    // Make sure at least one transfer rule and one greeting block exist, and
+    // reflect the optional Phone Calls card (ordering-only) which lives here now.
     if (step.id === "voice-greeting") {
       if (transferRuleCount === 0) addTransferRule({ label: "General", phone: "", condition: "" });
       if (!greetingsContainer.children.length) renderGreetings();
+      updatePhoneCard();
     }
 
     refreshStepper();
@@ -1317,10 +1287,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlanBreakdown();
     refreshCustomSelects();
 
-    digitalSuite.mode = "parcera";
-    digitalSuite.ownLink = "";
-    if (digitalSuiteLinkInput) digitalSuiteLinkInput.value = "";
-    renderDigitalSuiteChoice();
+    digitalStorefront.enabled = true; // back to the default on
     syncDigitalSuiteToggle();
 
     completedSteps.clear();
@@ -1400,7 +1367,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setHidden(bottomNav, true);
     setHidden(backButton, true);
     const businessName = businessNameInput.value.trim() || "Your business";
-    launchSuccessSubtitle.textContent = `${businessName} is ready. Your Parcera AI is live.`;
+    launchSuccessSubtitle.textContent = `Your subscription to the products is successful.`;
     refreshStepper();
   }
 
@@ -1426,7 +1393,7 @@ document.addEventListener("DOMContentLoaded", () => {
       locations: addrs.map((a, i) => ({ id: opts[i] ? opts[i].value : null, address: a.address, verified: a.verified })),
       menus: getAllMenus(),                   // [{ fileName, locationValue, locationLabel }]
       services: selectedServices,             // { [serviceId]: { tierIndex, management, toastLink } }
-      digitalSuite: { ...digitalSuite },      // { mode: 'parcera' | 'own', ownLink }
+      digitalStorefront: { ...digitalStorefront },  // { enabled }
       payment: {
         method: selectedPaymentMethod,
         cardName: payCardName.value,
@@ -1455,6 +1422,13 @@ document.addEventListener("DOMContentLoaded", () => {
         phone: r.querySelector(".transfer-phone").value,
         condition: r.querySelector(".transfer-rule__condition").value,
       })),
+      // Voice AI setup persona (name, voice, language, greeting)
+      voiceAi: {
+        name: assistantNameInput.value,
+        voice: voiceSelect.value,
+        spanish: spanishCheckbox.checked,
+        greeting: getFirstGreetingText(),
+      },
     };
   }
 
@@ -1496,12 +1470,9 @@ document.addEventListener("DOMContentLoaded", () => {
     renderPlanBreakdown();
     updatePhoneCard();
 
-    // Restore which Digital Suite website option was chosen
-    const ds = state.digitalSuite || {};
-    digitalSuite.mode = ds.mode === "own" ? "own" : "parcera";
-    digitalSuite.ownLink = ds.ownLink || "";
-    if (digitalSuiteLinkInput) digitalSuiteLinkInput.value = digitalSuite.ownLink;
-    updateDigitalSuiteDomainPreview();
+    // Restore whether the Digital Storefront was left on (defaults on)
+    const ds = state.digitalStorefront || {};
+    digitalStorefront.enabled = ds.enabled !== false;
     syncDigitalSuiteToggle();
 
     // Restore the payment method + entered details from the first walkthrough
@@ -1538,6 +1509,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const rules = (state.transferRules && state.transferRules.length) ? state.transferRules : null;
     if (rules) rules.forEach((r) => addTransferRule(r));
 
+    // Restore the Voice AI persona (name, voice, language, greeting)
+    const va = state.voiceAi || {};
+    assistantNameInput.value = va.name || "";
+    if (va.voice) voiceSelect.value = va.voice;
+    spanishCheckbox.checked = !!va.spanish;
+    renderGreetings();
+    if (va.greeting) {
+      const englishArea = greetingsContainer.querySelector('[data-lang="english"]');
+      if (englishArea) { englishArea.value = va.greeting; greetingDirty.english = true; }
+    }
+
     refreshCustomSelects();
   }
 
@@ -1551,12 +1533,18 @@ document.addEventListener("DOMContentLoaded", () => {
     showLaunchCelebration();
   } else if (landingParams.get("flow") === "add-location") {
     // Re-onboarding another location: prefill everything from the last run,
-    // then clear just the location address so they enter the new one.
+    // then clear just the location address so they enter the new one, and
+    // clear the Voice AI name so this location's assistant gets its own.
     const saved = loadOnboardingState();
     if (saved) {
       restoreCarryOver(saved);
       resetAddressBlocks(addressesContainer);
       addAddressBlock(addressesContainer, { removable: false });
+      // This location's assistant gets its own name; clear it (and refresh the
+      // greeting so its default no longer shows the previous location's name).
+      if (assistantNameInput) assistantNameInput.value = "";
+      delete greetingDirty.english;
+      renderGreetings();
       // A new location starts with its own fresh (off) phone choice
       if (phoneManualInput) phoneManualInput.value = "";
       phone.mode = "auto";
