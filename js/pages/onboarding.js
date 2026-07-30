@@ -35,6 +35,7 @@ function injectStaticIcons() {
     "icon-add-address": "plus",
     "icon-accordion-menu": "chevronDown",
     "icon-accordion-rules": "chevronDown",
+    "icon-accordion-hours": "chevronDown",
     "icon-accordion-details": "chevronDown",
     "icon-kb-faq": "chat",
     "icon-add-faq": "plus",
@@ -49,8 +50,6 @@ function injectStaticIcons() {
     "icon-chevron-voice": "chevronDown",
     "icon-languages": "globe",
     "icon-tips": "lightbulb",
-    // Knowledge Base step
-    "icon-hours": "clock",
     // Optional Phone Calls (PSTN) card + assign/manual panel
     "icon-phone-enable": "phone",
     "icon-phone-panel": "phone",

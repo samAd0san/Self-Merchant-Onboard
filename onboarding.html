@@ -181,16 +181,17 @@
           </div>
         </div>
 
-        <!-- Operating hours (as-is) -->
-        <div class="wizard-section" style="margin-bottom: var(--space-5);">
-          <div class="wizard-section__header">
-            <span class="wizard-section__icon" id="icon-hours"></span>
-            <div>
-              <div class="wizard-section__heading">Operating Hours</div>
-              <div class="wizard-section__heading-meta">When you're open - your AI uses this to answer "are you open?"</div>
-            </div>
+        <!-- Operating hours accordion (default closed) - same accordion pattern
+             as the rest of the Knowledge Base; joins the exclusive group. -->
+        <div class="accordion">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text">Operating Hours</span>
+            <span class="accordion__chevron" id="icon-accordion-hours"></span>
+          </button>
+          <div class="accordion__body is-hidden" data-role="accordion-body">
+            <p class="field-group__hint" style="margin-top: 0;">When you're open - your AI uses this to answer "are you open?"</p>
+            <div id="kb-hours-container"></div>
           </div>
-          <div id="kb-hours-container"></div>
         </div>
 
         <!-- Extra details the AI can mention (all optional) -->
