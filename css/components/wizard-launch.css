@@ -110,6 +110,50 @@
   color: var(--color-text-muted);
 }
 
+/* AI phone number chip: sits between the confirmation subtitle and the
+   "what's next" options. Medium weight - noticeable without competing with
+   the celebration icon above it. */
+.launch-phone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--blue-ice-active);
+  margin-bottom: var(--space-2);
+}
+
+.launch-phone-chip__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--blue-vivid);
+  flex-shrink: 0;
+}
+
+.launch-phone-chip__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.launch-phone-chip__number {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--blue-vivid);
+  letter-spacing: 0.01em;
+}
+
+.launch-phone-chip__caption {
+  max-width: 320px;
+  margin: 0 auto var(--space-6);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
 /* ==========================================================================
    Post-launch "what's next" options
    Light, tappable cards: dashboard (primary) and storefront. Kept airy so
