@@ -340,67 +340,6 @@
           </p>
         </div>
 
-        <!-- Phone Calls (PSTN) is OPTIONAL and ordering-only. It sits below the
-             Transfer Numbers; enabling it opens the assign / manual number panel. -->
-        <div class="phone-enable is-hidden" id="phone-enable" style="margin-bottom: var(--space-5);">
-          <div class="phone-enable__head">
-            <span class="phone-enable__icon" id="icon-phone-enable"></span>
-            <div style="flex:1; min-width:0;">
-              <div class="phone-enable__title-row">
-                <span class="phone-enable__title">Phone Calls</span>
-                <span class="pill pill--optional">Optional</span>
-              </div>
-              <p class="phone-enable__desc">Customers can call a dedicated phone number to reach your AI assistant.</p>
-
-              <div class="phone-enable__toggle-row">
-                <label class="toggle-switch">
-                  <input type="checkbox" class="toggle-switch__input" id="phone-enable-toggle" />
-                </label>
-                <span class="phone-enable__toggle-label" id="phone-enable-label">Click to enable</span>
-              </div>
-
-              <!-- Assign / manual number panel, revealed when Phone Calls is on -->
-              <div class="phone-panel is-hidden" id="phone-panel">
-                <div class="phone-panel__head">
-                  <div class="phone-panel__title-wrap">
-                    <span class="phone-panel__icon" id="icon-phone-panel"></span>
-                    <span class="phone-panel__title">Phone Number</span>
-                  </div>
-                  <button type="button" class="phone-panel__cancel" id="phone-cancel">
-                    <span id="icon-phone-cancel"></span> Cancel
-                  </button>
-                </div>
-
-                <div class="phone-choices">
-                  <button type="button" class="phone-opt is-selected" data-phone-mode="auto">
-                    <span class="phone-opt__radio"></span>
-                    <span class="phone-opt__label">Assign one for me</span>
-                  </button>
-                  <button type="button" class="phone-opt" data-phone-mode="manual">
-                    <span class="phone-opt__radio"></span>
-                    <span class="phone-opt__label"><span id="icon-phone-manual"></span> Enter manually</span>
-                  </button>
-                </div>
-
-                <!-- Auto: we assign a number at launch -->
-                <div class="phone-detail" data-phone-detail="auto">
-                  <div class="phone-assign-note">We'll assign an available phone number to your assistant when you launch.</div>
-                </div>
-
-                <!-- Manual: a Twilio number in E.164 -->
-                <div class="phone-detail is-hidden" data-phone-detail="manual">
-                  <div class="input-field">
-                    <span class="input-field__icon" id="icon-phone-field"></span>
-                    <input class="input-field__control" type="tel" id="phone-manual-input" placeholder="+15551234567" style="font-family: monospace;" />
-                  </div>
-                  <p class="field-group__hint">Include country code (e.g. +1 for US).</p>
-                  <p class="phone-manual-warn">Supports Twilio numbers only.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="wizard-section" style="margin-bottom: var(--space-5);">
           <div class="wizard-section__header">
             <span class="wizard-section__icon" id="icon-languages"></span>
@@ -665,7 +604,6 @@
               <div class="report__rows">
                 <div class="report__row"><span class="report__key">Name</span><span class="report__val" id="rep-assistant-name">Not set</span></div>
                 <div class="report__row"><span class="report__key">Voice</span><span class="report__val" id="rep-voice">Not set</span></div>
-                <div class="report__row"><span class="report__key">Phone calls</span><span class="report__val" id="rep-phone">In-app only</span></div>
                 <div class="report__row"><span class="report__key">Languages</span><span class="report__val" id="rep-languages">Not set</span></div>
                 <div class="report__row"><span class="report__key">Transfer #s</span><span class="report__val" id="rep-transfers">Not set</span></div>
                 <div class="report__row report__row--stack">
@@ -697,6 +635,14 @@
           <span class="launch-success__icon launch-success__icon--celebrate" id="icon-launch-success"></span>
           <h2 class="launch-success__title">You're all set!</h2>
           <p class="launch-success__subtitle" id="launch-success-subtitle">Your subscription to the products is successful.</p>
+
+          <!-- AI phone number: assigned automatically once, shown between the
+               confirmation and the "what's next" options -->
+          <div class="launch-phone-chip" id="launch-phone-chip">
+            <span class="launch-phone-chip__icon" id="icon-launch-phone-chip"></span>
+            <span class="launch-phone-chip__number" id="launch-phone-chip-number">+1 (000) 000-0000</span>
+          </div>
+          <p class="launch-phone-chip__caption">This is the number customers will use to contact your AI assistant. It was generated automatically by Parcera.</p>
 
           <!-- Two ways forward: light, tappable option cards -->
           <div class="launch-next" role="group" aria-label="What's next">

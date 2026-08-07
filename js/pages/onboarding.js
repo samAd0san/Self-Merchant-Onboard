@@ -50,15 +50,10 @@ function injectStaticIcons() {
     "icon-chevron-voice": "chevronDown",
     "icon-languages": "globe",
     "icon-tips": "lightbulb",
-    // Optional Phone Calls (PSTN) card + assign/manual panel
-    "icon-phone-enable": "phone",
-    "icon-phone-panel": "phone",
-    "icon-phone-cancel": "close",
-    "icon-phone-manual": "pencil",
-    "icon-phone-field": "phone",
     "icon-add-location-banner": "pin",
     "icon-launch-sparkle": "sparkle",
     "icon-launch-success": "partyPopper",
+    "icon-launch-phone-chip": "phone",
     // Post-launch "what's next" option cards
     "icon-next-dashboard": "user",
     "icon-next-storefront": "palette",
@@ -455,65 +450,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function onServiceSelectionChange() {
     updateContinueState();
     renderPlanBreakdown();
-    updatePhoneCard();
     refreshStepper();
   }
 
   renderServiceTiles();
   syncDigitalSuiteToggle();
-
-  // ── Optional Phone Calls (PSTN) ─────────────────────────────────────────
-  // PSTN is optional: the user can continue without it. Enabling reveals the
-  // "Assign one for me" (auto) vs "Enter manually" (a Twilio number) choice.
-  // Shown once a product is picked.
-  const phoneEnableEl = qs("#phone-enable");
-  const phoneToggle = qs("#phone-enable-toggle");
-  const phoneToggleLabel = qs("#phone-enable-label");
-  const phonePanel = qs("#phone-panel");
-  const phoneManualInput = qs("#phone-manual-input");
-  const phoneCancelBtn = qs("#phone-cancel");
-  const phoneOptButtons = qsa(".phone-opt");
-  const phoneDetails = qsa("[data-phone-detail]");
-  // enabled = PSTN on; mode = 'auto' | 'manual'; manualNumber = typed E.164
-  const phone = { enabled: false, mode: "auto", manualNumber: "" };
-
-  function renderPhonePanel() {
-    phoneOptButtons.forEach((b) => b.classList.toggle("is-selected", b.dataset.phoneMode === phone.mode));
-    phoneDetails.forEach((d) => setHidden(d, d.dataset.phoneDetail !== phone.mode));
-  }
-  function setPhoneEnabled(on) {
-    phone.enabled = on;
-    if (phoneToggle) phoneToggle.checked = on;
-    if (phoneEnableEl) phoneEnableEl.classList.toggle("is-on", on);
-    if (phoneToggleLabel) phoneToggleLabel.textContent = on ? "Enabled" : "Click to enable";
-    if (phonePanel) setHidden(phonePanel, !on);
-    if (on) renderPhonePanel();
-  }
-  if (phoneToggle) phoneToggle.addEventListener("change", () => setPhoneEnabled(phoneToggle.checked));
-  phoneOptButtons.forEach((btn) => btn.addEventListener("click", () => {
-    phone.mode = btn.dataset.phoneMode;
-    renderPhonePanel();
-  }));
-  if (phoneManualInput) phoneManualInput.addEventListener("input", () => { phone.manualNumber = phoneManualInput.value.trim(); });
-  if (phoneCancelBtn) phoneCancelBtn.addEventListener("click", () => {
-    phone.mode = "auto";
-    phone.manualNumber = "";
-    if (phoneManualInput) phoneManualInput.value = "";
-    renderPhonePanel();
-    setPhoneEnabled(false);
-  });
-  // Phone Calls is ordering-only: shown when the Ordering product is selected,
-  // hidden (and reset off) for the Reservation product or no selection.
-  function updatePhoneCard() {
-    const isOrdering = selectedAgentKind() === "ordering";
-    if (phoneEnableEl) setHidden(phoneEnableEl, !isOrdering);
-    if (!isOrdering && phone.enabled) {
-      if (phoneManualInput) phoneManualInput.value = "";
-      phone.mode = "auto";
-      phone.manualNumber = "";
-      setPhoneEnabled(false);
-    }
-  }
 
   // ── Dynamic service rules: ordering-rules OR reservation-rules, rendered on
   //    the Restaurant Details step from the product chosen on the previous step. ──
@@ -895,6 +836,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const launchButton = qs("#btn-launch");
   const launchSuccessSubtitle = qs("#launch-success-subtitle");
   const businessTypeInput = qs("#input-business-type");
+  const launchPhoneChipNumber = qs("#launch-phone-chip-number");
+
+  // The AI phone number is assigned once per launch and reused if the
+  // celebration screen is revisited (e.g. Storefront -> "Back to launch").
+  let assignedAiPhoneNumber = "";
+  function assignAiPhoneNumberIfNeeded() {
+    if (!assignedAiPhoneNumber) {
+      const area = 2 + Math.floor(Math.random() * 8);
+      const exchange = 2 + Math.floor(Math.random() * 8);
+      const digits = () => Math.floor(Math.random() * 10);
+      const areaCode = `${area}${digits()}${digits()}`;
+      const exchangeCode = `${exchange}${digits()}${digits()}`;
+      const lineNumber = `${digits()}${digits()}${digits()}${digits()}`;
+      assignedAiPhoneNumber = `+1 (${areaCode}) ${exchangeCode}-${lineNumber}`;
+    }
+    if (launchPhoneChipNumber) launchPhoneChipNumber.textContent = assignedAiPhoneNumber;
+  }
 
   // Small helper: sets a report value, falling back to a neutral placeholder
   function setReport(id, value) {
@@ -998,9 +956,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setReport("rep-assistant-name", assistantNameInput.value.trim() || "Your Assistant");
     const voiceLabel = voiceSelect.options[voiceSelect.selectedIndex]?.textContent;
     setReport("rep-voice", voiceSelect.value ? voiceLabel : "Not selected");
-    setReport("rep-phone", phone.enabled
-      ? (phone.mode === "manual" ? (phone.manualNumber || "Manual number") : "Auto-assigned at launch")
-      : "In-app only");
     setReport("rep-languages", spanishCheckbox.checked ? "English, Spanish" : "English");
     const transferCount = transferRulesContainer.querySelectorAll(".transfer-rule").length;
     setReport("rep-transfers", transferCount ? `${transferCount} number${transferCount === 1 ? "" : "s"}` : "Not set");
@@ -1077,6 +1032,7 @@ document.addEventListener("DOMContentLoaded", () => {
   launchButton.addEventListener("click", () => {
     const businessName = businessNameInput.value.trim() || "Your Business";
     launchSuccessSubtitle.textContent = `Your subscription to the products is successful.`;
+    assignAiPhoneNumberIfNeeded();
 
     // Persist business + menus + selected services for cross-page carry-over
     persistCarryOver();
@@ -1199,12 +1155,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // The Launch step uses its own in-panel button instead of the shared Continue
     setHidden(continueButton, step.id === "launch");
 
-    // Make sure at least one transfer rule and one greeting block exist, and
-    // reflect the optional Phone Calls card (ordering-only) which lives here now.
+    // Make sure at least one transfer rule and one greeting block exist.
     if (step.id === "voice-greeting") {
       if (transferRuleCount === 0) addTransferRule({ label: "General", phone: "", condition: "" });
       if (!greetingsContainer.children.length) renderGreetings();
-      updatePhoneCard();
     }
 
     refreshStepper();
@@ -1368,6 +1322,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setHidden(backButton, true);
     const businessName = businessNameInput.value.trim() || "Your business";
     launchSuccessSubtitle.textContent = `Your subscription to the products is successful.`;
+    assignAiPhoneNumberIfNeeded();
     refreshStepper();
   }
 
@@ -1405,7 +1360,6 @@ document.addEventListener("DOMContentLoaded", () => {
         achAccount: payAchAccount.value,
         achType: payAchType ? payAchType.value : "",
       },
-      phone: { ...phone },                    // optional PSTN: { enabled, mode, manualNumber }
       // Knowledge Base: hours, free-text fields, payment chips, FAQs
       knowledge: {
         hours: getBusinessHoursValue(kbHoursContainer),
@@ -1468,7 +1422,6 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedServices = state.services || {};
     syncServiceTiles();
     renderPlanBreakdown();
-    updatePhoneCard();
 
     // Restore whether the Digital Storefront was left on (defaults on)
     const ds = state.digitalStorefront || {};
@@ -1486,13 +1439,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (payAchAccount) payAchAccount.value = p.achAccount || "";
     if (payAchType && p.achType) payAchType.value = p.achType;
     selectPaymentMethod(p.method || "card");
-
-    // Restore optional Phone Calls (enabled + assign/manual + typed number)
-    const ph = state.phone || {};
-    phone.mode = ph.mode === "manual" ? "manual" : "auto";
-    phone.manualNumber = ph.manualNumber || "";
-    if (phoneManualInput) phoneManualInput.value = phone.manualNumber;
-    setPhoneEnabled(!!ph.enabled);
 
     // Restore the Knowledge Base (hours, free-text fields, payment chips, FAQs)
     const kb = state.knowledge || {};
@@ -1545,12 +1491,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (assistantNameInput) assistantNameInput.value = "";
       delete greetingDirty.english;
       renderGreetings();
-      // A new location starts with its own fresh (off) phone choice
-      if (phoneManualInput) phoneManualInput.value = "";
-      phone.mode = "auto";
-      phone.manualNumber = "";
-      setPhoneEnabled(false);
-      updatePhoneCard();
       setHidden(qs("#add-location-banner"), false);
     }
     showStep(0);
