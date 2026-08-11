@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parcera - Live Ordering</title>
+<link rel="icon" href="assets/favicon.png" />
+<link rel="stylesheet" href="css/variables.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/pages/storefront-directory.css" />
+</head>
+<body class="directory-body">
+
+  <header class="directory-topbar">
+    <a class="directory-logo" href="#"><img src="assets/logo-lockup.png" alt="Parcera" /></a>
+    <span class="directory-count-pill" id="shop-count-pill">3 shops</span>
+  </header>
+
+  <div class="directory-mini-header" id="directory-mini-header">
+    <label class="directory-mini-search">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="shop-search-mini" placeholder="Search shops by name..." autocomplete="off" />
+    </label>
+  </div>
+
+  <main class="directory-main">
+    <section class="directory-hero" id="directory-hero">
+      <span class="directory-eyebrow">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+        Order from your favourite spots
+      </span>
+      <h1 class="directory-heading">
+        Discover and order from<br />
+        <span class="directory-heading__accent">local restaurants</span>
+      </h1>
+      <p class="directory-subtitle">Browse menus, customize your order, and checkout online, all in one place.</p>
+
+      <label class="directory-search">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="shop-search" placeholder="Search shops by name..." autocomplete="off" />
+      </label>
+
+      <div class="directory-filters" id="directory-filters"></div>
+
+      <p class="directory-subtitle directory-subtitle--footnote">Pick a shop below to get started.</p>
+    </section>
+
+    <section class="directory-shops">
+      <div class="directory-shops__header">
+        <h2 class="directory-shops__title">All shops</h2>
+        <div class="directory-sort">
+          <span class="directory-sort__label">Sort by</span>
+          <div class="directory-sort__opts" id="directory-sort"></div>
+        </div>
+      </div>
+      <div class="directory-shop-grid" id="shop-grid"></div>
+    </section>
+  </main>
+
+  <footer class="directory-footer">
+    Powered by <span class="directory-footer__brand">Parcera</span> - fresh &amp; fast online ordering
+  </footer>
+
+  <script type="module" src="js/pages/storefrontDirectory.js"></script>
+</body>
+</html>
