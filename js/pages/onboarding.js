@@ -853,9 +853,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.textContent = value && String(value).trim() ? value : "Not set";
   }
 
-  // Launching needs at least one service selected and a valid payment method
-  // (Payment Method used to be its own step gating a shared Continue button;
-  // now it lives inline here, so it gates the Launch button directly instead).
+  // Launching needs at least one service selected and a valid payment method.
   function updateLaunchButtonState() {
     if (launchButton) launchButton.disabled = Object.keys(selectedServices).length === 0 || !paymentReady();
   }
@@ -954,10 +952,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const greeting = getFirstGreetingText();
     setReport("rep-greeting", greeting ? `"${greeting}"` : "Not set");
 
-    // Payment
-    setReport("rep-plan-total", `$${serviceTotal()}/mo`);
-    setReport("rep-payment", PAYMENT_LABELS[selectedPaymentMethod]);
-
     // Fold every group to its fresh one-line summary so the review opens as a
     // compact, scannable list (each group expands on demand).
     initReviewCollapsibles();
@@ -990,7 +984,6 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     "Knowledge Base": () => `${repText("rep-menus")} · ${repText("rep-hours")}`,
     "Voice AI": () => `${repText("rep-assistant-name")} · ${repText("rep-voice")}`,
-    "Payment Method": () => `${repText("rep-plan-total")} · ${repText("rep-payment")}`,
   };
   function initReviewCollapsibles() {
     if (reviewCollapsibles.length) return; // wire once
