@@ -382,164 +382,6 @@
         </div>
       </div>
 
-      <!-- Step: Payment Method (individual paying for the Parcera service) -->
-      <div class="wizard-step is-hidden" data-step-id="payments">
-        <h2 class="wizard-panel__title">Payment Method</h2>
-        <p class="wizard-panel__subtitle">Choose how you'd like to pay for your Parcera plan. You can update this anytime from billing.</p>
-
-        <!-- Plan summary: one row for the selected service + tier, then the total.
-             Rendered by JS from the Service Setup selection. -->
-        <div class="plan-breakdown" id="plan-breakdown"></div>
-        <div class="pay-plan">
-          <div class="pay-plan__info">
-            <span class="pay-plan__label">Total, monthly</span>
-            <span class="pay-plan__meta" id="pay-plan-meta">No products selected</span>
-          </div>
-          <span class="pay-plan__amount">$<span id="pay-plan-amount">0</span><span class="pay-plan__per">/mo</span></span>
-        </div>
-
-        <!-- Method picker: a single choice, low-friction, one panel of fields -->
-        <div class="pay-methods" id="pay-method-options">
-          <button type="button" class="pay-option is-selected" data-method="card">
-            <span class="pay-option__icon" id="icon-method-card"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Card</span>
-              <span class="pay-option__meta">Credit or debit</span>
-            </span>
-            <span class="pay-option__check" id="icon-method-card-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="apple">
-            <span class="pay-option__icon" id="icon-method-apple"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Apple Pay</span>
-              <span class="pay-option__meta">One-tap checkout</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-apple-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="google">
-            <span class="pay-option__icon" id="icon-method-google"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Google Pay</span>
-              <span class="pay-option__meta">One-tap checkout</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-google-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="paypal">
-            <span class="pay-option__icon" id="icon-method-paypal"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">PayPal</span>
-              <span class="pay-option__meta">Pay with your balance</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-paypal-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="ach">
-            <span class="pay-option__icon" id="icon-method-ach"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Bank (ACH)</span>
-              <span class="pay-option__meta">US bank account</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-ach-check"></span>
-          </button>
-          <button type="button" class="pay-option" data-method="bnpl">
-            <span class="pay-option__icon" id="icon-method-bnpl"></span>
-            <span class="pay-option__text">
-              <span class="pay-option__title">Pay by QR</span>
-              <span class="pay-option__meta">Scan to pay from your bank app</span>
-            </span>
-            <span class="pay-option__check is-hidden" id="icon-method-bnpl-check"></span>
-          </button>
-        </div>
-
-        <!-- Card fields -->
-        <div class="pay-fields" data-pay-fields="card">
-          <div class="field-group" style="margin-top: 0;">
-            <label class="field-group__label" for="pay-card-name">Name on card</label>
-            <div class="input-field">
-              <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-name" placeholder="Jordan Smith" />
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-group__label" for="pay-card-number">Card number</label>
-            <div class="input-field">
-              <span class="input-field__icon" id="icon-card-field"></span>
-              <input class="input-field__control" type="text" id="pay-card-number" inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" />
-            </div>
-          </div>
-          <div class="pay-fields__row">
-            <div>
-              <label class="field-group__label" for="pay-card-exp">Expiry</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-exp" placeholder="MM / YY" autocomplete="cc-exp" />
-              </div>
-            </div>
-            <div>
-              <label class="field-group__label" for="pay-card-cvc">CVC</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-cvc" inputmode="numeric" placeholder="123" autocomplete="cc-csc" maxlength="4" />
-              </div>
-            </div>
-            <div>
-              <label class="field-group__label" for="pay-card-zip">ZIP</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-zip" inputmode="numeric" placeholder="90210" maxlength="10" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Wallet / express-checkout confirmation (Apple, Google, PayPal) -->
-        <div class="pay-fields is-hidden" data-pay-fields="wallet">
-          <div class="pay-wallet-note">
-            <span id="icon-wallet-note"></span>
-            <p>You'll confirm the payment securely in a <strong id="pay-wallet-name">wallet</strong> popup after you launch. No card details are entered here.</p>
-          </div>
-        </div>
-
-        <!-- ACH bank fields -->
-        <div class="pay-fields is-hidden" data-pay-fields="ach">
-          <div class="pay-fields__row pay-fields__row--two">
-            <div>
-              <label class="field-group__label" for="pay-ach-routing2">Routing number</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-routing2" inputmode="numeric" placeholder="9 digits" maxlength="9" />
-              </div>
-            </div>
-            <div>
-              <label class="field-group__label" for="pay-ach-account2">Account number</label>
-              <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-account2" inputmode="numeric" placeholder="Account number" />
-              </div>
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-group__label" for="pay-ach-type2">Account type</label>
-            <div class="select-field">
-              <select class="select-field__control" id="pay-ach-type2">
-                <option value="checking">Checking</option>
-                <option value="savings">Savings</option>
-              </select>
-              <span class="select-field__chevron" id="icon-chevron-ach2"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pay by QR: scan-to-pay confirmation, no fields collected here -->
-        <div class="pay-fields is-hidden" data-pay-fields="bnpl">
-          <div class="pay-wallet-note">
-            <span id="icon-pay-qr-note"></span>
-            <p>We'll generate a QR code for your invoice. Scan it with your banking app to pay after you launch. No card details are entered here.</p>
-          </div>
-        </div>
-
-        <div class="wizard-callout wizard-callout--icon" style="margin-top: var(--space-5);">
-          <span id="icon-pay-info"></span>
-          <div>
-            <div class="wizard-callout__title">Secure &amp; encrypted</div>
-            Payments run through Parcera's PCI-compliant gateway. Your details are encrypted and tokenized, never stored on our servers.
-          </div>
-        </div>
-      </div>
-
       <!-- Step: Review & Launch -->
       <div class="wizard-step is-hidden" data-step-id="launch">
         <div id="launch-review-phase">
@@ -613,14 +455,145 @@
               </div>
             </div>
 
-            <div class="report__group">
-              <div class="report__group-head">
-                <span class="report__group-title">Payment Method</span>
-                <button type="button" class="report__edit" data-edit-step="payments">Edit</button>
+          </div>
+
+          <!-- Payment Method: was its own wizard step, now lives inline here
+               so payment details are entered right before launching instead
+               of on a separate step. -->
+          <div class="wizard-section" style="margin-top: var(--space-5);">
+            <div class="wizard-section__header">
+              <span class="wizard-section__icon" id="icon-payment-section"></span>
+              <div>
+                <div class="wizard-section__heading">Payment Method</div>
+                <div class="wizard-section__heading-meta">Choose how you'd like to pay for your Parcera plan. You can update this anytime from billing.</div>
               </div>
-              <div class="report__rows">
-                <div class="report__row"><span class="report__key">Total</span><span class="report__val" id="rep-plan-total">$0/mo</span></div>
-                <div class="report__row"><span class="report__key">Paying with</span><span class="report__val" id="rep-payment">Not set</span></div>
+            </div>
+
+            <!-- Plan summary: one row for the selected service + tier, then the total.
+                 Rendered by JS from the Service Setup selection. -->
+            <div class="plan-breakdown" id="plan-breakdown"></div>
+            <div class="pay-plan">
+              <div class="pay-plan__info">
+                <span class="pay-plan__label">Total, monthly</span>
+                <span class="pay-plan__meta" id="pay-plan-meta">No products selected</span>
+              </div>
+              <span class="pay-plan__amount">$<span id="pay-plan-amount">0</span><span class="pay-plan__per">/mo</span></span>
+            </div>
+
+            <!-- Method picker: a single choice, low-friction, one panel of fields -->
+            <div class="pay-methods" id="pay-method-options">
+              <button type="button" class="pay-option is-selected" data-method="card">
+                <span class="pay-option__icon" id="icon-method-card"></span>
+                <span class="pay-option__text">
+                  <span class="pay-option__title">Card</span>
+                  <span class="pay-option__meta">Credit or debit</span>
+                </span>
+                <span class="pay-option__check" id="icon-method-card-check"></span>
+              </button>
+              <button type="button" class="pay-option" data-method="apple">
+                <span class="pay-option__icon" id="icon-method-apple"></span>
+                <span class="pay-option__text">
+                  <span class="pay-option__title">Apple Pay</span>
+                  <span class="pay-option__meta">One-tap checkout</span>
+                </span>
+                <span class="pay-option__check is-hidden" id="icon-method-apple-check"></span>
+              </button>
+              <button type="button" class="pay-option" data-method="google">
+                <span class="pay-option__icon" id="icon-method-google"></span>
+                <span class="pay-option__text">
+                  <span class="pay-option__title">Google Pay</span>
+                  <span class="pay-option__meta">One-tap checkout</span>
+                </span>
+                <span class="pay-option__check is-hidden" id="icon-method-google-check"></span>
+              </button>
+              <button type="button" class="pay-option" data-method="ach">
+                <span class="pay-option__icon" id="icon-method-ach"></span>
+                <span class="pay-option__text">
+                  <span class="pay-option__title">Bank (ACH)</span>
+                  <span class="pay-option__meta">US bank account</span>
+                </span>
+                <span class="pay-option__check is-hidden" id="icon-method-ach-check"></span>
+              </button>
+            </div>
+
+            <!-- Card fields -->
+            <div class="pay-fields" data-pay-fields="card">
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="pay-card-name">Name on card</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-name" placeholder="Jordan Smith" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pay-card-number">Card number</label>
+                <div class="input-field">
+                  <span class="input-field__icon" id="icon-card-field"></span>
+                  <input class="input-field__control" type="text" id="pay-card-number" inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" />
+                </div>
+              </div>
+              <div class="pay-fields__row">
+                <div>
+                  <label class="field-group__label" for="pay-card-exp">Expiry</label>
+                  <div class="input-field">
+                    <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-exp" placeholder="MM / YY" autocomplete="cc-exp" />
+                  </div>
+                </div>
+                <div>
+                  <label class="field-group__label" for="pay-card-cvc">CVC</label>
+                  <div class="input-field">
+                    <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-cvc" inputmode="numeric" placeholder="123" autocomplete="cc-csc" maxlength="4" />
+                  </div>
+                </div>
+                <div>
+                  <label class="field-group__label" for="pay-card-zip">ZIP</label>
+                  <div class="input-field">
+                    <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-card-zip" inputmode="numeric" placeholder="90210" maxlength="10" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wallet / express-checkout confirmation (Apple, Google) -->
+            <div class="pay-fields is-hidden" data-pay-fields="wallet">
+              <div class="pay-wallet-note">
+                <span id="icon-wallet-note"></span>
+                <p>You'll confirm the payment securely in a <strong id="pay-wallet-name">wallet</strong> popup after you launch. No card details are entered here.</p>
+              </div>
+            </div>
+
+            <!-- ACH bank fields -->
+            <div class="pay-fields is-hidden" data-pay-fields="ach">
+              <div class="pay-fields__row pay-fields__row--two">
+                <div>
+                  <label class="field-group__label" for="pay-ach-routing2">Routing number</label>
+                  <div class="input-field">
+                    <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-routing2" inputmode="numeric" placeholder="9 digits" maxlength="9" />
+                  </div>
+                </div>
+                <div>
+                  <label class="field-group__label" for="pay-ach-account2">Account number</label>
+                  <div class="input-field">
+                    <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pay-ach-account2" inputmode="numeric" placeholder="Account number" />
+                  </div>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pay-ach-type2">Account type</label>
+                <div class="select-field">
+                  <select class="select-field__control" id="pay-ach-type2">
+                    <option value="checking">Checking</option>
+                    <option value="savings">Savings</option>
+                  </select>
+                  <span class="select-field__chevron" id="icon-chevron-ach2"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="wizard-callout wizard-callout--icon" style="margin-top: var(--space-5);">
+              <span id="icon-pay-info"></span>
+              <div>
+                <div class="wizard-callout__title">Secure &amp; encrypted</div>
+                Payments run through Parcera's PCI-compliant gateway. Your details are encrypted and tokenized, never stored on our servers.
               </div>
             </div>
           </div>

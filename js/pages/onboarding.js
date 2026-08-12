@@ -62,23 +62,19 @@ function injectStaticIcons() {
     "icon-next-add-location": "storefront",
     "icon-next-arrow-3": "arrowRight",
     "icon-digital-suite": "globe",
-    // Payment Method step
+    // Payment Method (now inline at the end of Review & Launch)
+    "icon-payment-section": "creditCard",
     "icon-method-card": "creditCard",
     "icon-method-apple": "smartphone",
     "icon-method-google": "smartphone",
-    "icon-method-paypal": "creditCard",
     "icon-method-ach": "building",
-    "icon-method-bnpl": "qr",
     "icon-method-card-check": "check",
     "icon-method-apple-check": "check",
     "icon-method-google-check": "check",
-    "icon-method-paypal-check": "check",
     "icon-method-ach-check": "check",
-    "icon-method-bnpl-check": "check",
     "icon-card-field": "creditCard",
     "icon-chevron-ach2": "chevronDown",
     "icon-wallet-note": "shield",
-    "icon-pay-qr-note": "shield",
     "icon-pay-info": "shield",
   };
 
@@ -764,27 +760,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const payAchAccount = qs("#pay-ach-account2");
   const payAchType = qs("#pay-ach-type2");
 
-  attachValidation(payCardName, { required: true, message: "Name on card is required.", onChange: () => updateContinueState() });
-  attachValidation(payCardNumber, { validate: V.cardNumber, format: F.cardNumber, required: true, message: "Enter a valid card number.", onChange: () => updateContinueState() });
-  attachValidation(payCardExp, { validate: V.cardExp, format: F.cardExp, required: true, message: "Use MM / YY.", onChange: () => updateContinueState() });
-  attachValidation(payCardCvc, { validate: V.cvc, format: F.digits, required: true, message: "3–4 digit CVC.", onChange: () => updateContinueState() });
-  attachValidation(payCardZip, { validate: V.zip, format: F.digits, required: true, message: "Enter a valid ZIP.", onChange: () => updateContinueState() });
-  attachValidation(payAchRouting, { validate: V.routing, format: F.digits, required: true, message: "9-digit routing number.", onChange: () => updateContinueState() });
-  attachValidation(payAchAccount, { validate: V.account, format: F.digits, required: true, message: "Enter a valid account number.", onChange: () => updateContinueState() });
+  attachValidation(payCardName, { required: true, message: "Name on card is required.", onChange: () => updateLaunchButtonState() });
+  attachValidation(payCardNumber, { validate: V.cardNumber, format: F.cardNumber, required: true, message: "Enter a valid card number.", onChange: () => updateLaunchButtonState() });
+  attachValidation(payCardExp, { validate: V.cardExp, format: F.cardExp, required: true, message: "Use MM / YY.", onChange: () => updateLaunchButtonState() });
+  attachValidation(payCardCvc, { validate: V.cvc, format: F.digits, required: true, message: "3–4 digit CVC.", onChange: () => updateLaunchButtonState() });
+  attachValidation(payCardZip, { validate: V.zip, format: F.digits, required: true, message: "Enter a valid ZIP.", onChange: () => updateLaunchButtonState() });
+  attachValidation(payAchRouting, { validate: V.routing, format: F.digits, required: true, message: "9-digit routing number.", onChange: () => updateLaunchButtonState() });
+  attachValidation(payAchAccount, { validate: V.account, format: F.digits, required: true, message: "Enter a valid account number.", onChange: () => updateLaunchButtonState() });
 
   const PAYMENT_LABELS = {
     card: "Card (credit/debit)",
     apple: "Apple Pay",
     google: "Google Pay",
-    paypal: "PayPal",
     ach: "Bank transfer (ACH)",
-    bnpl: "Pay by QR",
   };
 
-  // Card / ACH / BNPL each show a dedicated field panel; the express
-  // wallets share the single "wallet" confirmation panel.
+  // Card / ACH each show a dedicated field panel; the express wallets share
+  // the single "wallet" confirmation panel.
   function panelForMethod(method) {
-    if (method === "apple" || method === "google" || method === "paypal") return "wallet";
+    if (method === "apple" || method === "google") return "wallet";
     return method;
   }
 
@@ -807,7 +801,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (activePanel === "wallet" && walletNameEl) {
       walletNameEl.textContent = PAYMENT_LABELS[method];
     }
-    updateContinueState();
+    updateLaunchButtonState();
   }
 
   payOptions.forEach((opt) => {
@@ -815,7 +809,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // A method must be selected, and the active method's fields must be valid.
-  // Wallet (Apple/Google/PayPal) and BNPL collect nothing here.
+  // Wallet (Apple/Google) collects nothing here.
   function paymentReady() {
     if (!selectedPaymentMethod) return false;
     if (selectedPaymentMethod === "card") {
@@ -860,10 +854,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.textContent = value && String(value).trim() ? value : "Not set";
   }
 
-  // Launching with zero services doesn't make sense, so the button stays
-  // disabled if every service gets removed from the summary
+  // Launching needs at least one service selected and a valid payment method
+  // (Payment Method used to be its own step gating a shared Continue button;
+  // now it lives inline here, so it gates the Launch button directly instead).
   function updateLaunchButtonState() {
-    if (launchButton) launchButton.disabled = Object.keys(selectedServices).length === 0;
+    if (launchButton) launchButton.disabled = Object.keys(selectedServices).length === 0 || !paymentReady();
   }
 
   // One row per selected service, editable right here: change its tier with
@@ -906,14 +901,12 @@ document.addEventListener("DOMContentLoaded", () => {
         syncServiceTiles();
         renderPlanBreakdown();
         renderServicesReport();
-        setReport("rep-plan-total", `$${serviceTotal()}/mo`);
       });
       removeBtn.addEventListener("click", () => {
         delete selectedServices[id];
         syncServiceTiles();
         renderPlanBreakdown();
         renderServicesReport();
-        setReport("rep-plan-total", `$${serviceTotal()}/mo`);
         updateLaunchButtonState();
         syncDigitalSuiteToggle();
       });
@@ -962,10 +955,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const greeting = getFirstGreetingText();
     setReport("rep-greeting", greeting ? `"${greeting}"` : "Not set");
 
-    // Payment
-    setReport("rep-plan-total", `$${serviceTotal()}/mo`);
-    setReport("rep-payment", PAYMENT_LABELS[selectedPaymentMethod]);
-
     // Fold every group to its fresh one-line summary so the review opens as a
     // compact, scannable list (each group expands on demand).
     initReviewCollapsibles();
@@ -998,7 +987,6 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     "Knowledge Base": () => `${repText("rep-menus")} · ${repText("rep-hours")}`,
     "Voice AI": () => `${repText("rep-assistant-name")} · ${repText("rep-voice")}`,
-    "Payment Method": () => `${repText("rep-plan-total")} · ${repText("rep-payment")}`,
   };
   function initReviewCollapsibles() {
     if (reviewCollapsibles.length) return; // wire once
@@ -1075,8 +1063,6 @@ document.addEventListener("DOMContentLoaded", () => {
           : false;
         return hasName && hasVoice && hasTransfer;
       }
-      case "payments":
-        return paymentReady();
       case "launch":
         return false;
       default:
@@ -1148,9 +1134,10 @@ document.addEventListener("DOMContentLoaded", () => {
       renderServiceRules();
     }
 
-    if (step.id === "payments") renderPlanBreakdown();
-
-    if (step.id === "launch") showLaunchReviewPhase();
+    if (step.id === "launch") {
+      renderPlanBreakdown();
+      showLaunchReviewPhase();
+    }
 
     // The Launch step uses its own in-panel button instead of the shared Continue
     setHidden(continueButton, step.id === "launch");
@@ -1190,8 +1177,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ? firstRule.querySelector(".transfer-label").value.trim() && V.phone(firstRule.querySelector(".transfer-phone").value)
         : false;
       enabled = hasName && hasVoice && hasTransferNumber;
-    } else if (step.id === "payments") {
-      enabled = paymentReady();
     }
 
     continueButton.disabled = !enabled;

@@ -1037,23 +1037,22 @@
   color: var(--color-text-secondary);
 }
 
-/* Method grid - each option is a selectable card */
+/* Method grid - each option is a selectable card. Only 4 methods now (card,
+   Apple Pay, Google Pay, ACH), so a fixed 2-column grid keeps every tile the
+   same size instead of an odd row stretching or sitting half-empty. Capped
+   width + centered so the tiles don't sprawl across the full card width. */
 .pay-methods {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-3);
-  margin-bottom: var(--space-5);
-}
-
-@media (max-width: 640px) {
-  .pay-methods {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  max-width: 480px;
+  margin: 0 auto var(--space-5);
 }
 
 @media (max-width: 380px) {
   .pay-methods {
     grid-template-columns: 1fr;
+    max-width: none;
   }
 }
 
