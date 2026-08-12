@@ -382,15 +382,14 @@
         </div>
       </div>
 
-      <!-- Step: Review & Launch -->
-      <div class="wizard-step is-hidden" data-step-id="launch">
-        <div id="launch-review-phase">
-          <h2 class="wizard-panel__title">Review &amp; Launch</h2>
-          <p class="wizard-panel__subtitle">Here's everything you've set up. Review it, edit any section, then launch.</p>
+      <!-- Step: Review -->
+      <div class="wizard-step is-hidden" data-step-id="review">
+        <h2 class="wizard-panel__title">Review</h2>
+        <p class="wizard-panel__subtitle">Here's everything you've set up. Review it, edit any section, then continue.</p>
 
-          <!-- Report: one card per node, each with an Edit link that jumps
-               back to that step. Values are filled in by JS on entry. -->
-          <div class="report" id="launch-report">
+        <!-- Report: one card per node, each with an Edit link that jumps
+             back to that step. Values are filled in by JS on entry. -->
+        <div class="report" id="launch-report">
             <div class="report__group">
               <div class="report__group-head">
                 <span class="report__group-title">Business Details</span>
@@ -455,33 +454,38 @@
               </div>
             </div>
 
+            <div class="report__group">
+              <div class="report__group-head">
+                <span class="report__group-title">Payment Method</span>
+                <button type="button" class="report__edit" data-edit-step="payments">Edit</button>
+              </div>
+              <div class="report__rows">
+                <div class="report__row"><span class="report__key">Total</span><span class="report__val" id="rep-plan-total">$0/mo</span></div>
+                <div class="report__row"><span class="report__key">Paying with</span><span class="report__val" id="rep-payment">Not set</span></div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+      <!-- Step: Payment -->
+      <div class="wizard-step is-hidden" data-step-id="payments">
+        <div id="payment-form-phase">
+          <h2 class="wizard-panel__title">Payment Method</h2>
+          <p class="wizard-panel__subtitle">Choose how you'd like to pay for your Parcera plan. You can update this anytime from billing.</p>
+
+          <!-- Plan summary: one row for the selected service + tier, then the total.
+               Rendered by JS from the Service Setup selection. -->
+          <div class="plan-breakdown" id="plan-breakdown"></div>
+          <div class="pay-plan">
+            <div class="pay-plan__info">
+              <span class="pay-plan__label">Total, monthly</span>
+              <span class="pay-plan__meta" id="pay-plan-meta">No products selected</span>
+            </div>
+            <span class="pay-plan__amount">$<span id="pay-plan-amount">0</span><span class="pay-plan__per">/mo</span></span>
           </div>
 
-          <!-- Payment Method: was its own wizard step, now lives inline here
-               so payment details are entered right before launching instead
-               of on a separate step. -->
-          <div class="wizard-section" style="margin-top: var(--space-5);">
-            <div class="wizard-section__header">
-              <span class="wizard-section__icon" id="icon-payment-section"></span>
-              <div>
-                <div class="wizard-section__heading">Payment Method</div>
-                <div class="wizard-section__heading-meta">Choose how you'd like to pay for your Parcera plan. You can update this anytime from billing.</div>
-              </div>
-            </div>
-
-            <!-- Plan summary: one row for the selected service + tier, then the total.
-                 Rendered by JS from the Service Setup selection. -->
-            <div class="plan-breakdown" id="plan-breakdown"></div>
-            <div class="pay-plan">
-              <div class="pay-plan__info">
-                <span class="pay-plan__label">Total, monthly</span>
-                <span class="pay-plan__meta" id="pay-plan-meta">No products selected</span>
-              </div>
-              <span class="pay-plan__amount">$<span id="pay-plan-amount">0</span><span class="pay-plan__per">/mo</span></span>
-            </div>
-
-            <!-- Method picker: a single choice, low-friction, one panel of fields -->
-            <div class="pay-methods" id="pay-method-options">
+          <!-- Method picker: a single choice, low-friction, one panel of fields -->
+          <div class="pay-methods" id="pay-method-options">
               <button type="button" class="pay-option is-selected" data-method="card">
                 <span class="pay-option__icon" id="icon-method-card"></span>
                 <span class="pay-option__text">

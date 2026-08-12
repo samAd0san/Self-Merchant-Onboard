@@ -17,7 +17,8 @@ export const WIZARD_STEPS = [
   { id: "integration", icon: "storefront", label: "Choose Product" },
   { id: "knowledge", icon: "book", label: "Knowledge Base" },
   { id: "voice-greeting", icon: "mic", label: "Voice AI" },
-  { id: "launch", icon: "rocket", label: "Launch" },
+  { id: "review", icon: "listChecks", label: "Review" },
+  { id: "payments", icon: "creditCard", label: "Payment" },
 ];
 
 export function renderStepper(container, currentIndex, options = {}) {

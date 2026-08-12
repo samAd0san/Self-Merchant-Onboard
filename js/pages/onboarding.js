@@ -62,8 +62,7 @@ function injectStaticIcons() {
     "icon-next-add-location": "storefront",
     "icon-next-arrow-3": "arrowRight",
     "icon-digital-suite": "globe",
-    // Payment Method (now inline at the end of Review & Launch)
-    "icon-payment-section": "creditCard",
+    // Payment Method step
     "icon-method-card": "creditCard",
     "icon-method-apple": "smartphone",
     "icon-method-google": "smartphone",
@@ -823,9 +822,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ======================================================================
-  // Step: Review & Launch full report pulling from every node
+  // Step: Review (full report pulling from every node) + Payment/Launch
   // ======================================================================
-  const launchReviewPhase = qs("#launch-review-phase");
+  const paymentFormPhase = qs("#payment-form-phase");
   const launchSuccessPhase = qs("#launch-success-phase");
   const launchButton = qs("#btn-launch");
   const launchSuccessSubtitle = qs("#launch-success-subtitle");
@@ -955,6 +954,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const greeting = getFirstGreetingText();
     setReport("rep-greeting", greeting ? `"${greeting}"` : "Not set");
 
+    // Payment
+    setReport("rep-plan-total", `$${serviceTotal()}/mo`);
+    setReport("rep-payment", PAYMENT_LABELS[selectedPaymentMethod]);
+
     // Fold every group to its fresh one-line summary so the review opens as a
     // compact, scannable list (each group expands on demand).
     initReviewCollapsibles();
@@ -987,6 +990,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     "Knowledge Base": () => `${repText("rep-menus")} · ${repText("rep-hours")}`,
     "Voice AI": () => `${repText("rep-assistant-name")} · ${repText("rep-voice")}`,
+    "Payment Method": () => `${repText("rep-plan-total")} · ${repText("rep-payment")}`,
   };
   function initReviewCollapsibles() {
     if (reviewCollapsibles.length) return; // wire once
@@ -1008,11 +1012,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function showLaunchReviewPhase() {
-    setHidden(launchReviewPhase, false);
+  function showPaymentFormPhase() {
+    setHidden(paymentFormPhase, false);
     setHidden(launchSuccessPhase, true);
     setHidden(bottomNav, false);
-    populateReviewSummary();
+    renderPlanBreakdown();
   }
 
   const dashboardLink = qs("#link-dashboard");
@@ -1034,7 +1038,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dashboardLink.href = `merchant-portal.html?channel=${channel}&contact=${encodeURIComponent(contact)}`;
     }
 
-    setHidden(launchReviewPhase, true);
+    setHidden(paymentFormPhase, true);
     setHidden(launchSuccessPhase, false);
     // Terminal screen, no further navigation needed on either button
     setHidden(bottomNav, true);
@@ -1063,8 +1067,10 @@ document.addEventListener("DOMContentLoaded", () => {
           : false;
         return hasName && hasVoice && hasTransfer;
       }
-      case "launch":
-        return false;
+      case "review":
+        return true; // just a summary + edit-links, nothing to validate here
+      case "payments":
+        return paymentReady();
       default:
         return false;
     }
@@ -1134,13 +1140,12 @@ document.addEventListener("DOMContentLoaded", () => {
       renderServiceRules();
     }
 
-    if (step.id === "launch") {
-      renderPlanBreakdown();
-      showLaunchReviewPhase();
-    }
+    if (step.id === "review") populateReviewSummary();
+    if (step.id === "payments") showPaymentFormPhase();
 
-    // The Launch step uses its own in-panel button instead of the shared Continue
-    setHidden(continueButton, step.id === "launch");
+    // The Payment step uses its own in-panel Launch button instead of the
+    // shared Continue button
+    setHidden(continueButton, step.id === "payments");
 
     // Make sure at least one transfer rule and one greeting block exist.
     if (step.id === "voice-greeting") {
@@ -1193,9 +1198,9 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "merchant-portal.html";
       return;
     }
-    // Back out of the launch success screen into the review phase first
+    // Back out of the launch success screen into the payment form first
     if (currentStepIndex === WIZARD_STEPS.length - 1 && !launchSuccessPhase.classList.contains("is-hidden")) {
-      showLaunchReviewPhase();
+      showPaymentFormPhase();
       return;
     }
     syncCurrentStepCompletion();
@@ -1295,13 +1300,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // from the storefront page via "Back to launch". Reuses the success phase
   // without re-running the wizard.
   function showLaunchCelebration() {
-    const launchIndex = WIZARD_STEPS.findIndex((s) => s.id === "launch");
+    const launchIndex = WIZARD_STEPS.findIndex((s) => s.id === "payments");
     currentStepIndex = launchIndex;
     maxReachedIndex = launchIndex;
 
-    wizardSteps.forEach((panel) => setHidden(panel, panel.dataset.stepId !== "launch"));
+    wizardSteps.forEach((panel) => setHidden(panel, panel.dataset.stepId !== "payments"));
     setHidden(restartLink, true);
-    setHidden(launchReviewPhase, true);
+    setHidden(paymentFormPhase, true);
     setHidden(launchSuccessPhase, false);
     setHidden(bottomNav, true);
     setHidden(backButton, true);
