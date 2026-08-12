@@ -81,6 +81,18 @@
   min-width: 0;
 }
 
+.menu-footer {
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.menu-footer__brand {
+  color: var(--brand-primary);
+  font-weight: 700;
+}
+
 /* ---- Category rail ---- */
 .menu-rail {
   position: sticky;
