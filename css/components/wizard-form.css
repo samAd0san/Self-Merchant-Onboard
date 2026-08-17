@@ -469,6 +469,19 @@
    ========================================================================== */
 .accordion {
   margin-top: var(--space-5);
+  /* Header + body now read as one continuous rounded card instead of a
+     bordered header floating above borderless text - the header's bottom
+     corners square off against the body via is-open below, and the whole
+     card clips to this radius so nothing pokes past the rounded edge. */
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+.accordion:has(.accordion__toggle:hover) {
+  border-color: var(--purple-indigo-active);
 }
 
 .accordion__toggle {
@@ -477,15 +490,9 @@
   gap: var(--space-2);
   width: 100%;
   padding: var(--space-3) var(--space-4);
-  background: var(--color-input-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  background: none;
+  border: none;
   text-align: left;
-  transition: border-color var(--transition-fast);
-}
-
-.accordion__toggle:hover {
-  border-color: var(--purple-indigo-active);
 }
 
 .accordion__toggle-text {
@@ -516,7 +523,14 @@
 }
 
 .accordion__body {
-  margin-top: var(--space-4);
+  /* A hairline seam plus a lighter, plain-white panel is what actually
+     separates "header" from "content" - the old margin-top with no
+     background left the body looking like it wasn't part of the same
+     component at all. */
+  margin-top: 0;
+  padding: var(--space-4);
+  background: var(--color-white);
+  border-top: 1px solid var(--color-border);
 }
 
 @media (max-width: 480px) {
