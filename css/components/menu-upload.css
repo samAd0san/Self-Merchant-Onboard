@@ -796,3 +796,96 @@
 
 .menu-cat__add-tile:hover { border-color: var(--brand-magenta); color: var(--brand-magenta); background: var(--color-white); }
 .menu-cat__add-tile svg { width: 18px; height: 18px; }
+
+/* ==========================================================================
+   Mobile / Responsive refinements
+   Stack layout and adjust spacing for smaller screens
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .menu-card {
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+  }
+
+  .menu-card__header {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  /* Mode switcher and location field stack on mobile */
+  .menu-card__toprow {
+    flex-direction: column;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .menu-card__mode {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .menu-card__location-field {
+    width: 100%;
+  }
+
+  /* Remove button takes full width on mobile when visible */
+  .menu-card__remove:not(.is-hidden) {
+    width: 100%;
+    justify-content: flex-start;
+    padding: var(--space-2);
+    background: var(--color-input-bg);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  /* Item card grid: 2 columns on tablet, 1 on small phones */
+  .menu-cat__grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--space-2);
+  }
+
+  .menu-item-card__body {
+    padding: var(--space-2);
+    gap: var(--space-1);
+  }
+
+  .menu-item-card__image {
+    height: 80px;
+  }
+
+  .menu-item-card__monogram {
+    font-size: 20px;
+  }
+
+  .menu-item-card__toprow {
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .menu-item-card__price {
+    width: 65px;
+    font-size: var(--font-size-xs);
+  }
+
+  .menu-cat {
+    padding: var(--space-2);
+  }
+
+  .menu-cat__head {
+    gap: var(--space-1);
+    margin-bottom: var(--space-1);
+  }
+}
+
+@media (max-width: 380px) {
+  .menu-cat__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-card__mode .align-toggle__option {
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.75rem;
+  }
+}
