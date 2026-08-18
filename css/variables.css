@@ -123,6 +123,7 @@
   --wizard-purple-soft: var(--blue-vivid-hover);
   --wizard-purple-disabled: var(--blue-ice);
   --wizard-purple-tint: #f2f4fe;
+  --wizard-purple-tint-active: #dce6fc;
 
   --stepper-complete-bg: var(--color-success-bg);
   --stepper-complete-icon: var(--color-success);
