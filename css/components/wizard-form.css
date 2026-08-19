@@ -485,10 +485,6 @@
   background: rgba(242, 244, 254, 0.5);
 }
 
-.accordion:has(.accordion__toggle.is-open) .accordion__body {
-  background: var(--wizard-purple-tint);
-}
-
 .accordion__toggle {
   display: flex;
   align-items: center;
