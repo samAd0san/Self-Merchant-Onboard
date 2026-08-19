@@ -485,10 +485,6 @@
   background: rgba(242, 244, 254, 0.5);
 }
 
-.accordion:has(.accordion__toggle.is-open) .accordion__body {
-  background: var(--wizard-purple-tint);
-}
-
 .accordion__toggle {
   display: flex;
   align-items: center;
@@ -504,7 +500,7 @@
 
 
 .accordion__toggle.is-open {
-  background: var(--wizard-purple-tint-active);
+  background: var(--wizard-purple-tint-subtle);
 }
 
 .accordion__toggle-text {
@@ -543,7 +539,7 @@
 }
 
 .accordion:has(.accordion__toggle.is-open) .accordion__body {
-  background: rgba(242, 244, 254, 0.5);
+  background: rgba(242, 244, 254, 0.1);
   border-top: none;
 }
 
