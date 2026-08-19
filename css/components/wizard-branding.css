@@ -56,6 +56,10 @@
     font-size: var(--font-size-xs);
     white-space: nowrap;
   }
+
+  .dropzone-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -77,10 +81,6 @@
 
   .align-toggle__option svg {
     display: none;
-  }
-
-  .dropzone-grid {
-    grid-template-columns: 1fr;
   }
 }
 
