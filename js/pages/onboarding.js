@@ -250,18 +250,29 @@ document.addEventListener("DOMContentLoaded", () => {
       tiers: [
         { name: "Starter", price: 9.99, blurb: "Answers calls and logs orders straight into your POS." },
         { name: "Growth", price: 99, blurb: "Live order routing with automatic upsell prompts." },
-        { name: "Pro", price: 199, blurb: "Multi-line support with real-time kitchen sync." },
+        { name: "Pro", price: 199, blurb: "Multi-line support with real-time order sync across your systems." },
       ],
     },
     {
       id: "reservations",
       label: "Parcera Reservations",
       icon: "calendar",
-      description: "Voice AI answers calls and books tables - via Parcera Tables or your existing Toast Tables.",
+      description: "Voice AI answers calls and books appointments - via Parcera Tables or your existing Toast Tables.",
       tiers: [
         { name: "Starter", price: 9.99, blurb: "Answers booking calls with email confirmations." },
-        { name: "Growth", price: 99, blurb: "Adds SMS reminders, waitlists, and table assignments." },
+        { name: "Growth", price: 99, blurb: "Adds SMS reminders, waitlists, and appointment assignments." },
         { name: "Pro", price: 199, blurb: "Multi-location sync plus priority phone support." },
+      ],
+    },
+    {
+      id: "pos",
+      label: "Parcera PoS",
+      icon: "creditCard",
+      description: "A point-of-sale built into your Parcera plan, for taking payments in person or online.",
+      tiers: [
+        { name: "Per Transaction", price: 30, priceLabel: "$30/mo", blurb: "3% + 15 cents per transaction, plus a $30 monthly fee." },
+        { name: "Zero Cost", price: 0, priceLabel: "$0/mo", blurb: "No monthly fee or per-transaction cost to you - customers pay a 3.5% surcharge instead." },
+        { name: "Custom", price: 0, priceLabel: "Custom", blurb: "Call sales for a quote tailored to your business." },
       ],
     },
   ];
@@ -305,7 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <button type="button" class="tier-option" data-tier-index="${i}">
               <span class="tier-option__top">
                 <span class="tier-option__name">${t.name}</span>
-                <span class="tier-option__price">$${t.price}/mo</span>
+                <span class="tier-option__price">${t.priceLabel || `$${t.price}/mo`}</span>
               </span>
               <span class="tier-option__blurb">${t.blurb}</span>
             </button>
@@ -326,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="field-group is-hidden" data-role="toast-link-group">
               <label class="field-group__label">Toast Tables Link</label>
               <div class="input-field">
-                <input class="input-field__control" style="padding-left: var(--space-4);" type="url" data-role="toast-link" placeholder="https://www.toasttab.com/your-restaurant" />
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="url" data-role="toast-link" placeholder="https://www.toasttab.com/your-business" />
               </div>
             </div>
           </div>
@@ -737,7 +748,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `
           <div class="plan-breakdown__row">
             <span class="plan-breakdown__label">${svc.label} <span class="plan-breakdown__tier">· ${tier.name}</span></span>
-            <span class="plan-breakdown__price">$${tier.price}/mo</span>
+            <span class="plan-breakdown__price">${tier.priceLabel || `$${tier.price}/mo`}</span>
           </div>
         `;
       }).join("");
@@ -876,7 +887,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="service-report-row" data-service="${id}">
           <div class="service-report-row__info">
             <span class="service-report-row__name">${svc.label}</span>
-            <span class="service-report-row__price">${tier.name} · $${tier.price}/mo</span>
+            <span class="service-report-row__price">${tier.name} · ${tier.priceLabel || `$${tier.price}/mo`}</span>
           </div>
           <div class="select-field service-report-row__tier-field">
             <select class="select-field__control" data-role="tier-select">
