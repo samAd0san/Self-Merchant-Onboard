@@ -842,6 +842,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const businessTypeInput = qs("#input-business-type");
   const launchPhoneChipNumber = qs("#launch-phone-chip-number");
 
+  // Switching to/from an auto or rental business type changes which steps
+  // are skipped (see stepSkipped/isNonAgentBusiness below), so the stepper
+  // needs to redraw immediately to hide or restore the Knowledge Base and
+  // Voice AI badges.
+  businessTypeInput.addEventListener("change", () => refreshStepper());
+
   // The AI phone number is assigned once per launch and reused if the
   // celebration screen is revisited (e.g. Storefront -> "Back to launch").
   let assignedAiPhoneNumber = "";
@@ -1080,10 +1086,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Auto/rental business types (Car Rentals, Auto Dealership, Auto Service
+  // Shop) are PoS-only industries - no Voice AI agent, so both the agent's
+  // Knowledge Base (menu, service rules, hours) and its own setup step are
+  // skipped entirely rather than just hidden/emptied like the Reservations
+  // no-menu case below.
+  const NON_AGENT_BUSINESS_TYPES = ["Car Rentals", "Auto Dealership", "Auto Service Shop"];
+  function isNonAgentBusiness() {
+    return NON_AGENT_BUSINESS_TYPES.includes(businessTypeInput.value);
+  }
+
   // The Restaurant Details step always shows. For Reservations it has no menu,
   // so it shows a short "reservations don't use a menu" note instead (see
   // syncMenuVisibility) rather than being skipped - keeping the node visible.
   function stepSkipped(stepId) {
+    if ((stepId === "knowledge" || stepId === "voice-greeting") && isNonAgentBusiness()) return true;
     return false;
   }
   // Walks from `index` in direction `dir` (+1/-1) past any skipped steps.
@@ -1096,6 +1113,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Re-render the stepper reflecting current completion + reachability
   function refreshStepper() {
     const skipped = new Set();
+    if (isNonAgentBusiness()) {
+      skipped.add("knowledge");
+      skipped.add("voice-greeting");
+    }
     renderStepper(stepperEl, currentStepIndex, {
       completed: completedSteps,
       maxReachable: maxReachedIndex,
