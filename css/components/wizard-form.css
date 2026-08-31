@@ -478,13 +478,6 @@
   box-shadow: none;
 }
 
-
-/* Active/open accordion */
-.accordion:has(.accordion__toggle.is-open) {
-  border-color: var(--blue-vivid);
-  background: rgba(242, 244, 254, 0.5);
-}
-
 .accordion__toggle {
   display: flex;
   align-items: center;
@@ -493,6 +486,7 @@
   padding: var(--space-4) var(--space-5);
   background: var(--color-input-bg);
   border: none;
+  outline: none;
   text-align: left;
   cursor: pointer;
   transition: background var(--transition-fast);
@@ -500,7 +494,9 @@
 
 
 .accordion__toggle.is-open {
-  background: var(--wizard-purple-tint-subtle);
+  /* Plain white, not a color accent - just enough contrast against the
+     closed toggles' light grey to read as "open". */
+  background: var(--color-white);
 }
 
 .accordion__toggle-text {
@@ -531,16 +527,30 @@
 }
 
 .accordion__body {
-  /* Body with padding and white background */
+  /* Open by default; .is-collapsed (below) is what actually hides it. Height
+     animates via max-height rather than the auto/display toggle every other
+     .is-hidden use in this codebase relies on, since display:none can't
+     transition - the JS toggle (setAccordionOpen in onboarding.js) measures
+     scrollHeight and drives the actual max-height value per open/close, this
+     is just the pre-JS fallback so content isn't clipped before it runs. */
   margin-top: 0;
+  max-height: 3000px;
   padding: var(--space-5);
+  overflow: hidden;
+  opacity: 1;
   background: var(--color-white);
   border-top: 1px solid var(--color-border);
+  transition: max-height 320ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease, padding 320ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.accordion:has(.accordion__toggle.is-open) .accordion__body {
-  background: rgba(242, 244, 254, 0.1);
-  border-top: none;
+.accordion__body.is-collapsed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  /* Fades out faster than the height collapses so fields near the bottom
+     don't visibly linger while max-height clips the box from the end. */
+  opacity: 0;
+  border-top-color: transparent;
 }
 
 @media (max-width: 480px) {
@@ -1374,4 +1384,108 @@
     width: auto;
     flex: 1;
   }
+}
+
+/* ==========================================================================
+   Document upload circles (Documents & Agreement step)
+   Profile-photo-style dashed circles standing in for the bare native file
+   inputs - click the ring to open the file picker, click the badge to clear
+   a chosen file. Each ring wraps a real (visually hidden) <input type=file>
+   so the actual picker/selection behavior is the browser's own.
+   ========================================================================== */
+.doc-upload-row {
+  display: flex;
+  gap: var(--space-5);
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: var(--space-2) 0 var(--space-1);
+}
+
+.doc-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  width: 96px;
+}
+
+.doc-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.doc-upload__control {
+  position: relative;
+  display: inline-flex;
+}
+
+.doc-upload__ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px dashed var(--color-border);
+  background: var(--color-input-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.doc-upload__ring:hover { border-color: var(--brand-primary); background: var(--wizard-purple-tint); }
+.doc-upload__ring:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.doc-upload__ring svg { width: 22px; height: 22px; pointer-events: none; }
+
+.doc-upload.is-filled .doc-upload__ring {
+  border-style: solid;
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: var(--color-white);
+}
+
+.doc-upload__badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--brand-primary);
+  color: var(--color-white);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--color-white);
+}
+.doc-upload__badge svg { width: 10px; height: 10px; pointer-events: none; }
+.doc-upload.is-filled .doc-upload__badge { display: flex; }
+
+.doc-upload__name {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.doc-upload.is-filled .doc-upload__name { color: var(--color-text-primary); }
+
+.doc-upload__file {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .doc-upload-row { gap: var(--space-4); }
 }

@@ -10,6 +10,15 @@
   box-sizing: border-box;
 }
 
+html {
+  /* This app has no dark theme - without this, a browser/OS dark-mode
+     preference can trigger automatic re-coloring of native form controls
+     (button/input backgrounds and borders in particular) that no author CSS,
+     not even an inline !important, can override. Declaring the page as
+     light-only opts it out of that. */
+  color-scheme: light;
+}
+
 html,
 body {
   margin: 0;
