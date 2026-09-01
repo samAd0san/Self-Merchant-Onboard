@@ -178,7 +178,7 @@
             <span class="accordion__toggle-text" id="service-rules-heading">Service Rules</span>
             <span class="accordion__chevron" id="icon-accordion-rules"></span>
           </button>
-          <div class="accordion__body is-hidden" data-role="accordion-body">
+          <div class="accordion__body is-collapsed" data-role="accordion-body">
             <p class="field-group__hint" id="service-rules-meta" style="margin-top: 0;">Guardrails your Parcera AI enforces on every call</p>
             <div id="service-rules-fields"></div>
           </div>
@@ -191,7 +191,7 @@
             <span class="accordion__toggle-text">Operating Hours</span>
             <span class="accordion__chevron" id="icon-accordion-hours"></span>
           </button>
-          <div class="accordion__body is-hidden" data-role="accordion-body">
+          <div class="accordion__body is-collapsed" data-role="accordion-body">
             <p class="field-group__hint" style="margin-top: 0;">When you're open - your AI uses this to answer "are you open?"</p>
             <div id="kb-hours-container"></div>
           </div>
@@ -203,7 +203,7 @@
             <span class="accordion__toggle-text">More business details <span class="accordion__toggle-hint">(dietary, allergens, kids, parking, and more)</span></span>
             <span class="accordion__chevron" id="icon-accordion-details"></span>
           </button>
-          <div class="accordion__body is-hidden" data-role="accordion-body">
+          <div class="accordion__body is-collapsed" data-role="accordion-body">
               <div class="field-group" style="margin-top: 0;">
                 <label class="field-group__label" for="kb-dietary">Dietary Options</label>
                 <div class="input-field">
@@ -382,6 +382,413 @@
             <li><span class="tips-list__number">2</span> Include business name and assistant's name</li>
             <li><span class="tips-list__number">3</span> Ask how you can help</li>
           </ul>
+        </div>
+      </div>
+
+      <!-- Step: Parcera PoS - Business & Processing Profile. Only shown when
+           Parcera PoS is the selected product (see isPosSelected() /
+           stepSkipped() in onboarding.js) - a payment processor underwriting
+           form, organized as an exclusive accordion group like Knowledge Base
+           rather than one long scroll. -->
+      <div class="wizard-step is-hidden" data-step-id="pos-business">
+        <h2 class="wizard-panel__title">Business &amp; Processing Profile</h2>
+        <p class="wizard-panel__subtitle">Parcera PoS needs a few more details for payment processing underwriting.</p>
+
+        <div class="accordion">
+          <button type="button" class="accordion__toggle is-open" data-role="accordion-toggle" aria-expanded="true">
+            <span class="accordion__toggle-text">Business Information</span>
+            <span class="accordion__chevron" id="icon-accordion-pos-business"></span>
+          </button>
+          <div class="accordion__body" data-role="accordion-body">
+            <div class="field-group" style="margin-top: 0;">
+              <label class="field-group__label" for="pos-legal-name">Legal Business Name *</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-legal-name" placeholder="e.g., The Rustic Table LLC" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-group__label" for="pos-dba-name">DBA Name</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-dba-name" placeholder="e.g., The Rustic Table" />
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-ein">Federal Tax ID (EIN) *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-ein" placeholder="12-3456789" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-entity-type">Business Type *</label>
+                <div class="select-field">
+                  <select class="select-field__control" id="pos-entity-type">
+                    <option value="">Select...</option>
+                    <option>Sole Proprietorship</option>
+                    <option>Partnership</option>
+                    <option>LLC</option>
+                    <option>Corporation</option>
+                    <option>Non-Profit</option>
+                  </select>
+                  <span class="select-field__chevron" id="icon-chevron-pos-entity"></span>
+                </div>
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-state-incorporated">State Incorporated *</label>
+                <div class="select-field">
+                  <select class="select-field__control state-select" id="pos-state-incorporated">
+                    <option value="">Select...</option>
+                  </select>
+                  <span class="select-field__chevron" id="icon-chevron-pos-state-inc"></span>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-nature">Nature of Business *</label>
+                <div class="select-field">
+                  <select class="select-field__control" id="pos-nature">
+                    <option>Restaurant</option>
+                    <option>Retail</option>
+                    <option>Professional Services</option>
+                    <option>Car Rentals</option>
+                    <option>Auto Dealership</option>
+                    <option>Auto Service Shop</option>
+                    <option>Other</option>
+                  </select>
+                  <span class="select-field__chevron" id="icon-chevron-pos-nature"></span>
+                </div>
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-sic-mcc">SIC/MCC (4 digits)</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-sic-mcc" placeholder="e.g., 5411" inputmode="numeric" maxlength="8" />
+                </div>
+                <p class="field-group__hint">Optional.</p>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-years-in-business">Years in Business *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="number" id="pos-years-in-business" min="0" placeholder="e.g., 5" />
+                </div>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-group__label" for="pos-contact-name">Contact Name (First Last) *</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-contact-name" placeholder="e.g., Jordan Smith" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text">Legal &amp; DBA Address</span>
+            <span class="accordion__chevron" id="icon-accordion-pos-address"></span>
+          </button>
+          <div class="accordion__body is-collapsed" data-role="accordion-body">
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="pos-legal-address">Legal Address *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-legal-address" placeholder="e.g., 456 Oak Avenue" />
+                </div>
+              </div>
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="pos-legal-city">City *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-legal-city" placeholder="e.g., Chicago" />
+                </div>
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-legal-state">State *</label>
+                <div class="select-field">
+                  <select class="select-field__control state-select" id="pos-legal-state">
+                    <option value="">Select...</option>
+                  </select>
+                  <span class="select-field__chevron" id="icon-chevron-pos-legal-state"></span>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-legal-zip">ZIP *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-legal-zip" placeholder="e.g., 60601" inputmode="numeric" maxlength="10" />
+                </div>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-group__label" for="pos-legal-phone">Phone *</label>
+              <div class="input-field">
+                <span class="input-field__icon" id="icon-pos-legal-phone"></span>
+                <input class="input-field__control" type="tel" id="pos-legal-phone" placeholder="(555) 123-4567" />
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-dba-address">DBA Address</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-dba-address" placeholder="e.g., 123 Main Street" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-dba-city">DBA City</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-dba-city" placeholder="e.g., Chicago" />
+                </div>
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-dba-state">DBA State</label>
+                <div class="select-field">
+                  <select class="select-field__control state-select" id="pos-dba-state">
+                    <option value="">Select...</option>
+                  </select>
+                  <span class="select-field__chevron" id="icon-chevron-pos-dba-state"></span>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-dba-zip">DBA ZIP</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-dba-zip" placeholder="e.g., 60601" inputmode="numeric" maxlength="10" />
+                </div>
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-dba-phone">DBA Phone</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="tel" id="pos-dba-phone" placeholder="(555) 123-4567" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-dba-email">DBA Email</label>
+                <div class="input-field">
+                  <span class="input-field__icon" id="icon-pos-dba-email"></span>
+                  <input class="input-field__control" type="email" id="pos-dba-email" placeholder="you@example.com" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text">Processing Profile</span>
+            <span class="accordion__chevron" id="icon-accordion-pos-processing"></span>
+          </button>
+          <div class="accordion__body is-collapsed" data-role="accordion-body">
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="pos-avg-ticket">Average Ticket ($) *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="number" id="pos-avg-ticket" min="0" step="0.01" placeholder="e.g., 50" />
+                </div>
+              </div>
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="pos-high-ticket">High Ticket ($) *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="number" id="pos-high-ticket" min="0" step="0.01" placeholder="e.g., 500" />
+                </div>
+                <p class="field-group__hint">Must exceed average.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step: Parcera PoS - Owners & Bank Account -->
+      <div class="wizard-step is-hidden" data-step-id="pos-owners">
+        <h2 class="wizard-panel__title">Owners &amp; Bank Account</h2>
+        <p class="wizard-panel__subtitle">Who controls the business, who owns it, and where payouts should go.</p>
+
+        <div class="accordion">
+          <button type="button" class="accordion__toggle is-open" data-role="accordion-toggle" aria-expanded="true">
+            <span class="accordion__toggle-text">Controller</span>
+            <span class="accordion__chevron" id="icon-accordion-pos-controller"></span>
+          </button>
+          <div class="accordion__body" data-role="accordion-body">
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="pos-controller-ssn">SSN (9 digits) *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-controller-ssn" placeholder="e.g., 600-12-3456" inputmode="numeric" maxlength="11" />
+                </div>
+              </div>
+              <div class="field-group" style="margin-top: 0;">
+                <label class="field-group__label" for="pos-controller-phone">Phone *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="tel" id="pos-controller-phone" placeholder="(555) 123-4567" />
+                </div>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-group__label" for="pos-controller-address">Address *</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-controller-address" placeholder="e.g., 456 Oak Avenue" />
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-controller-city">City *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-controller-city" placeholder="e.g., Chicago" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-controller-state">State *</label>
+                <div class="select-field">
+                  <select class="select-field__control state-select" id="pos-controller-state">
+                    <option value="">Select...</option>
+                  </select>
+                  <span class="select-field__chevron" id="icon-chevron-pos-controller-state"></span>
+                </div>
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-controller-zip">ZIP *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-controller-zip" placeholder="e.g., 60601" inputmode="numeric" maxlength="10" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-controller-email">Email</label>
+                <div class="input-field">
+                  <span class="input-field__icon" id="icon-pos-controller-email"></span>
+                  <input class="input-field__control" type="email" id="pos-controller-email" placeholder="you@example.com" />
+                </div>
+                <p class="field-group__hint">Optional.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text">Beneficial Owners</span>
+            <span class="accordion__chevron" id="icon-accordion-pos-owners"></span>
+          </button>
+          <div class="accordion__body is-collapsed" data-role="accordion-body">
+            <div id="pos-owners-container"></div>
+            <button type="button" class="add-transfer-link" id="btn-add-owner">
+              <span id="icon-add-owner"></span> Add Another Owner
+            </button>
+          </div>
+        </div>
+
+        <div class="accordion">
+          <button type="button" class="accordion__toggle" data-role="accordion-toggle" aria-expanded="false">
+            <span class="accordion__toggle-text">Bank Account</span>
+            <span class="accordion__chevron" id="icon-accordion-pos-bank"></span>
+          </button>
+          <div class="accordion__body is-collapsed" data-role="accordion-body">
+            <div class="field-group" style="margin-top: 0;">
+              <label class="field-group__label" for="pos-bank-name">Name on Account *</label>
+              <div class="input-field">
+                <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-bank-name" placeholder="e.g., The Rustic Table LLC" />
+              </div>
+            </div>
+            <div class="pay-fields__row pay-fields__row--two">
+              <div class="field-group">
+                <label class="field-group__label" for="pos-bank-routing">Routing Number (9 digits) *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-bank-routing" placeholder="e.g., 071000013" inputmode="numeric" maxlength="14" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-group__label" for="pos-bank-account">Account Number *</label>
+                <div class="input-field">
+                  <input class="input-field__control" style="padding-left: var(--space-4);" type="text" id="pos-bank-account" placeholder="e.g., 1234567890" inputmode="numeric" maxlength="22" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step: Parcera PoS - Documents, Agreement & Submit -->
+      <div class="wizard-step is-hidden" data-step-id="pos-submit">
+        <h2 class="wizard-panel__title">Documents &amp; Agreement</h2>
+        <p class="wizard-panel__subtitle">Last step before we send your payment processing application for review.</p>
+
+        <div class="accordion">
+          <button type="button" class="accordion__toggle is-open" data-role="accordion-toggle" aria-expanded="true">
+            <span class="accordion__toggle-text">Upload Documents</span>
+            <span class="accordion__chevron" id="icon-accordion-pos-docs"></span>
+          </button>
+          <div class="accordion__body" data-role="accordion-body">
+            <p class="field-group__hint" style="margin-top: 0;">Optional for sandbox - upload if your package requires them.</p>
+            <div class="doc-upload-row">
+              <div class="doc-upload" data-doc="voided-check">
+                <div class="doc-upload__control">
+                  <button type="button" class="doc-upload__ring" aria-label="Upload Voided Check">
+                    <span class="doc-upload__icon" id="icon-doc-ring-voided-check"></span>
+                  </button>
+                  <button type="button" class="doc-upload__badge" aria-label="Remove file" title="Remove file">
+                    <span id="icon-doc-badge-voided-check"></span>
+                  </button>
+                </div>
+                <input type="file" class="doc-upload__input" id="pos-doc-voided-check" tabindex="-1" />
+                <p class="doc-upload__name">Voided Check</p>
+                <p class="doc-upload__file" id="pos-doc-voided-check-filename"></p>
+              </div>
+              <div class="doc-upload" data-doc="gov-id">
+                <div class="doc-upload__control">
+                  <button type="button" class="doc-upload__ring" aria-label="Upload Government ID">
+                    <span class="doc-upload__icon" id="icon-doc-ring-gov-id"></span>
+                  </button>
+                  <button type="button" class="doc-upload__badge" aria-label="Remove file" title="Remove file">
+                    <span id="icon-doc-badge-gov-id"></span>
+                  </button>
+                </div>
+                <input type="file" class="doc-upload__input" id="pos-doc-gov-id" tabindex="-1" />
+                <p class="doc-upload__name">Government ID</p>
+                <p class="doc-upload__file" id="pos-doc-gov-id-filename"></p>
+              </div>
+              <div class="doc-upload" data-doc="business-license">
+                <div class="doc-upload__control">
+                  <button type="button" class="doc-upload__ring" aria-label="Upload Business License">
+                    <span class="doc-upload__icon" id="icon-doc-ring-business-license"></span>
+                  </button>
+                  <button type="button" class="doc-upload__badge" aria-label="Remove file" title="Remove file">
+                    <span id="icon-doc-badge-business-license"></span>
+                  </button>
+                </div>
+                <input type="file" class="doc-upload__input" id="pos-doc-business-license" tabindex="-1" />
+                <p class="doc-upload__name">Business License</p>
+                <p class="doc-upload__file" id="pos-doc-business-license-filename"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-section" style="margin-top: var(--space-5);">
+          <div class="wizard-section__header">
+            <span class="wizard-section__icon" id="icon-pos-agreement"></span>
+            <div class="wizard-section__heading">Sign the Agreement</div>
+          </div>
+          <p class="field-group__hint" style="margin-top: 0;">Open the merchant agreement in a new tab and complete the signing there. You must actually finish signing on that page - this checkbox only tells us to continue, it does not sign anything for you.</p>
+          <a class="btn btn--secondary" id="link-open-consent" href="#" target="_blank" rel="noopener" style="display: inline-flex; width: auto; margin-top: var(--space-3);">
+            <span id="icon-open-consent"></span> Open consent page
+          </a>
+          <label class="consent-check" for="checkbox-consent-signed" style="margin-top: var(--space-4);">
+            <input type="checkbox" class="consent-check__input" id="checkbox-consent-signed" />
+            <span class="consent-check__label">I have signed the merchant agreement on the consent page</span>
+          </label>
+        </div>
+
+        <div class="wizard-callout wizard-callout--icon" style="margin-top: var(--space-5);">
+          <span id="icon-pos-submit-info"></span>
+          <div>
+            <div class="wizard-callout__title">Submit for Review</div>
+            Continuing sends your application to Parcera for review. Our team finalizes your account setup and forwards it to the bank for approval. You'll be notified as the status changes.
+          </div>
         </div>
       </div>
 

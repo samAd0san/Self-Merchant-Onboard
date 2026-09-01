@@ -18,6 +18,7 @@ export const validators = {
     return d.length === 10 || (d.length === 11 && d[0] === "1");
   },
   ein: (v) => /^\d{2}-?\d{7}$/.test(v.trim()),
+  ssn: (v) => /^\d{3}-?\d{2}-?\d{4}$/.test(v.trim()),
   url: (v) => /^https?:\/\/[^\s.]+\.[^\s]{2,}$/i.test(v.trim()),
   cardNumber: (v) => /^\d{13,19}$/.test(v.replace(/\s/g, "")),
   cardExp: (v) => {
@@ -32,20 +33,52 @@ export const validators = {
   account: (v) => /^\d{4,17}$/.test(v.trim()),
   slug: (v) => /^[a-z0-9-]+$/.test(v.trim()),
   hex: (v) => /^#?[0-9a-fA-F]{6}$/.test(v.trim()),
+  dob: (v) => {
+    const m = v.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return false;
+    const mm = Number(m[1]);
+    const dd = Number(m[2]);
+    const yyyy = Number(m[3]);
+    if (mm < 1 || mm > 12) return false;
+    if (dd < 1 || dd > new Date(yyyy, mm, 0).getDate()) return false;
+    return yyyy > 1900 && yyyy <= new Date().getFullYear();
+  },
 };
 
 // ---- Formatters: constrain/shape the value as the user types --------------
 export const formatters = {
   digits: (v) => v.replace(/\D/g, ""),
   phone: (v) => {
-    const d = v.replace(/\D/g, "").slice(0, 10);
+    let d = v.replace(/\D/g, "");
+    // Drop a leading US country code (+1 / 1) rather than let it get mistaken
+    // for the start of the area code - no country code is ever required here.
+    if (d.length === 11 && d[0] === "1") d = d.slice(1);
+    d = d.slice(0, 10);
     if (d.length <= 3) return d;
     if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
     return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
   },
+  routing: (v) => v.replace(/\D/g, "").slice(0, 9),
+  account: (v) => v.replace(/\D/g, "").slice(0, 17),
+  dob: (v) => {
+    const d = v.replace(/\D/g, "").slice(0, 8);
+    if (d.length > 4) return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+    if (d.length > 2) return `${d.slice(0, 2)}/${d.slice(2)}`;
+    return d;
+  },
   ein: (v) => {
     const d = v.replace(/\D/g, "").slice(0, 9);
     return d.length > 2 ? `${d.slice(0, 2)}-${d.slice(2)}` : d;
+  },
+  ssn: (v) => {
+    const d = v.replace(/\D/g, "").slice(0, 9);
+    if (d.length > 5) return `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}`;
+    if (d.length > 3) return `${d.slice(0, 3)}-${d.slice(3)}`;
+    return d;
+  },
+  zip: (v) => {
+    const d = v.replace(/\D/g, "").slice(0, 9);
+    return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
   },
   cardNumber: (v) => v.replace(/\D/g, "").slice(0, 19).replace(/(.{4})/g, "$1 ").trim(),
   cardExp: (v) => {
@@ -94,9 +127,16 @@ export function attachValidation(control, options = {}) {
   const { validate, format, required = false, message = "Please check this field", onChange } = options;
   const { wrap, msg } = resolveTargets(control);
 
+  // `required` may be a plain boolean, or a function re-evaluated on every
+  // check for a requirement that depends on another field (e.g. a DBA field
+  // that's only required once a DBA Name has been entered).
+  function isRequired() {
+    return typeof required === "function" ? required() : required;
+  }
+
   function isValid() {
     const v = control.value;
-    if (!v.trim()) return !required;      // empty only fails when required
+    if (!v.trim()) return !isRequired();  // empty only fails when required
     return validate ? validate(v) : true;
   }
 

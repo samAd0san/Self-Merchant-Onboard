@@ -17,6 +17,11 @@ export const WIZARD_STEPS = [
   { id: "integration", icon: "storefront", label: "Choose Product" },
   { id: "knowledge", icon: "book", label: "Knowledge Base" },
   { id: "voice-greeting", icon: "mic", label: "Voice AI" },
+  // Parcera PoS payment setup - only shown when PoS is the selected product
+  // (see isPosSelected()/stepSkipped() in onboarding.js).
+  { id: "pos-business", icon: "landmark", label: "Business Profile" },
+  { id: "pos-owners", icon: "userCheck", label: "Owners & Bank" },
+  { id: "pos-submit", icon: "fileCheck", label: "Documents" },
   { id: "review", icon: "listChecks", label: "Review" },
   { id: "payments", icon: "rocket", label: "Payment" },
 ];

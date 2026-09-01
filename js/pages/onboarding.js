@@ -37,6 +37,15 @@ function injectStaticIcons() {
     "icon-accordion-rules": "chevronDown",
     "icon-accordion-hours": "chevronDown",
     "icon-accordion-details": "chevronDown",
+    "icon-accordion-pos-business": "chevronDown",
+    "icon-accordion-pos-address": "chevronDown",
+    "icon-accordion-pos-processing": "chevronDown",
+    "icon-accordion-pos-controller": "chevronDown",
+    "icon-accordion-pos-owners": "chevronDown",
+    "icon-accordion-pos-bank": "chevronDown",
+    "icon-accordion-pos-docs": "chevronDown",
+    "icon-pos-agreement": "pencil",
+    "icon-pos-submit-info": "check",
     "icon-kb-faq": "chat",
     "icon-add-faq": "plus",
     "icon-arrow-4": "arrowRight",
@@ -75,6 +84,12 @@ function injectStaticIcons() {
     "icon-chevron-ach2": "chevronDown",
     "icon-wallet-note": "shield",
     "icon-pay-info": "shield",
+    "icon-doc-ring-voided-check": "uploadTray",
+    "icon-doc-ring-gov-id": "uploadTray",
+    "icon-doc-ring-business-license": "uploadTray",
+    "icon-doc-badge-voided-check": "check",
+    "icon-doc-badge-gov-id": "check",
+    "icon-doc-badge-business-license": "check",
   };
 
   Object.entries(iconMap).forEach(([id, iconKey]) => {
@@ -94,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bottomNav = qs(".wizard-bottom-nav");
   const backButton = qs("#btn-wizard-back");
   const continueButton = qs("#btn-wizard-continue");
+  const continueLabelEl = qs(".wizard-bottom-nav__label");
   const wizardSteps = qsa(".wizard-step");
 
   let currentStepIndex = 0;
@@ -185,11 +201,33 @@ document.addEventListener("DOMContentLoaded", () => {
   // collapses the others in the same step (Knowledge Base: Menu -> Ordering
   // Rules -> More details, one open at a time). Closing the open one leaves
   // all collapsed. The Menu ships open (see markup).
+  // Height is measured (scrollHeight), not a fixed oversized cap, so a
+  // 3-field section and a 10-field section both animate over the same
+  // duration instead of the short one finishing almost instantly. Once an
+  // opened body settles it's released to max-height: none so content added
+  // afterward (e.g. another Beneficial Owner card) isn't clipped by a
+  // height measured before it existed.
   function setAccordionOpen(acc, open) {
     const toggle = acc.querySelector("[data-role='accordion-toggle']");
     const body = acc.querySelector("[data-role='accordion-body']");
     if (!toggle || !body) return;
-    body.classList.toggle("is-hidden", !open);
+    if (open) {
+      body.classList.remove("is-collapsed");
+      body.style.maxHeight = `${body.scrollHeight}px`;
+      body.addEventListener("transitionend", function onOpenEnd(e) {
+        if (e.target !== body || e.propertyName !== "max-height") return;
+        body.removeEventListener("transitionend", onOpenEnd);
+        if (!body.classList.contains("is-collapsed")) body.style.maxHeight = "none";
+      });
+    } else {
+      // Pin to the current rendered height first (an open body may be
+      // sitting at max-height: none by now) so there's a real value to
+      // transition FROM rather than jumping straight to 0.
+      body.style.maxHeight = `${body.scrollHeight}px`;
+      void body.offsetHeight; // force layout so the pinned height commits before collapsing
+      body.classList.add("is-collapsed");
+      body.style.maxHeight = "0px";
+    }
     toggle.classList.toggle("is-open", open);
     toggle.setAttribute("aria-expanded", String(open));
   }
@@ -197,8 +235,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const toggle = acc.querySelector("[data-role='accordion-toggle']");
     const body = acc.querySelector("[data-role='accordion-body']");
     if (!toggle || !body) return;
+    if (!body.classList.contains("is-collapsed")) body.style.maxHeight = "none";
     toggle.addEventListener("click", () => {
-      const willOpen = body.classList.contains("is-hidden");
+      const willOpen = body.classList.contains("is-collapsed");
       if (willOpen) {
         // Collapse sibling accordions in the same step before opening this one
         const scope = acc.closest(".wizard-step") || document;
@@ -534,14 +573,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // At least one service must be selected; if Reservations is on Toast
-  // Tables, its link must also be a valid URL.
+  // At least one service must be selected. The Toast Tables link (like the
+  // rest of this field) is optional - it just flags red if something
+  // invalid is typed, it doesn't block Continue when left empty.
   function integrationComplete() {
     const ids = Object.keys(selectedServices);
-    if (!ids.length) return false;
-    const res = selectedServices.reservations;
-    if (res && res.management === "toast" && !V.url(res.toastLink)) return false;
-    return true;
+    return ids.length > 0;
   }
 
   // ======================================================================
@@ -717,6 +754,379 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   spanishCheckbox.addEventListener("change", renderGreetings);
   voiceSelect.addEventListener("change", updateContinueState);
+
+  // ======================================================================
+  // Steps: Parcera PoS payment setup - Business & Processing Profile,
+  // Owners & Bank Account, Documents & Agreement. Only relevant when
+  // Parcera PoS is the selected product; all three steps are skipped
+  // entirely otherwise (see stepSkipped()/refreshStepper() further down).
+  // ======================================================================
+  function isPosSelected() {
+    return !!selectedServices.pos;
+  }
+
+  const US_STATES = [
+    ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"],
+    ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["DC", "District of Columbia"], ["FL", "Florida"],
+    ["GA", "Georgia"], ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"],
+    ["IA", "Iowa"], ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"],
+    ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MN", "Minnesota"], ["MS", "Mississippi"],
+    ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"],
+    ["NJ", "New Jersey"], ["NM", "New Mexico"], ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"],
+    ["OH", "Ohio"], ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"],
+    ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"],
+    ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"], ["WV", "West Virginia"], ["WI", "Wisconsin"],
+    ["WY", "Wyoming"],
+  ];
+  // Custom-select rebuilds its option list live on every open() (see
+  // customSelect.js), so populating a native <select> after enhancement is
+  // safe - no need to worry about init ordering here.
+  function populateStateSelects(root = document) {
+    qsa(".state-select", root).forEach((select) => {
+      if (select.dataset.populated === "true") return;
+      select.dataset.populated = "true";
+      US_STATES.forEach(([code, name]) => {
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = `${name} (${code})`;
+        select.appendChild(opt);
+      });
+    });
+  }
+  populateStateSelects();
+
+  // ---- Business & Processing Profile ----
+  const posLegalName = qs("#pos-legal-name");
+  const posEin = qs("#pos-ein");
+  const posEntityType = qs("#pos-entity-type");
+  const posStateIncorporated = qs("#pos-state-incorporated");
+  const posNature = qs("#pos-nature");
+  const posSicMcc = qs("#pos-sic-mcc");
+  const posYearsInBusiness = qs("#pos-years-in-business");
+  const posContactName = qs("#pos-contact-name");
+  const posLegalAddress = qs("#pos-legal-address");
+  const posLegalCity = qs("#pos-legal-city");
+  const posLegalState = qs("#pos-legal-state");
+  const posLegalZip = qs("#pos-legal-zip");
+  const posLegalPhone = qs("#pos-legal-phone");
+  const posDbaName = qs("#pos-dba-name");
+  const posDbaAddress = qs("#pos-dba-address");
+  const posDbaCity = qs("#pos-dba-city");
+  const posDbaZip = qs("#pos-dba-zip");
+  const posDbaPhone = qs("#pos-dba-phone");
+  const posDbaEmail = qs("#pos-dba-email");
+  const posAvgTicket = qs("#pos-avg-ticket");
+  const posHighTicket = qs("#pos-high-ticket");
+
+  // The DBA fields only matter once there's actually a DBA (a name different
+  // from the legal business name) - otherwise they're all optional.
+  function dbaNameFilled() {
+    return !!posDbaName.value.trim();
+  }
+
+  attachValidation(posLegalName, { required: true, message: "Legal business name is required.", onChange: updateContinueState });
+  attachValidation(posEin, { validate: V.ein, format: F.ein, required: true, message: "Use the format 12-3456789.", onChange: updateContinueState });
+  attachValidation(posSicMcc, { format: (v) => v.replace(/\D/g, "").slice(0, 4), message: "4-digit code.", onChange: updateContinueState });
+  attachValidation(posYearsInBusiness, { required: true, message: "Years in business is required.", onChange: updateContinueState });
+  attachValidation(posContactName, { required: true, message: "Contact name is required.", onChange: updateContinueState });
+  attachValidation(posLegalAddress, { required: true, message: "Address is required.", onChange: updateContinueState });
+  attachValidation(posLegalCity, { required: true, message: "City is required.", onChange: updateContinueState });
+  attachValidation(posLegalZip, { validate: V.zip, format: F.zip, required: true, message: "Enter a valid ZIP.", onChange: updateContinueState });
+  attachValidation(posLegalPhone, { validate: V.phone, format: F.phone, required: true, message: "Enter a valid phone number.", onChange: updateContinueState });
+  attachValidation(posDbaAddress, { required: dbaNameFilled, message: "Address is required when a DBA name is entered.", onChange: updateContinueState });
+  attachValidation(posDbaCity, { required: dbaNameFilled, message: "City is required when a DBA name is entered.", onChange: updateContinueState });
+  attachValidation(posDbaZip, { validate: V.zip, format: F.zip, required: dbaNameFilled, message: "Enter a valid ZIP.", onChange: updateContinueState });
+  attachValidation(posDbaPhone, { validate: V.phone, format: F.phone, required: dbaNameFilled, message: "Enter a valid phone number.", onChange: updateContinueState });
+  attachValidation(posDbaEmail, { validate: V.email, required: dbaNameFilled, message: "Enter a valid email address.", onChange: updateContinueState });
+  attachValidation(posAvgTicket, { required: true, message: "Average ticket is required.", onChange: updateContinueState });
+  attachValidation(posHighTicket, { required: true, message: "High ticket is required.", onChange: updateContinueState });
+
+  [posEntityType, posStateIncorporated, posLegalState].forEach((el) => el.addEventListener("change", updateContinueState));
+
+  // These fields already exist on the main Business Details step, so they're
+  // copied straight in here rather than making the merchant retype them -
+  // but only until the merchant actually edits them on this step themselves.
+  // Legal/DBA Address isn't included: Business Details only captures one
+  // free-text address line, not separate street/city/state/ZIP, and there's
+  // no reliable way to split that line into this step's structured fields.
+  let posNatureTouched = false;
+  let posContactNameTouched = false;
+  let posLegalNameTouched = false;
+  let posEinTouched = false;
+  let posLegalPhoneTouched = false;
+  posNature.addEventListener("change", () => { posNatureTouched = true; updateContinueState(); });
+  posContactName.addEventListener("input", () => { posContactNameTouched = true; });
+  posLegalName.addEventListener("input", () => { posLegalNameTouched = true; });
+  posEin.addEventListener("input", () => { posEinTouched = true; });
+  posLegalPhone.addEventListener("input", () => { posLegalPhoneTouched = true; });
+  function syncPosBusinessDefaults() {
+    if (!posNatureTouched && businessTypeInput.value) {
+      const hasMatch = [...posNature.options].some((o) => o.value === businessTypeInput.value);
+      if (hasMatch) posNature.value = businessTypeInput.value;
+    }
+    if (!posContactNameTouched && !posContactName.value.trim() && ownerNameInput.value.trim()) {
+      posContactName.value = ownerNameInput.value;
+    }
+    if (!posLegalNameTouched && !posLegalName.value.trim() && businessNameInput.value.trim()) {
+      posLegalName.value = businessNameInput.value;
+    }
+    if (!posEinTouched && !posEin.value.trim() && businessEINInput.value.trim()) {
+      posEin.value = businessEINInput.value;
+    }
+    if (!posLegalPhoneTouched && !posLegalPhone.value.trim() && ownerPhoneInput.value.trim()) {
+      posLegalPhone.value = ownerPhoneInput.value;
+    }
+    refreshCustomSelects();
+  }
+
+  // Not gated - the merchant can move on and fill this in later. Per-field
+  // validation above still flags a malformed value, it just doesn't block
+  // Continue.
+  function posBusinessComplete() {
+    return true;
+  }
+
+  // ---- Owners & Bank Account ----
+  const posControllerSsn = qs("#pos-controller-ssn");
+  const posControllerAddress = qs("#pos-controller-address");
+  const posControllerCity = qs("#pos-controller-city");
+  const posControllerState = qs("#pos-controller-state");
+  const posControllerZip = qs("#pos-controller-zip");
+  const posControllerPhone = qs("#pos-controller-phone");
+  const posControllerEmail = qs("#pos-controller-email");
+  const posOwnersContainer = qs("#pos-owners-container");
+  const addOwnerButton = qs("#btn-add-owner");
+  const posBankName = qs("#pos-bank-name");
+  const posBankRouting = qs("#pos-bank-routing");
+  const posBankAccount = qs("#pos-bank-account");
+
+  attachValidation(posControllerSsn, { validate: V.ssn, format: F.ssn, required: true, message: "Use the format 600-12-3456.", onChange: updateContinueState });
+  attachValidation(posControllerAddress, { required: true, message: "Address is required.", onChange: updateContinueState });
+  attachValidation(posControllerCity, { required: true, message: "City is required.", onChange: updateContinueState });
+  attachValidation(posControllerZip, { validate: V.zip, format: F.zip, required: true, message: "Enter a valid ZIP.", onChange: updateContinueState });
+  attachValidation(posControllerPhone, { validate: V.phone, format: F.phone, required: true, message: "Enter a valid phone number.", onChange: updateContinueState });
+  attachValidation(posControllerEmail, { validate: V.email, message: "Enter a valid email address.", onChange: updateContinueState });
+  posControllerState.addEventListener("change", updateContinueState);
+
+  // The controller is usually the same person as the main business contact,
+  // so default their phone/email from Business Details too - until edited here.
+  let posControllerPhoneTouched = false;
+  let posControllerEmailTouched = false;
+  posControllerPhone.addEventListener("input", () => { posControllerPhoneTouched = true; });
+  posControllerEmail.addEventListener("input", () => { posControllerEmailTouched = true; });
+  function syncPosOwnersDefaults() {
+    if (!posControllerPhoneTouched && !posControllerPhone.value.trim() && ownerPhoneInput.value.trim()) {
+      posControllerPhone.value = ownerPhoneInput.value;
+    }
+    if (!posControllerEmailTouched && !posControllerEmail.value.trim() && ownerEmailInput.value.trim()) {
+      posControllerEmail.value = ownerEmailInput.value;
+    }
+  }
+
+  attachValidation(posBankName, { required: true, message: "Name on account is required.", onChange: updateContinueState });
+  attachValidation(posBankRouting, { validate: V.routing, format: F.routing, required: true, message: "9-digit routing number.", onChange: updateContinueState });
+  attachValidation(posBankAccount, { validate: V.account, format: F.account, required: true, message: "Enter a valid account number.", onChange: updateContinueState });
+
+  const MAX_BENEFICIAL_OWNERS = 4;
+  let ownerCount = 0;
+
+  // One repeatable, collapsible owner card - same shape as Voice AI's
+  // Transfer Rules (reuses .transfer-rule/.transfer-rule__* for free styling
+  // and the same makeCollapsible pattern), capped at 4 beneficial owners.
+  function addBeneficialOwner() {
+    if (ownerCount >= MAX_BENEFICIAL_OWNERS) return;
+    ownerCount += 1;
+    const ownerNumber = ownerCount;
+
+    posOwnersContainer.querySelectorAll(".transfer-rule").forEach((el) => {
+      if (el._collapsible) el._collapsible.collapse();
+    });
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "transfer-rule";
+    wrapper.dataset.ownerNumber = String(ownerNumber);
+    wrapper.innerHTML = `
+      <div class="transfer-rule__head">
+        <div class="transfer-rule__title">Owner ${ownerNumber}</div>
+        <button type="button" class="transfer-rule__remove" data-role="remove-owner" aria-label="Remove owner">${ICONS.close}</button>
+      </div>
+      <div class="transfer-rule__body">
+        <div class="pay-fields__row pay-fields__row--two">
+          <div class="field-group" style="margin-top: 0;">
+            <label class="field-group__label">First Name *</label>
+            <div class="input-field"><input class="input-field__control owner-first-name" style="padding-left: var(--space-4);" type="text" placeholder="e.g., John" /></div>
+          </div>
+          <div class="field-group" style="margin-top: 0;">
+            <label class="field-group__label">Last Name *</label>
+            <div class="input-field"><input class="input-field__control owner-last-name" style="padding-left: var(--space-4);" type="text" placeholder="e.g., Doe" /></div>
+          </div>
+        </div>
+        <div class="pay-fields__row pay-fields__row--two">
+          <div class="field-group">
+            <label class="field-group__label">Title *</label>
+            <div class="select-field">
+              <select class="select-field__control owner-title">
+                <option value="">Select...</option>
+                <option>Owner</option>
+                <option>CEO</option>
+                <option>CFO</option>
+                <option>President</option>
+                <option>Managing Member</option>
+                <option>Partner</option>
+                <option>Other</option>
+              </select>
+              <span class="select-field__chevron">${ICONS.chevronDown}</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-group__label">Ownership % *</label>
+            <div class="input-field"><input class="input-field__control owner-ownership" style="padding-left: var(--space-4);" type="number" min="0" max="100" placeholder="e.g., 100" /></div>
+          </div>
+        </div>
+        <div class="pay-fields__row pay-fields__row--two">
+          <div class="field-group">
+            <label class="field-group__label">Date of Birth *</label>
+            <div class="input-field"><input class="input-field__control owner-dob" style="padding-left: var(--space-4);" type="text" placeholder="MM/DD/YYYY" inputmode="numeric" maxlength="10" /></div>
+          </div>
+          <div class="field-group">
+            <label class="field-group__label">SSN (9 digits) *</label>
+            <div class="input-field"><input class="input-field__control owner-ssn" style="padding-left: var(--space-4);" type="text" placeholder="e.g., 600-12-3456" inputmode="numeric" maxlength="11" /></div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-group__label">Address *</label>
+          <div class="input-field"><input class="input-field__control owner-address" style="padding-left: var(--space-4);" type="text" placeholder="e.g., 456 Oak Avenue" /></div>
+        </div>
+        <div class="pay-fields__row pay-fields__row--two">
+          <div class="field-group">
+            <label class="field-group__label">City *</label>
+            <div class="input-field"><input class="input-field__control owner-city" style="padding-left: var(--space-4);" type="text" placeholder="e.g., Chicago" /></div>
+          </div>
+          <div class="field-group">
+            <label class="field-group__label">State *</label>
+            <div class="select-field">
+              <select class="select-field__control owner-state state-select">
+                <option value="">Select...</option>
+              </select>
+              <span class="select-field__chevron">${ICONS.chevronDown}</span>
+            </div>
+          </div>
+        </div>
+        <div class="pay-fields__row pay-fields__row--two">
+          <div class="field-group">
+            <label class="field-group__label">ZIP *</label>
+            <div class="input-field"><input class="input-field__control owner-zip" style="padding-left: var(--space-4);" type="text" placeholder="e.g., 60601" inputmode="numeric" maxlength="10" /></div>
+          </div>
+          <div class="field-group">
+            <label class="field-group__label">Home Phone *</label>
+            <div class="input-field"><input class="input-field__control owner-phone" style="padding-left: var(--space-4);" type="tel" placeholder="(555) 123-4567" /></div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-group__label">Email</label>
+          <div class="input-field"><input class="input-field__control owner-email" style="padding-left: var(--space-4);" type="email" placeholder="you@example.com" /></div>
+          <p class="field-group__hint">Optional.</p>
+        </div>
+      </div>
+    `;
+    posOwnersContainer.appendChild(wrapper);
+
+    const firstNameInput = wrapper.querySelector(".owner-first-name");
+    const lastNameInput = wrapper.querySelector(".owner-last-name");
+    wrapper._collapsible = makeCollapsible(wrapper, {
+      header: wrapper.querySelector(".transfer-rule__head"),
+      titleEl: wrapper.querySelector(".transfer-rule__title"),
+      body: wrapper.querySelector(".transfer-rule__body"),
+      ignore: "[data-role='remove-owner']",
+      getSummary: () => {
+        const first = firstNameInput.value.trim();
+        const last = lastNameInput.value.trim();
+        const ownership = wrapper.querySelector(".owner-ownership").value.trim();
+        if (!first && !last) return "<em>New owner</em>";
+        return `${escapeHtml(`${first} ${last}`.trim())}${ownership ? " · " + escapeHtml(ownership) + "%" : ""}`;
+      },
+    });
+
+    populateStateSelects(wrapper);
+    initCustomSelects(wrapper);
+
+    qsa("input, select", wrapper).forEach((el) => {
+      el.addEventListener(el.tagName === "SELECT" ? "change" : "input", updateContinueState);
+    });
+    attachValidation(wrapper.querySelector(".owner-dob"), { validate: V.dob, format: F.dob, required: true, message: "Use the format MM/DD/YYYY.", onChange: updateContinueState });
+    attachValidation(wrapper.querySelector(".owner-ssn"), { validate: V.ssn, format: F.ssn, required: true, message: "Use the format 600-12-3456.", onChange: updateContinueState });
+    attachValidation(wrapper.querySelector(".owner-zip"), { validate: V.zip, format: F.zip, required: true, message: "Enter a valid ZIP.", onChange: updateContinueState });
+    attachValidation(wrapper.querySelector(".owner-phone"), { validate: V.phone, format: F.phone, required: true, message: "Enter a valid phone number.", onChange: updateContinueState });
+    attachValidation(wrapper.querySelector(".owner-email"), { validate: V.email, message: "Enter a valid email address.", onChange: updateContinueState });
+
+    wrapper.querySelector('[data-role="remove-owner"]').addEventListener("click", () => {
+      if (posOwnersContainer.querySelectorAll(".transfer-rule").length <= 1) return;
+      wrapper.remove();
+      ownerCount -= 1;
+      updateOwnerControlsState();
+      updateContinueState();
+    });
+
+    updateOwnerControlsState();
+  }
+
+  function updateOwnerControlsState() {
+    const owners = posOwnersContainer.querySelectorAll(".transfer-rule");
+    owners.forEach((owner) => {
+      const btn = owner.querySelector('[data-role="remove-owner"]');
+      if (btn) setHidden(btn, owners.length <= 1);
+    });
+    setHidden(addOwnerButton, owners.length >= MAX_BENEFICIAL_OWNERS);
+  }
+
+  addOwnerButton.addEventListener("click", () => addBeneficialOwner());
+
+  // Not gated - same as Business & Processing Profile, the merchant can move
+  // on and fill this in later. Per-field validation above still flags a
+  // malformed value, it just doesn't block Continue.
+  function posOwnersComplete() {
+    return true;
+  }
+
+  // ---- Documents, Agreement & Submit ----
+  // Each document is a real (visually hidden) file input behind a clickable
+  // "upload circle": the ring opens the file picker (also how you replace an
+  // already-chosen file), the checkmark badge that appears once a file is
+  // chosen clears it back to empty.
+  function wireDocUpload(key) {
+    const wrapper = qs(`.doc-upload[data-doc="${key}"]`);
+    if (!wrapper) return;
+    const ring = wrapper.querySelector(".doc-upload__ring");
+    const badge = wrapper.querySelector(".doc-upload__badge");
+    const input = wrapper.querySelector(".doc-upload__input");
+    const ringIcon = wrapper.querySelector(".doc-upload__icon");
+    const fileLabel = wrapper.querySelector(".doc-upload__file");
+
+    function sync() {
+      const file = input.files && input.files[0];
+      wrapper.classList.toggle("is-filled", !!file);
+      ringIcon.innerHTML = file ? ICONS.file : ICONS.uploadTray;
+      fileLabel.textContent = file ? file.name : "";
+    }
+
+    ring.addEventListener("click", () => input.click());
+    badge.addEventListener("click", (event) => {
+      event.stopPropagation();
+      input.value = "";
+      sync();
+    });
+    input.addEventListener("change", sync);
+  }
+  ["voided-check", "gov-id", "business-license"].forEach(wireDocUpload);
+
+  const consentSignedCheckbox = qs("#checkbox-consent-signed");
+  if (consentSignedCheckbox) consentSignedCheckbox.addEventListener("change", updateContinueState);
+
+  // Not gated - same as the other two PoS steps, the merchant can submit and
+  // keep moving without having signed yet.
+  function posSubmitComplete() {
+    return true;
+  }
 
   // ======================================================================
   // Step: Payment Method (individual paying for the Parcera service)
@@ -1077,6 +1487,12 @@ document.addEventListener("DOMContentLoaded", () => {
           : false;
         return hasName && hasVoice && hasTransfer;
       }
+      case "pos-business":
+        return posBusinessComplete();
+      case "pos-owners":
+        return posOwnersComplete();
+      case "pos-submit":
+        return posSubmitComplete();
       case "review":
         return true; // just a summary + edit-links, nothing to validate here
       case "payments":
@@ -1099,8 +1515,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // The Restaurant Details step always shows. For Reservations it has no menu,
   // so it shows a short "reservations don't use a menu" note instead (see
   // syncMenuVisibility) rather than being skipped - keeping the node visible.
+  const POS_STEP_IDS = ["pos-business", "pos-owners", "pos-submit"];
   function stepSkipped(stepId) {
     if ((stepId === "knowledge" || stepId === "voice-greeting") && isNonAgentBusiness()) return true;
+    if (POS_STEP_IDS.includes(stepId) && !isPosSelected()) return true;
     return false;
   }
   // Walks from `index` in direction `dir` (+1/-1) past any skipped steps.
@@ -1117,6 +1535,7 @@ document.addEventListener("DOMContentLoaded", () => {
       skipped.add("knowledge");
       skipped.add("voice-greeting");
     }
+    if (!isPosSelected()) POS_STEP_IDS.forEach((id) => skipped.add(id));
     renderStepper(stepperEl, currentStepIndex, {
       completed: completedSteps,
       maxReachable: maxReachedIndex,
@@ -1178,6 +1597,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!greetingsContainer.children.length) renderGreetings();
     }
 
+    // Parcera PoS setup: default Nature of Business / Contact Name from the
+    // main Business Details step, and make sure at least one beneficial
+    // owner card exists.
+    if (step.id === "pos-business") syncPosBusinessDefaults();
+    if (step.id === "pos-owners") {
+      if (ownerCount === 0) addBeneficialOwner();
+      syncPosOwnersDefaults();
+    }
+
+    // The final PoS step's Continue button reads "Submit Application" since
+    // it's what actually sends the application onward - everywhere else it
+    // just reads "Continue".
+    if (continueLabelEl) continueLabelEl.textContent = step.id === "pos-submit" ? "Submit Application" : "Continue";
+
     refreshStepper();
     updateContinueState();
   }
@@ -1207,6 +1640,12 @@ document.addEventListener("DOMContentLoaded", () => {
         ? firstRule.querySelector(".transfer-label").value.trim() && V.phone(firstRule.querySelector(".transfer-phone").value)
         : false;
       enabled = hasName && hasVoice && hasTransferNumber;
+    } else if (step.id === "pos-business") {
+      enabled = posBusinessComplete();
+    } else if (step.id === "pos-owners") {
+      enabled = posOwnersComplete();
+    } else if (step.id === "pos-submit") {
+      enabled = posSubmitComplete();
     }
 
     continueButton.disabled = !enabled;
