@@ -130,3 +130,16 @@
   color: var(--color-text-muted);
   cursor: not-allowed;
 }
+
+/* Error state - the wrapper (.select-field) is what validation.js paints,
+   but .custom-select__trigger is what's actually visible; the real <select>
+   underneath is hidden. Mirrors .input-field--error's colors. */
+.select-field.input-field--error .custom-select__trigger {
+  border-color: var(--color-error-border);
+  background: var(--color-error-bg);
+}
+
+.select-field.input-field--error .custom-select__trigger:focus-visible {
+  border-color: var(--color-error);
+  box-shadow: var(--shadow-focus-error);
+}
