@@ -841,7 +841,9 @@ document.addEventListener("DOMContentLoaded", () => {
   attachValidation(posAvgTicket, { required: true, message: "Average ticket is required.", onChange: updateContinueState });
   attachValidation(posHighTicket, { required: true, message: "High ticket is required.", onChange: updateContinueState });
 
-  [posEntityType, posStateIncorporated, posLegalState].forEach((el) => el.addEventListener("change", updateContinueState));
+  attachValidation(posEntityType, { required: true, message: "Select a business type.", onChange: updateContinueState });
+  attachValidation(posStateIncorporated, { required: true, message: "Select a state.", onChange: updateContinueState });
+  attachValidation(posLegalState, { required: true, message: "Select a state.", onChange: updateContinueState });
 
   // These fields already exist on the main Business Details step, so they're
   // copied straight in here rather than making the merchant retype them -

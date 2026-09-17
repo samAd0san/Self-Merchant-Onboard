@@ -98,7 +98,7 @@ export const formatters = {
 // .field-group (below its controls) when present, otherwise as a sibling
 // directly beneath the field block (handles color pickers and grid cells).
 function resolveTargets(control) {
-  const wrap = control.closest(".input-field") || control.closest(".color-field") || control;
+  const wrap = control.closest(".input-field") || control.closest(".color-field") || control.closest(".select-field") || control;
   const group = control.closest(".field-group");
   if (group) {
     let msg = group.querySelector(".field-group__error");
@@ -158,6 +158,25 @@ export function attachValidation(control, options = {}) {
   });
 
   control.addEventListener("blur", () => paint(true));
+
+  // A custom-select-enhanced dropdown (see customSelect.js) hides the real
+  // <select> and swaps in a visible trigger button as the actual interactive
+  // surface - the hidden control never receives real focus/blur from a mouse
+  // user, so the reveal-on-blur above would never fire. Mirror it onto the
+  // trigger too, and re-check on "change" (all customSelect.js dispatches,
+  // never "input") so picking a value clears the error without waiting for
+  // a later blur.
+  const trigger = control.closest(".select-field")?.querySelector(".custom-select__trigger");
+  if (trigger) {
+    trigger.addEventListener("blur", () => paint(true));
+    control.addEventListener("change", () => {
+      if (isValid()) {
+        wrap.classList.remove("input-field--error");
+        msg.classList.remove("is-visible");
+      }
+      if (onChange) onChange();
+    });
+  }
 
   return { isValid, showError: () => paint(true) };
 }
